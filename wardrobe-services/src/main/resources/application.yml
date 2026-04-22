@@ -9,6 +9,8 @@ springdoc:
     enabled: true
 
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: wardrobe-services
   datasource:
