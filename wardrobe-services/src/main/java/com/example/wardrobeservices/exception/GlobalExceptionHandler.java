@@ -41,19 +41,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ErrorResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-        } catch (IllegalArgumentException e) {
-            log.warn("Unknown validation error code: {}", enumKey);
-        }
+        String message = exception.getFieldError() != null
+                ? exception.getFieldError().getDefaultMessage()
+                : "Validation failed";
 
-        ErrorResponse apiResponse = new ErrorResponse();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
+        ErrorResponse apiResponse = ErrorResponse.builder()
+                .code(ErrorCode.INVALID_KEY.getCode())
+                .message(message)
+                .build();
 
-        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
+        return ResponseEntity.status(ErrorCode.INVALID_KEY.getHttpStatus()).body(apiResponse);
     }
 
     @ExceptionHandler(value = NoHandlerFoundException.class)

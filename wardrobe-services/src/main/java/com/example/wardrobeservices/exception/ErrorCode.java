@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(500, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_KEY(400, "Uncategorized error", HttpStatus.BAD_REQUEST),
+    INVALID_KEY(400, "Invalid request field", HttpStatus.BAD_REQUEST),
     USER_EXISTED(400, "User already existed", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(404, "User is not found", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
