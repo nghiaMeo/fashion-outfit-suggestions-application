@@ -1,6 +1,6 @@
 package com.example.wardrobeservices.entity;
 
-import com.example.wardrobeservices.entity.enums.Role;
+import com.example.wardrobeservices.entity.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,28 +15,29 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class UserPreference {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    private String password;
-
-    private String avatarUrl;
-
-    private String bio;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Role role = Role.USER;
+    private Gender gender;
 
+    private String bodyType;
+
+    @Column(columnDefinition = "text")
+    private String favoriteStyles;
+
+    private String favoriteColors;
+
+    @Builder.Default
     private Instant createdAt = Instant.now();
+    
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 }

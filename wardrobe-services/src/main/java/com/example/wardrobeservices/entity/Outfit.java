@@ -34,6 +34,11 @@ public class Outfit {
 
     private boolean isDailySuggestion = false;
 
+    @Builder.Default
+    private boolean isPublic = true;
+
+    private String suitableWeather;
+
     private Instant createAt = Instant.now();
     private Instant updateAt = Instant.now();
 

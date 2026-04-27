@@ -1,6 +1,6 @@
 package com.example.wardrobeservices.entity;
 
-
+import com.example.wardrobeservices.entity.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,38 +15,32 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Item {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "recipient_id", nullable = false)
+    private User recipient;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "actor_id")
+    private User actor;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String name;
+    private NotificationType type;
 
-    @Column(nullable = false)
-    private String type;
+    private UUID referenceId;
 
-    @Column(nullable = false)
-    private String color;
+    @Builder.Default
+    private boolean isRead = false;
 
-    private String season;
-
-    private String brand;
-
-    private String occasion;
-
-    @Column(columnDefinition = "text")
-    private String imageUrl;
-
-    @Column(name = "ai_item_id", nullable = false)
-    private UUID aiItemId;
-
+    @Builder.Default
     private Instant createdAt = Instant.now();
+    
+    @Builder.Default
     private Instant updatedAt = Instant.now();
-
 }

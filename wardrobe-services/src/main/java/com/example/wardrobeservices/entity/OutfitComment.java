@@ -1,6 +1,5 @@
 package com.example.wardrobeservices.entity;
 
-import com.example.wardrobeservices.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,28 +14,26 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class OutfitComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "outfit_id", nullable = false)
+    private Outfit outfit;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    private String password;
+    @Column(columnDefinition = "text", nullable = false)
+    private String content;
 
-    private String avatarUrl;
-
-    private String bio;
-
-    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Role role = Role.USER;
-
     private Instant createdAt = Instant.now();
+    
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 }
