@@ -18,6 +18,12 @@ public class AuthController {
 
     private final UserService userService;
 
+    /**
+     * Create a new user from the provided registration payload and return the created user's data.
+     *
+     * @param request the registration request payload; validated via Bean Validation annotations
+     * @return an ApiResponse whose result is the created user's UserResponse
+     */
     @PostMapping("/register")
     public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
