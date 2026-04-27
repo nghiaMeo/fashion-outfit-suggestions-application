@@ -20,6 +20,13 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
+    /**
+     * Configure HTTP security to allow unauthenticated access to public endpoints and require authentication for all other requests.
+     *
+     * CSRF protection is disabled; requests matching {@code PUBLIC_ENDPOINTS} are permitted for all, and all other requests require authentication.
+     *
+     * @return the configured {@link SecurityFilterChain}
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
@@ -31,6 +38,11 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
+    /**
+     * Create a PasswordEncoder configured to use BCrypt with a strength (log rounds) of 10.
+     *
+     * @return a PasswordEncoder that hashes passwords using BCrypt with strength 10
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
