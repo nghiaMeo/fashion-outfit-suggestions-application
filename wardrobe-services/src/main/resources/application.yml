@@ -41,3 +41,14 @@ logging:
     com.zaxxer.hikari: ERROR
     org.hibernate: ERROR
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY:myDefaultSuperSecretKeyForDevelopment123456789012345}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 604800000
+
+oauth2:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+  facebook:
+    app-id: ${FACEBOOK_APP_ID:your-facebook-app-id}
+    app-secret: ${FACEBOOK_APP_SECRET:your-facebook-app-secret}

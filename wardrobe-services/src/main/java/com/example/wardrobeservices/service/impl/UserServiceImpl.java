@@ -27,10 +27,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse register(UserCreationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AppException(ErrorCode.USER_EXISTED); // We can create EMAIL_EXISTED if needed
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
 
         User user = User.builder()
