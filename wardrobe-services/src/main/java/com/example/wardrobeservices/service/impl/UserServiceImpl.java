@@ -23,14 +23,21 @@ public class UserServiceImpl implements UserService {
     private final UserPreferenceRepository userPreferenceRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Creates a new user account, persists a default user preference, and returns a representation of the created user.
+     *
+     * @param request the user creation payload containing email, username, and password
+     * @return a {@code UserResponse} containing the new user's id, email, username, role, and creation timestamp
+     * @throws AppException with {@code ErrorCode.USER_EXISTED} if the email or username is already registered
+     */
     @Override
     @Transactional
     public UserResponse register(UserCreationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AppException(ErrorCode.USER_EXISTED); // We can create EMAIL_EXISTED if needed
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
 
         User user = User.builder()

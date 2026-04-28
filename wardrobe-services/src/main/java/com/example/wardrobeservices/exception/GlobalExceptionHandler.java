@@ -39,6 +39,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 
+    /**
+     * Handle validation failures from method argument binding and produce a standardized error response.
+     *
+     * The response uses the `ErrorCode.INVALID_KEY` code. The response message is taken from the first
+     * field error's default message when available; otherwise the literal "Validation failed" is used.
+     *
+     * @param exception the MethodArgumentNotValidException containing validation error details; its first field error's default message is used for the response message when present
+     * @return a ResponseEntity containing an ErrorResponse with `code = ErrorCode.INVALID_KEY.getCode()`, the chosen message, and HTTP status `ErrorCode.INVALID_KEY.getHttpStatus()`
+     */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ErrorResponse> handlingValidation(MethodArgumentNotValidException exception) {
         String message = exception.getFieldError() != null
@@ -53,6 +62,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ErrorCode.INVALID_KEY.getHttpStatus()).body(apiResponse);
     }
 
+    /**
+     * Handle requests for which no controller handler (endpoint) was found.
+     *
+     * @param exception the NoHandlerFoundException raised when the request URL or method has no matching handler
+     * @return a ResponseEntity containing an ErrorResponse populated from ErrorCode.ENDPOINT_NOT_FOUND and using its HTTP status
+     */
     @ExceptionHandler(value = NoHandlerFoundException.class)
     ResponseEntity<ErrorResponse> handlingNoHandlerFoundException(NoHandlerFoundException exception) {
         log.warn("No handler found: {}", exception.getMessage());

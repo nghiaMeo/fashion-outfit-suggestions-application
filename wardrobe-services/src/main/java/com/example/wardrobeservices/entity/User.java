@@ -1,5 +1,6 @@
 package com.example.wardrobeservices.entity;
 
+import com.example.wardrobeservices.entity.enums.AuthProvider;
 import com.example.wardrobeservices.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,7 +29,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
     private String avatarUrl;
@@ -37,6 +38,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    private String providerId;
 
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
