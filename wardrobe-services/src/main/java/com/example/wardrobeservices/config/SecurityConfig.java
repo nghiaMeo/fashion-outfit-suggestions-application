@@ -53,11 +53,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    /**
-     * Create a PasswordEncoder configured to use BCrypt with a strength (log rounds) of 10.
-     *
-     * @return a PasswordEncoder that hashes passwords using BCrypt with strength 10
-     */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);

@@ -59,11 +59,4 @@ public class AuthController {
                 .result(oAuth2Service.loginWithGoogle(request))
                 .build();
     }
-
-    @PostMapping("/oauth2/facebook")
-    public ApiResponse<AuthResponse> loginWithFacebook(@RequestBody @Valid OAuth2Request request) {
-        return ApiResponse.<AuthResponse>builder()
-                .result(oAuth2Service.loginWithFacebook(request))
-                .build();
-    }
 }

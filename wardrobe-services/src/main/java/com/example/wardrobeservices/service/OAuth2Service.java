@@ -5,5 +5,4 @@ import com.example.wardrobeservices.dto.response.AuthResponse;
 
 public interface OAuth2Service {
     AuthResponse loginWithGoogle(OAuth2Request request);
-    AuthResponse loginWithFacebook(OAuth2Request request);
 }
