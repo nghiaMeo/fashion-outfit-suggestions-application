@@ -59,25 +59,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         return buildAuthResponse(user);
     }
 
-    @Override
-    @Transactional
-    public AuthResponse loginWithFacebook(OAuth2Request request) {
-        // Verify Facebook Access Token
-        Map<String, Object> fbUser = verifyFacebookToken(request.getToken());
-
-        String email = (String) fbUser.get("email");
-        String facebookId = (String) fbUser.get("id");
-        String name = (String) fbUser.get("name");
-
-        // Extract profile picture URL
-        final String picture = extractFacebookPicture(fbUser);
-
-        User user = userRepository.findByProviderAndProviderId(AuthProvider.FACEBOOK, facebookId)
-                .orElseGet(() -> userRepository.findByEmail(email)
-                        .orElseGet(() -> createOAuth2User(email, name, picture, AuthProvider.FACEBOOK, facebookId)));
-
-        return buildAuthResponse(user);
-    }
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> verifyGoogleToken(String idToken) {
@@ -88,19 +69,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                     .body(Map.class);
         } catch (Exception e) {
             log.error("Google token verification failed: {}", e.getMessage());
-            throw new AppException(ErrorCode.OAUTH2_INVALID_TOKEN);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> verifyFacebookToken(String accessToken) {
-        try {
-            return restClient.get()
-                    .uri("https://graph.facebook.com/me?fields=id,name,email,picture&access_token={token}", accessToken)
-                    .retrieve()
-                    .body(Map.class);
-        } catch (Exception e) {
-            log.error("Facebook token verification failed: {}", e.getMessage());
             throw new AppException(ErrorCode.OAUTH2_INVALID_TOKEN);
         }
     }
@@ -132,17 +100,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 : "user";
         String username = baseUsername + "_" + UUID.randomUUID().toString().substring(0, 6);
         return username;
-    }
-
-    private String extractFacebookPicture(Map<String, Object> fbUser) {
-        Object pictureObj = fbUser.get("picture");
-        if (pictureObj instanceof Map<?, ?> pictureMap) {
-            Object dataObj = pictureMap.get("data");
-            if (dataObj instanceof Map<?, ?> dataMap) {
-                return (String) dataMap.get("url");
-            }
-        }
-        return null;
     }
 
     private AuthResponse buildAuthResponse(User user) {

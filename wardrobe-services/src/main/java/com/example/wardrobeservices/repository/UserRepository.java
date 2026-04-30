@@ -1,23 +1,22 @@
 package com.example.wardrobeservices.repository;
 
 import com.example.wardrobeservices.entity.User;
+import com.example.wardrobeservices.entity.enums.AuthProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    /**
- * Checks whether a User with the given email exists.
- *
- * @param email the email address to look up
- * @return `true` if a user with the given email exists, `false` otherwise
- */
-boolean existsByEmail(String email);
-    /**
- * Determines whether a User with the given username exists.
- *
- * @param username the username to check for existence
- * @return true if a User with the given username exists, false otherwise
- */
-boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByUsername(String username);
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
 }
+

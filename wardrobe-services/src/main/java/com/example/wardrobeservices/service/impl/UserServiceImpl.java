@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Creates a new user account, persists a default user preference, and returns a representation of the created user.
-     *
      * @param request the user creation payload containing email, username, and password
      * @return a {@code UserResponse} containing the new user's id, email, username, role, and creation timestamp
      * @throws AppException with {@code ErrorCode.USER_EXISTED} if the email or username is already registered

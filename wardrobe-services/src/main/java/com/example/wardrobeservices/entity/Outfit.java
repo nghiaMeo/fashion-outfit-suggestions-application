@@ -29,7 +29,7 @@ public class Outfit {
 
     private String description;
 
-    @Column(precision = 4, scale = 3)
+    @Column
     private double score = 0.0;
 
     private boolean isDailySuggestion = false;
