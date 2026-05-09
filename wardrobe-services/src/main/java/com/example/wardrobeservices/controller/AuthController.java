@@ -1,9 +1,6 @@
 package com.example.wardrobeservices.controller;
 
-import com.example.wardrobeservices.dto.request.LoginRequest;
-import com.example.wardrobeservices.dto.request.OAuth2Request;
-import com.example.wardrobeservices.dto.request.RefreshTokenRequest;
-import com.example.wardrobeservices.dto.request.UserCreationRequest;
+import com.example.wardrobeservices.dto.request.*;
 import com.example.wardrobeservices.dto.response.ApiResponse;
 import com.example.wardrobeservices.dto.response.AuthResponse;
 import com.example.wardrobeservices.dto.response.UserResponse;
@@ -12,10 +9,7 @@ import com.example.wardrobeservices.service.OAuth2Service;
 import com.example.wardrobeservices.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -59,10 +53,36 @@ public class AuthController {
             @RequestBody @Valid RefreshTokenRequest request,
             @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader
     ) {
-        // Đăng xuất và xóa session trong Redis + Cho Access Token vào Blacklist
         authService.logout(request, authHeader);
         return ApiResponse.<String>builder()
                 .result("Logout successfully")
+                .build();
+    }
+
+
+    @PutMapping("/change-password")
+    public ApiResponse<String> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ApiResponse.<String>builder()
+                .result("Password changed successfully")
+                .build();
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ApiResponse.<String>builder()
+                .result("OTP has been sent to your email")
+                .build();
+    }
+
+
+    @PostMapping("/reset-password")
+    public ApiResponse<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.<String>builder()
+                .result("Password has been reset successfully")
                 .build();
     }
 }

@@ -27,7 +27,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshTokenRepository.findByUserId(user.getId()).ifPresent(refreshTokenRepository::delete);
 
         // Tạo RefreshToken mới
-        RefreshToken refreshToken = RefreshToken.builder()
+        var refreshToken = RefreshToken.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(user.getId())
                 .email(user.getEmail())

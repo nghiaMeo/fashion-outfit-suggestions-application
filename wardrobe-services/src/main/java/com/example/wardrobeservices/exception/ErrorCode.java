@@ -24,7 +24,13 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(401, "Invalid email or password", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_EXPIRED(401, "Refresh token has expired", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_NOT_FOUND(404, "Refresh token is not found", HttpStatus.NOT_FOUND),
-    OAUTH2_INVALID_TOKEN(401, "Invalid OAuth2 token", HttpStatus.UNAUTHORIZED);
+    OAUTH2_INVALID_TOKEN(401, "Invalid OAuth2 token", HttpStatus.UNAUTHORIZED),
+
+    // === Đổi mật khẩu & OTP ===
+    WRONG_PASSWORD(400, "Old password is incorrect", HttpStatus.BAD_REQUEST),           // User nhập sai mật khẩu cũ khi đổi pass
+    OTP_EXPIRED(400, "OTP has expired or does not exist", HttpStatus.BAD_REQUEST),      // OTP đã hết hạn (Redis tự xóa sau 3 phút) hoặc chưa từng gửi
+    OTP_INVALID(400, "OTP is incorrect", HttpStatus.BAD_REQUEST),                       // OTP tồn tại nhưng user nhập sai số
+    OTP_RATE_LIMITED(429, "Please wait 1 minute before requesting a new OTP", HttpStatus.TOO_MANY_REQUESTS); // Gửi OTP quá nhanh (chưa đủ 1 phút)
 
     private final int code;
     private final String message;

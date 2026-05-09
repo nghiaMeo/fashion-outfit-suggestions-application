@@ -58,9 +58,9 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public void blacklistToken(String token) {
         // Lấy thời điểm hết hạn của Token
-        Date expiration = extractClaim(token, Claims::getExpiration);
+        var expiration = extractClaim(token, Claims::getExpiration);
         // Tính thời gian còn lại (ms)
-        long diff = expiration.getTime() - System.currentTimeMillis();
+        var diff = expiration.getTime() - System.currentTimeMillis();
 
         if (diff > 0) {
             // Lưu vào Redis với tiền tố blacklist, giá trị là "true", TTL là thời gian còn lại của token

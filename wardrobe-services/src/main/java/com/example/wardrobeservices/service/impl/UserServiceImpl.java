@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
         // 2. KHỞI TẠO ĐỐI TƯỢNG (MAPPING)
         // Dùng Builder pattern để nặn ra đối tượng User từ dữ liệu gửi lên
-        User user = User.builder()
+        var user = User.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .displayName(request.getDisplayName())
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
         user = userRepository.save(user);
 
-        UserPreference preference = UserPreference.builder()
+        var preference = UserPreference.builder()
                 .user(user)
                 .build();
         userPreferenceRepository.save(preference);
