@@ -15,3 +15,4 @@ public class OAuth2Request {
     @NotBlank(message = "Token is mandatory")
     private String token;
 }
+

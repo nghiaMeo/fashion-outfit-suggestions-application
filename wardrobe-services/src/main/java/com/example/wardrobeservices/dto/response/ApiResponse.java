@@ -10,13 +10,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
+    
     @Builder.Default
     private int code = 200;
     
     @Builder.Default
     private String message = "Success";
-    
+
     private T result;
 }
+

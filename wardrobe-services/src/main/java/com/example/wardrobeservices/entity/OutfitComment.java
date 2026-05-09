@@ -37,3 +37,4 @@ public class OutfitComment {
     @Builder.Default
     private Instant updatedAt = Instant.now();
 }
+

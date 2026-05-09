@@ -15,8 +15,10 @@ import java.time.Instant;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
     private int code;
+    
     private String message;
     
     @Builder.Default
     private Instant timestamp = Instant.now();
 }
+

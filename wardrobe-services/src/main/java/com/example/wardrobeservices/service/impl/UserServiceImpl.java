@@ -23,12 +23,6 @@ public class UserServiceImpl implements UserService {
     private final UserPreferenceRepository userPreferenceRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Creates a new user account, persists a default user preference, and returns a representation of the created user.
-     * @param request the user creation payload containing email, username, and password
-     * @return a {@code UserResponse} containing the new user's id, email, username, role, and creation timestamp
-     * @throws AppException with {@code ErrorCode.USER_EXISTED} if the email or username is already registered
-     */
     @Override
     @Transactional
     public UserResponse register(UserCreationRequest request) {
@@ -39,16 +33,17 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
 
+        // 2. KHỞI TẠO ĐỐI TƯỢNG (MAPPING)
+        // Dùng Builder pattern để nặn ra đối tượng User từ dữ liệu gửi lên
         User user = User.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
+                .displayName(request.getDisplayName())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
                 .build();
 
         user = userRepository.save(user);
 
-        // Create default preference
         UserPreference preference = UserPreference.builder()
                 .user(user)
                 .build();
@@ -58,6 +53,7 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .displayName(user.getDisplayName())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
                 .build();

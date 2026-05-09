@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class UserPreference {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -29,6 +31,7 @@ public class UserPreference {
     private Gender gender;
 
     private String bodyType;
+
 
     @Column(columnDefinition = "text")
     private String favoriteStyles;
@@ -41,3 +44,4 @@ public class UserPreference {
     @Builder.Default
     private Instant updatedAt = Instant.now();
 }
+

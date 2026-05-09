@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Entity
 @Data
 @NoArgsConstructor

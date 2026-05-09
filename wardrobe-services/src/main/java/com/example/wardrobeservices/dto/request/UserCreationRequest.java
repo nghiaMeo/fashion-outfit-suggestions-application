@@ -19,10 +19,15 @@ public class UserCreationRequest {
     private String email;
 
     @NotBlank(message = "Username is mandatory")
-    @Size(min = 6, message = "Username must be at least 3 characters")
+    @Size(min = 6, message = "Username must be at least 6 characters")
     private String username;
 
+    @Size(min = 8, message = "your name must be at least 8 characters")
+    private String displayName;
+
+
     @NotBlank(message = "Password is mandatory")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 }
+

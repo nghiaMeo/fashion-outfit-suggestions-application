@@ -1,13 +1,21 @@
 package com.example.wardrobeservices.repository;
 
-import com.example.wardrobeservices.entity.RefreshToken;
-import com.example.wardrobeservices.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.wardrobeservices.model.RefreshToken;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
+
+@Repository
+public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
+    
     Optional<RefreshToken> findByToken(String token);
-    void deleteByUser(User user);
+    
+    Optional<RefreshToken> findByUserId(UUID userId);
+
+    void deleteByUserId(UUID userId);
+
+    void deleteByToken(String token);
 }

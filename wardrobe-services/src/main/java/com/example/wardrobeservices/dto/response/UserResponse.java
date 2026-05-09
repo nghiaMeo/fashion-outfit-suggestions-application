@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,8 +18,10 @@ public class UserResponse {
     private UUID id;
     private String email;
     private String username;
+    private String displayName;
     private String avatarUrl;
     private String bio;
     private Role role;
     private Instant createdAt;
 }
+

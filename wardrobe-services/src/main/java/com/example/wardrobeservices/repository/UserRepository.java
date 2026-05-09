@@ -19,4 +19,3 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
 }
-

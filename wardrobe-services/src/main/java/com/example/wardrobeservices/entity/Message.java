@@ -31,7 +31,9 @@ public class Message {
     @Column(columnDefinition = "text")
     private String content;
 
+    @Builder.Default
     private boolean isRead = false;
 
     private Instant createAt = Instant.now();
 }
+

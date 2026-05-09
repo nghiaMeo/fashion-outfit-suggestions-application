@@ -1,4 +1,4 @@
-package com.example.wardrobeservices.config;
+package com.example.wardrobeservices.configuration;
 
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.repository.UserRepository;
@@ -35,9 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            //SecurityConfig sẽ chặn lại nếu trang đó yêu cầu đăng nhập
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,17 +49,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             final String email = jwtService.extractEmail(jwt);
 
+            // 5. Nếu lấy được Email VÀ người này chưa được xác thực trong Request hiện tại
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                
+                // Mò vào DB xem có thật là có ông user nào dùng email này không
                 User user = userRepository.findByEmail(email).orElse(null);
 
+                // 6. Nếu có user đó VÀ token của ổng vẫn còn hiệu lực
                 if (user != null && jwtService.isTokenValid(jwt, user)) {
+                    
+                    // Tạo một cái "Giấy chứng nhận" (Authentication Token) cho hệ thống Spring Security
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     user,
                                     null,
                                     List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                             );
+                    
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    // "Giấy chứng nhận" vào túi (SecurityContextHolder).
+                    // Từ giờ trở đi, các Controller bên trong sẽ biết "À, ông này là ai"
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }

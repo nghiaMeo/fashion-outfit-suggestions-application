@@ -37,7 +37,7 @@ public class Outfit {
     @Builder.Default
     private boolean isPublic = true;
 
-    private String suitableWeather;
+    private String suitableWeather; // Ví dụ: "Sunny", "Rainy"
 
     private Instant createAt = Instant.now();
     private Instant updateAt = Instant.now();

@@ -29,9 +29,11 @@ public class Friend {
     private User friend;
 
     @Column(nullable = false)
-    private String status = "pending"; // "pending", "accepted", "rejected"
+    @Builder.Default
+    private String status = "pending"; 
 
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
 }
+

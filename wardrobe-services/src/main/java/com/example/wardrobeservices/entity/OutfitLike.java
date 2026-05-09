@@ -31,5 +31,5 @@ public class OutfitLike {
 
     private Instant createdAt = Instant.now();
 
-
 }
+

@@ -26,12 +26,6 @@ public class AuthController {
     private final AuthService authService;
     private final OAuth2Service oAuth2Service;
 
-    /**
-     * Create a new user from the provided registration payload and return the created user's data.
-     *
-     * @param request the registration request payload; validated via Bean Validation annotations
-     * @return an ApiResponse whose result is the created user's UserResponse
-     */
     @PostMapping("/register")
     public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -57,6 +51,18 @@ public class AuthController {
     public ApiResponse<AuthResponse> loginWithGoogle(@RequestBody @Valid OAuth2Request request) {
         return ApiResponse.<AuthResponse>builder()
                 .result(oAuth2Service.loginWithGoogle(request))
+                .build();
+    }
+    
+    @PostMapping("/logout")
+    public ApiResponse<String> logout(
+            @RequestBody @Valid RefreshTokenRequest request,
+            @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader
+    ) {
+        // Đăng xuất và xóa session trong Redis + Cho Access Token vào Blacklist
+        authService.logout(request, authHeader);
+        return ApiResponse.<String>builder()
+                .result("Logout successfully")
                 .build();
     }
 }
