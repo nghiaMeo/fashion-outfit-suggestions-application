@@ -24,12 +24,15 @@ public class ChatConversation {
     @JoinColumn(name = "user1_id", nullable = false)
     private User user1;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user2_id", nullable = false)
     private User user2;
 
     private String lastMessage;
+    
     private Instant lastSentAt;
 
     private Instant createdAt = Instant.now();
 }
+

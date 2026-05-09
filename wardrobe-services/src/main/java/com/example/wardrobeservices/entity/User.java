@@ -23,11 +23,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
+    private String displayName;
 
     private String password;
 
@@ -45,6 +49,10 @@ public class User {
 
     private String providerId;
 
+    @Builder.Default
     private Instant createdAt = Instant.now();
+    
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 }
+

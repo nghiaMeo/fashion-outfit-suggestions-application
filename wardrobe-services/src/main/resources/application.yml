@@ -1,5 +1,14 @@
 server:
   port: 8090
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  config:
+    import: optional:file:.env[.properties]
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -7,16 +16,12 @@ springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: true
-
-spring:
-  config:
-    import: optional:file:.env[.properties]
   application:
     name: wardrobe-services
   datasource:
-    url: jdbc:postgresql://localhost:5432/wardrobe_fashion_db
-    username: nghiadev
-    password: nghia
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari: #default
       connection-timeout: 20000
       maximum-pool-size: 10
@@ -29,7 +34,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:

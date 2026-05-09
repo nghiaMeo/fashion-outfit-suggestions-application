@@ -1,4 +1,4 @@
-package com.example.wardrobeservices.config;
+package com.example.wardrobeservices.configuration;
 
 import com.example.wardrobeservices.dto.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -26,10 +27,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(401);
-        errorResponse.setMessage("Unauthenticated — You need to login first");
+        errorResponse.setMessage("Unauthenticated — Bạn cần phải đăng nhập trước khi thực hiện thao tác này");
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         response.getWriter().write(mapper.writeValueAsString(errorResponse));
     }
 }
+
