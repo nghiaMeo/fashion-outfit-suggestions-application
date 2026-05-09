@@ -13,9 +13,12 @@ import com.example.wardrobeservices.service.AuthService;
 import com.example.wardrobeservices.service.JwtService;
 import com.example.wardrobeservices.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -37,10 +40,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Tạo Access Token (JWT)
-        String accessToken = jwtService.generateAccessToken(user);
+        var accessToken = jwtService.generateAccessToken(user);
         
         // Tạo Refresh Token và lưu vào Redis
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        var refreshToken = refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -52,11 +55,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse refreshToken(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
+        var refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
         
         refreshToken = refreshTokenService.verifyExpiration(refreshToken);
 
-        User user = userRepository.findById(refreshToken.getUserId())
+        var user = userRepository.findById(refreshToken.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
                 
         // Cấp Access Token mới
@@ -73,8 +76,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logout(RefreshTokenRequest request, String accessToken) {
+        // 1. Xác định user hiện tại từ Access Token
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
+                .getContext().getAuthentication()).getPrincipal();
+
+        // 2. Kiểm tra refresh token có thuộc về user này không
+        RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
+        if (!refreshToken.getUserId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 3. Xóa refresh token khỏi Redis
         refreshTokenService.deleteByToken(request.getRefreshToken());
-        
+
+        // 4. Blacklist access token hiện tại
         if (accessToken != null && accessToken.startsWith("Bearer ")) {
             String token = accessToken.substring(7);
             jwtService.blacklistToken(token);

@@ -1,14 +1,5 @@
 server:
   port: 8090
-
-spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-  config:
-    import: optional:file:.env[.properties]
-
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -16,8 +7,16 @@ springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: true
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: wardrobe-services
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

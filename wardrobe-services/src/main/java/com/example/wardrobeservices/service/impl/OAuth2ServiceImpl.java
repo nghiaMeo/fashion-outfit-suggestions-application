@@ -50,10 +50,10 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
         // 2. Trích xuất thông tin
         // Nếu Google bảo thật, Google sẽ trả về thông tin của User. Ta lấy ra dùng.
-        String email = (String) googleUser.get("email");
-        String googleId = (String) googleUser.get("sub"); // 'sub' là ID duy nhất của user trên Google
-        String name = (String) googleUser.get("name");
-        String picture = (String) googleUser.get("picture");
+        var email = (String) googleUser.get("email");
+        var googleId = (String) googleUser.get("sub"); // 'sub' là ID duy nhất của user trên Google
+        var name = (String) googleUser.get("name");
+        var picture = (String) googleUser.get("picture");
 
         // 3. TÌM HOẶC TẠO MỚI TÀI KHOẢN (UPSERT LOGIC)
         // Đầu tiên: Tìm xem trong DB đã có ai liên kết với cái ID Google này chưa?
@@ -86,7 +86,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     // Hàm tạo tài khoản ẩn danh cho người dùng đăng nhập lần đầu bằng Google
     private User createOAuth2User(String email, String name, String picture, AuthProvider provider, String providerId) {
-        User user = User.builder()
+        var user = User.builder()
                 .email(email)
                 .username(generateUniqueUsername(name)) // Username không được trùng, nên phải chế ra một cái ngẫu nhiên
                 .displayName(name)
@@ -109,18 +109,17 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     // Hàm tự động sinh Username (VD: "nghia_a8b9c1")
     private String generateUniqueUsername(String name) {
-        String baseUsername = name != null
+        var baseUsername = name != null
                 ? name.toLowerCase().replaceAll("\\s+", "") // Xóa khoảng trắng
                 : "user";
         // Cộng thêm 6 ký tự ngẫu nhiên của UUID để đảm bảo không ai trùng ai
-        String username = baseUsername + "_" + UUID.randomUUID().toString().substring(0, 6);
-        return username;
+        return baseUsername + "_" + UUID.randomUUID().toString().substring(0, 6);
     }
 
     // Hàm tiện ích: Đóng gói Token và trả về cho Frontend
     private AuthResponse buildAuthResponse(User user) {
-        String accessToken = jwtService.generateAccessToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
