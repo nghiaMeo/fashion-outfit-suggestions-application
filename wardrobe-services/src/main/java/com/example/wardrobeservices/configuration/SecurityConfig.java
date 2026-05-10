@@ -17,8 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final RateLimitFilter rateLimitFilter;                    // Chặn request spam trước tiên
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;     // Xác thực JWT
+    private final RateLimitFilter rateLimitFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private final String[] PUBLIC_ENDPOINTS = {

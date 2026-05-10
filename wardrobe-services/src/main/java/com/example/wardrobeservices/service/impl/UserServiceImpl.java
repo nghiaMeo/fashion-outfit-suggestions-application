@@ -1,7 +1,9 @@
 package com.example.wardrobeservices.service.impl;
 
 import com.example.wardrobeservices.dto.request.UserCreationRequest;
+import com.example.wardrobeservices.dto.response.ItemResponse;
 import com.example.wardrobeservices.dto.response.UserResponse;
+import com.example.wardrobeservices.entity.Item;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.entity.UserPreference;
 import com.example.wardrobeservices.entity.enums.Role;
@@ -49,6 +51,10 @@ public class UserServiceImpl implements UserService {
                 .build();
         userPreferenceRepository.save(preference);
 
+        return mapToUserResponse(user);
+    }
+
+    private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())

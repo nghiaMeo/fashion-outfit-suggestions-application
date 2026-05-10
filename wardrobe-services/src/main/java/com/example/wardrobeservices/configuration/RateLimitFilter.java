@@ -80,7 +80,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
             //get real ip if client has many ip first ip always real
             return xForwardedFor.split(",")[0].trim();
         }
-
         return request.getRemoteAddr();
     }
 
