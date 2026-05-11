@@ -7,24 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, UUID> {
-    Optional<Item> findByUser(User user);
-
-    Optional<Item> findByName(String name);
-
-    Optional<Item> findBySeason(String season);
-
-    Optional<Item> findByBrand(String category);
-
-    Optional<Item> findByType(String category);
 
     List<Item> findByUserAndIsDeletedFalse(User user);
 
@@ -39,5 +30,13 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
                            @Param("color") String color,
                            Pageable pageable);
 
+    @Query("SELECT i.type, COUNT(i) FROM Item i WHERE i.user = :user AND i.isDeleted = false GROUP BY i.type")
+    List<Objects[]> countItemsGroupByType(@Param("user") User user);
+
+    long countByUserAndIsDeletedFalse(User user);
+
+    Optional<Item> findByIdAndIsDeletedTrue(UUID id);
+
+    List<Item> findByUserAndIsDeletedTrue(User user);
 
 }

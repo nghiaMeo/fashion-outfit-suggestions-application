@@ -3,6 +3,7 @@ package com.example.wardrobeservices.service.impl;
 import com.example.wardrobeservices.dto.request.ItemRequest;
 import com.example.wardrobeservices.dto.response.ItemResponse;
 import com.example.wardrobeservices.dto.response.PageResponse;
+import com.example.wardrobeservices.dto.response.WardrobeStatisticsResponse;
 import com.example.wardrobeservices.entity.Item;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.exception.AppException;
@@ -18,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,22 +106,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponse getItemByName(String name) {
-        return null;
-    }
-
-    @Override
-    public ItemResponse getItemByType(String type) {
-        return null;
-    }
-
-
-    @Override
-    public ItemResponse getGetItemBySeason(String season) {
-        return null;
-    }
-
-    @Override
     public PageResponse<ItemResponse> searchItems(String name, String type, String color, int page, int size) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
                 .getContext().getAuthentication()).getPrincipal();
@@ -136,6 +123,68 @@ public class ItemServiceImpl implements ItemService {
                 .data(itemResponses)
                 .build();
     }
+
+    @Override
+    public WardrobeStatisticsResponse getWardrobeStatistics() {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        var totalItems = itemRepository.countByUserAndIsDeletedFalse(currentUser);
+
+        var results = itemRepository.countItemsGroupByType(currentUser);
+
+
+        var itemsByType = results.stream()
+                .collect(Collectors.toMap(
+                        result -> result[0].toString(),
+                        result -> Long.valueOf(String.valueOf(result[1]))
+                ));
+
+        return WardrobeStatisticsResponse.builder()
+                .totalItems(totalItems)
+                .itemsByType(itemsByType)
+                .build();
+    }
+
+    @Override
+    public ItemResponse restoreItem(UUID id) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        Item item = itemRepository.findByIdAndIsDeletedTrue(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ITEM_NOT_FOUND));
+
+        if (!item.getUser().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        item.setDeleted(false);
+        item.setUpdatedAt(Instant.now());
+        Item restoredItem = itemRepository.save(item);
+        return mapToItemResponse(restoredItem);
+
+    }
+
+    @Override
+    public List<ItemResponse> getTrashItems() {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        var trashItems = itemRepository.findByUserAndIsDeletedFalse(currentUser);
+
+        return trashItems.stream().map(this::mapToItemResponse).toList();
+    }
+
+    @Override
+    @Transactional
+    public void hardDeleteItem(UUID id) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+        var item = itemRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ITEM_NOT_FOUND));
+
+        if (!item.getUser().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        itemRepository.delete(item);
+
+    }
+
 
     private ItemResponse mapToItemResponse(Item item) {
         return ItemResponse.builder()
