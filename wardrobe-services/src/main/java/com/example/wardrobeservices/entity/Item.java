@@ -49,7 +49,10 @@ public class Item {
     @Builder.Default
     private boolean isDeleted = false;
 
+    @Builder.Default
     private Instant createdAt = Instant.now();
+
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 
 }

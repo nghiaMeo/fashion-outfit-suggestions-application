@@ -3,10 +3,14 @@ package com.example.wardrobeservices.controller;
 import com.example.wardrobeservices.dto.request.ItemRequest;
 import com.example.wardrobeservices.dto.response.ApiResponse;
 import com.example.wardrobeservices.dto.response.ItemResponse;
+import com.example.wardrobeservices.dto.response.PageResponse;
+import com.example.wardrobeservices.service.CloudinaryService;
 import com.example.wardrobeservices.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,18 +20,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ItemController {
 
-    final ItemService itemService;
+    private final ItemService itemService;
+    private final CloudinaryService cloudinaryService;
 
-    @PostMapping("/add")
-    public ApiResponse<ItemResponse> addItem(@RequestBody @Valid ItemRequest itemRequest) {
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ItemResponse> addItem(@RequestPart("data") @Valid ItemRequest itemRequest,
+                                             @RequestPart("file") MultipartFile file) {
+
+        var imageUrl = cloudinaryService.upload(file);
+        itemRequest.setImageUrl(imageUrl);
 
         return ApiResponse.<ItemResponse>builder()
                 .result(itemService.addItem(itemRequest))
                 .build();
     }
 
-    @PostMapping("/update")
-    public ApiResponse<ItemResponse> updateItem(@RequestBody @Valid UUID id,
+    @PutMapping("/{id}")
+    public ApiResponse<ItemResponse> updateItem(@PathVariable UUID id,
                                                 @RequestBody @Valid ItemRequest itemRequest) {
 
         return ApiResponse.<ItemResponse>builder()
@@ -41,10 +50,21 @@ public class ItemController {
                 .result(itemService.getAllItems()).build();
     }
 
-    @PostMapping("/delete-item")
-    public ApiResponse<String> deleteItem(@RequestBody @Valid UUID id) {
+    @DeleteMapping("/delete-item/{id}")
+    public ApiResponse<String> deleteItem(@PathVariable UUID id) {
         return ApiResponse.<String>builder()
                 .result(itemService.deleteItem(id))
+                .build();
+    }
+
+    @GetMapping("/search-items")
+    public ApiResponse<PageResponse<ItemResponse>> searchItems(@RequestParam(required = false) String name,
+                                                               @RequestParam(required = false) String type,
+                                                               @RequestParam(required = false) String color,
+                                                               @RequestParam(defaultValue = "1") int page,
+                                                               @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ItemResponse>>builder()
+                .result(itemService.searchItems(name, type, color, page, size))
                 .build();
     }
 

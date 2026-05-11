@@ -2,6 +2,7 @@ package com.example.wardrobeservices.service;
 
 import com.example.wardrobeservices.dto.request.ItemRequest;
 import com.example.wardrobeservices.dto.response.ItemResponse;
+import com.example.wardrobeservices.dto.response.PageResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,5 +22,7 @@ public interface ItemService {
     ItemResponse getItemByType(String type);
 
     ItemResponse getGetItemBySeason(String season);
+
+    PageResponse<ItemResponse> searchItems(String name, String type, String color, int page, int size);
 
 }

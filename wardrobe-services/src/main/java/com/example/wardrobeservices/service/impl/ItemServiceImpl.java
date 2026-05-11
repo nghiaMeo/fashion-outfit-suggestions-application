@@ -2,6 +2,7 @@ package com.example.wardrobeservices.service.impl;
 
 import com.example.wardrobeservices.dto.request.ItemRequest;
 import com.example.wardrobeservices.dto.response.ItemResponse;
+import com.example.wardrobeservices.dto.response.PageResponse;
 import com.example.wardrobeservices.entity.Item;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.exception.AppException;
@@ -9,6 +10,8 @@ import com.example.wardrobeservices.exception.ErrorCode;
 import com.example.wardrobeservices.repository.ItemRepository;
 import com.example.wardrobeservices.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +116,25 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemResponse getGetItemBySeason(String season) {
         return null;
+    }
+
+    @Override
+    public PageResponse<ItemResponse> searchItems(String name, String type, String color, int page, int size) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
+                .getContext().getAuthentication()).getPrincipal();
+        // create Object from pageable
+        var pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
+        var itemPage = itemRepository.searchItems(currentUser, name, type, color, pageable);
+
+        var itemResponses = itemPage.getContent().stream().map(this::mapToItemResponse).toList();
+        return PageResponse.<ItemResponse>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPages(itemPage.getTotalPages())
+                .totalElements(itemPage.getNumberOfElements())
+                .data(itemResponses)
+                .build();
     }
 
     private ItemResponse mapToItemResponse(Item item) {
