@@ -25,6 +25,13 @@ public class UserServiceImpl implements UserService {
     private final UserPreferenceRepository userPreferenceRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Registers a new user and creates a default preference record for them.
+     *
+     * @param request payload containing the new user's email, username, display name, and password
+     * @return a {@code UserResponse} representing the persisted user
+     * @throws AppException if the email already exists (ErrorCode.EMAIL_EXISTED) or the username already exists (ErrorCode.USERNAME_EXISTED)
+     */
     @Override
     @Transactional
     public UserResponse register(UserCreationRequest request) {
@@ -54,6 +61,12 @@ public class UserServiceImpl implements UserService {
         return mapToUserResponse(user);
     }
 
+    /**
+     * Builds a UserResponse DTO from a User entity.
+     *
+     * @param user the User entity to map
+     * @return a UserResponse containing the user's id, email, username, displayName, role, and createdAt
+     */
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())

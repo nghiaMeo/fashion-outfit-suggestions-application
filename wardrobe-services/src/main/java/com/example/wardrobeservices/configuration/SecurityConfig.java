@@ -32,6 +32,18 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
+    /**
+     * Configure and build the application's Spring Security filter chain.
+     *
+     * <p>The returned chain disables CSRF, enforces stateless session management, routes
+     * authentication failures to the configured entry point, permits requests matching
+     * {@code PUBLIC_ENDPOINTS}, requires authentication for all other requests, and
+     * registers the rate-limiting and JWT authentication filters before
+     * {@code UsernamePasswordAuthenticationFilter}.
+     *
+     * @return the configured {@link SecurityFilterChain}
+     * @throws Exception if the security filter chain cannot be built
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity

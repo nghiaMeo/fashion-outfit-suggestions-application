@@ -47,6 +47,14 @@ public class AuthServiceImpl implements AuthService {
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final Duration LOCK_DURATION = Duration.ofMinutes(15);
 
+    /**
+     * Authenticate a user using email and password and issue access and refresh tokens.
+     *
+     * @param request login credentials containing the user's email and password
+     * @return an AuthResponse containing a Bearer access token, the refresh token string, the token type, and the authenticated user's public profile
+     * @throws AppException with ErrorCode.ACCOUNT_LOCKED if the account is temporarily locked
+     * @throws AppException with ErrorCode.INVALID_CREDENTIALS if the email is not found or the password is incorrect
+     */
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
@@ -209,6 +217,12 @@ public class AuthServiceImpl implements AuthService {
         otpRepository.delete(otpEntity);
     }
 
+    /**
+     * Converts a User entity to a UserResponse DTO.
+     *
+     * @param user the source User entity
+     * @return a UserResponse populated with id, email, username, avatarUrl, bio, role, and createdAt
+     */
     private UserResponse toUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -221,6 +235,14 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * Increment the failed-login counter for the specified email and enforce a temporary lock when the threshold is reached.
+     *
+     * Increments a per-email Redis counter of failed attempts, sets an expiry on the counter after the first failure,
+     * and when the counter reaches or exceeds MAX_FAILED_ATTEMPTS sets a separate lock key with a LOCK_DURATION TTL and clears the counter.
+     *
+     * @param email the user's email used to identify the Redis keys for failed attempts and account lock
+     */
     private void handleFailedLogin(String email) {
         // Redis key đếm số lần sai: "login:failed:user@gmail.com"
         String failedKey = "login:failed:" + email;
@@ -247,6 +269,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
+    /**
+     * Removes the Redis-stored failed-login counter for the specified email.
+     *
+     * @param email the user's email whose failed login attempt counter will be deleted
+     */
     private void clearFailedAttempts(String email) {
         redisTemplate.delete("login:failed:" + email);
     }
