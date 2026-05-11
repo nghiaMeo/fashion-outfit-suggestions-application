@@ -42,7 +42,7 @@ spring:
 
   mail:
     host: ${MAIL_HOST}
-    port: ${MAIL_PORT}                   # Port 587 dùng STARTTLS (mã hóa)
+    port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:

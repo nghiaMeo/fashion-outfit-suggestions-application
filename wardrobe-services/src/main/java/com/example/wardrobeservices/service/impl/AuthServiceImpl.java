@@ -15,12 +15,14 @@ import com.example.wardrobeservices.service.EmailService;
 import com.example.wardrobeservices.service.JwtService;
 import com.example.wardrobeservices.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -35,23 +37,36 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final PasswordResetOtpRepository otpRepository;
     private final EmailService emailService;
-
+    private final StringRedisTemplate redisTemplate;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
     private static final long OTP_EXPIRY_SECONDS = 180;
-
     private static final long OTP_RATE_LIMIT_SECONDS = 60;
+
+
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final Duration LOCK_DURATION = Duration.ofMinutes(15);
 
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        String lockKey = "login:locked:" + request.getEmail();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(lockKey))) {
+            throw new AppException(ErrorCode.ACCOUNT_LOCKED);
+        }
+
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            // count temp ++1
+            handleFailedLogin(request.getEmail());
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
+
+        // login success >> delete temp memory (if exist)
+        // reset count if user login success < 5 times
+        clearFailedAttempts(request.getEmail());
 
         // gen Access Token (JWT)
         var accessToken = jwtService.generateAccessToken(user);
@@ -205,5 +220,34 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(user.getCreatedAt())
                 .build();
     }
-}
 
+    private void handleFailedLogin(String email) {
+        // Redis key đếm số lần sai: "login:failed:user@gmail.com"
+        String failedKey = "login:failed:" + email;
+
+        // INCR: ++ 1. if key dont exist → create = 1
+        Long attempts = redisTemplate.opsForValue().increment(failedKey);
+
+        if (attempts != null) {
+            // first times >>  set TTL = 15min for temp memory
+            if (attempts == 1) {
+                redisTemplate.expire(failedKey, LOCK_DURATION);
+            }
+
+            if (attempts >= MAX_FAILED_ATTEMPTS) {
+                // TTL = 15 phút → sau 15 phút Redis tự xóa → user được thử lại
+                String lockKey = "login:locked:" + email;
+                // TTL = 15m after 15min delete in Redis, user can try
+                redisTemplate.opsForValue().set(lockKey, "true", LOCK_DURATION);
+
+                // account is locked
+                redisTemplate.delete(failedKey);
+            }
+        }
+    }
+
+
+    private void clearFailedAttempts(String email) {
+        redisTemplate.delete("login:failed:" + email);
+    }
+}
