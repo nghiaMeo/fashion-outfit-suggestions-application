@@ -14,6 +14,7 @@ public enum ErrorCode {
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(403, "You do not have permission", HttpStatus.FORBIDDEN),
     OUTFIT_NOT_FOUND(404, "Outfit is not found", HttpStatus.NOT_FOUND),
+    OUTFIT_PRIVATE(404, "Outfit is not found", HttpStatus.UNAUTHORIZED),
     ITEM_NOT_FOUND(404, "Item is not found", HttpStatus.NOT_FOUND),
     ENDPOINT_NOT_FOUND(404, "Endpoint not found", HttpStatus.NOT_FOUND),
     METHOD_NOT_ALLOWED(405, "HTTP method not allowed", HttpStatus.METHOD_NOT_ALLOWED),
@@ -26,15 +27,14 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(404, "Refresh token is not found", HttpStatus.NOT_FOUND),
     OAUTH2_INVALID_TOKEN(401, "Invalid OAuth2 token", HttpStatus.UNAUTHORIZED),
 
-    // === Đổi mật khẩu & OTP ===
-    WRONG_PASSWORD(400, "Old password is incorrect", HttpStatus.BAD_REQUEST),           // User nhập sai mật khẩu cũ khi đổi pass
-    OTP_EXPIRED(400, "OTP has expired or does not exist", HttpStatus.BAD_REQUEST),      // OTP đã hết hạn (Redis tự xóa sau 3 phút) hoặc chưa từng gửi
-    OTP_INVALID(400, "OTP is incorrect", HttpStatus.BAD_REQUEST),                       // OTP tồn tại nhưng user nhập sai số
+
+    WRONG_PASSWORD(400, "Old password is incorrect", HttpStatus.BAD_REQUEST),
+    OTP_EXPIRED(400, "OTP has expired or does not exist", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(400, "OTP is incorrect", HttpStatus.BAD_REQUEST),
     OTP_RATE_LIMITED(429, "Please wait 1 minute before requesting a new OTP", HttpStatus.TOO_MANY_REQUESTS),
 
-    // === Rate Limiting & Brute-Force ===
-    RATE_LIMITED(429, "Too many requests, please try again later", HttpStatus.TOO_MANY_REQUESTS),   // IP gửi quá nhiều request trong 1 phút
-    ACCOUNT_LOCKED(423, "Account is temporarily locked due to too many failed login attempts", HttpStatus.LOCKED); // 5 lần sai mật khẩu → khóa 15 phút
+    RATE_LIMITED(429, "Too many requests, please try again later", HttpStatus.TOO_MANY_REQUESTS),
+    ACCOUNT_LOCKED(423, "Account is temporarily locked due to too many failed login attempts", HttpStatus.LOCKED);
 
     private final int code;
     private final String message;

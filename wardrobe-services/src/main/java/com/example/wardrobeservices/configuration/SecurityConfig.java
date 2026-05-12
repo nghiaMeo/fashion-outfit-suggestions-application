@@ -25,6 +25,7 @@ public class SecurityConfig {
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/oauth2/**",
+            "/api/outfits/public/**",
             "/api/auth/forgot-password",
             "/api/auth/reset-password",
             "/v3/api-docs/**",
