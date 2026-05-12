@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,17 +30,34 @@ public class Outfit {
 
     private String description;
 
-    @Column
+    private String occasion;
+
+    @Builder.Default
+    private boolean isFavorite = false;
+
+    @Builder.Default
+    private boolean isAiGenerated = false;
+
+    @Builder.Default
     private double score = 0.0;
 
+    @Builder.Default
     private boolean isDailySuggestion = false;
 
     @Builder.Default
     private boolean isPublic = true;
 
-    private String suitableWeather; // Ví dụ: "Sunny", "Rainy"
+    private String suitableWeather;
 
-    private Instant createAt = Instant.now();
-    private Instant updateAt = Instant.now();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "outfit_items",
+            joinColumns = @JoinColumn(name = "outfit_id"),
+            inverseJoinColumns = @JoinColumn(name = "item_id")
+    )
+    private List<Item> items;
+
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 
 }
