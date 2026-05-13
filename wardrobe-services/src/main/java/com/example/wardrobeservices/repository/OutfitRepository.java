@@ -12,6 +12,9 @@ import java.util.UUID;
 
 @Repository
 public interface OutfitRepository extends JpaRepository<Outfit, UUID> {
+
+    long countByUser(User user);
+
     List<Outfit> findByUser(User user);
 
     @Query("SELECT o FROM Outfit o WHERE o.user = :user " +

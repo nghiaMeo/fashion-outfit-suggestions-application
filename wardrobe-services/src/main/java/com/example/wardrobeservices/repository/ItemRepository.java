@@ -17,6 +17,8 @@ import java.util.UUID;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
+    long countByUser(User user);
+
     List<Item> findByUserAndIsDeletedFalse(User user);
 
     Optional<Item> findByIdAndIsDeletedFalse(UUID id);
