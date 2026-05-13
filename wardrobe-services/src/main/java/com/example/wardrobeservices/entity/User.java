@@ -50,6 +50,9 @@ public class User {
     private String providerId;
 
     @Builder.Default
+    private boolean isPrivateProfile = false;
+
+    @Builder.Default
     private Instant createdAt = Instant.now();
     
     @Builder.Default
