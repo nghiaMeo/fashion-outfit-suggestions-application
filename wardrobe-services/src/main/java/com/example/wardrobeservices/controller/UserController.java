@@ -1,15 +1,15 @@
 package com.example.wardrobeservices.controller;
 
+import com.example.wardrobeservices.dto.request.ProfileUpdateRequest;
 import com.example.wardrobeservices.dto.response.ApiResponse;
 import com.example.wardrobeservices.dto.response.UserProfileResponse;
+import com.example.wardrobeservices.dto.response.UserResponse;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -33,6 +33,13 @@ public class UserController {
     public ApiResponse<UserProfileResponse> getProfile(@PathVariable UUID userId) {
         return ApiResponse.<UserProfileResponse>builder()
                 .result(userService.getUserProfile(userId))
+                .build();
+    }
+
+    @PutMapping("/profile")
+    public ApiResponse<UserProfileResponse> updateProfile(@RequestBody @Valid ProfileUpdateRequest request) {
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userService.updateProfile(request))
                 .build();
     }
 }
