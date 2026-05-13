@@ -1,5 +1,6 @@
 package com.example.wardrobeservices.service.impl;
 
+import com.example.wardrobeservices.dto.request.ProfileUpdateRequest;
 import com.example.wardrobeservices.dto.request.UserCreationRequest;
 import com.example.wardrobeservices.dto.response.ItemResponse;
 import com.example.wardrobeservices.dto.response.UserProfileResponse;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -94,6 +96,24 @@ public class UserServiceImpl implements UserService {
                 .isPrivateProfile(targetUser.isPrivateProfile())
                 .friendshipStatus(friendship.map(Friendship::getStatus).orElse(null))
                 .build();
+    }
+
+    @Override
+    public UserProfileResponse updateProfile(ProfileUpdateRequest request) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        var user = userRepository.findById(currentUser.getId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setDisplayName(request.getDisplayName());
+        user.setBio(request.getBio());
+        user.setAvatarUrl(request.getAvatarUrl());
+        user.setPrivateProfile(request.isPrivateProfile());
+        user.setUpdatedAt(Instant.now());
+
+        var updatedUser = userRepository.save(user);
+
+        return getUserProfile(updatedUser.getId());
+
     }
 
     private UserResponse mapToUserResponse(User user) {
