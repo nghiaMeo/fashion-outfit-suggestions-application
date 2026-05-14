@@ -1,12 +1,10 @@
 package com.example.wardrobeservices.entity;
 
-import com.example.wardrobeservices.entity.enums.MessageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -15,34 +13,31 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Message {
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"conversation_id", "user_id"})
+})
+public class ConversationMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversation_id", nullable = false)
+    @JoinColumn(name = "conversation_id")
     private ChatConversation conversation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
-
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private MessageType type = MessageType.TEXT;
-
-    private String imageUrl;
-
-    private UUID sharedOutfitId;
-
-    private Instant readAt;
+    private String nickname;
 
     @Builder.Default
-    private Instant createdAt = Instant.now();
+    private Instant joinedAt = Instant.now();
+
+    private Instant lastReadAt;
+
+    @Builder.Default
+    private boolean isMuted = false;
+
 }
-

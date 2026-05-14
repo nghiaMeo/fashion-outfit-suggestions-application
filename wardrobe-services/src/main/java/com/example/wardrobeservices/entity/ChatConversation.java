@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,19 +21,14 @@ public class ChatConversation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user1_id", nullable = false)
-    private User user1;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user2_id", nullable = false)
-    private User user2;
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    private List<ConversationMember> members;
 
     private String lastMessage;
-    
-    private Instant lastSentAt;
 
+    private Instant lastMessageAt;
+
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }
 
