@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    // Source: https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
+    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.14'
     // Source: https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
     implementation 'com.cloudinary:cloudinary-http44:1.39.0'
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
