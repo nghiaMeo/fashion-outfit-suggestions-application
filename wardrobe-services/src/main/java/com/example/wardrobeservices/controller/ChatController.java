@@ -1,19 +1,17 @@
 package com.example.wardrobeservices.controller;
 
+import com.example.wardrobeservices.dto.request.MessageRequest;
 import com.example.wardrobeservices.dto.response.ApiResponse;
 import com.example.wardrobeservices.dto.response.ConversationResponse;
 import com.example.wardrobeservices.dto.response.MessageResponse;
 import com.example.wardrobeservices.service.ChatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +35,13 @@ public class ChatController {
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ApiResponse.<Page<MessageResponse>>builder()
                 .result(chatService.getMessageHistory(conversationId, pageable))
+                .build();
+    }
+
+    @PostMapping("/send")
+    public ApiResponse<MessageResponse> sendMessage(@RequestBody @Valid MessageRequest messageRequest) {
+        return ApiResponse.<MessageResponse>builder()
+                .result(chatService.sendMessage(messageRequest))
                 .build();
     }
 }

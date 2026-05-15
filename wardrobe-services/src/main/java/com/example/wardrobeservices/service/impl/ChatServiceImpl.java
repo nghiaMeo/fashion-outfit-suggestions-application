@@ -1,12 +1,17 @@
 package com.example.wardrobeservices.service.impl;
 
+import com.corundumstudio.socketio.SocketIOServer;
+import com.example.wardrobeservices.dto.request.MessageRequest;
 import com.example.wardrobeservices.dto.response.ConversationResponse;
 import com.example.wardrobeservices.dto.response.MessageResponse;
 import com.example.wardrobeservices.entity.ChatConversation;
 import com.example.wardrobeservices.entity.ConversationMember;
+import com.example.wardrobeservices.entity.Message;
 import com.example.wardrobeservices.entity.User;
+import com.example.wardrobeservices.entity.enums.MessageType;
 import com.example.wardrobeservices.exception.AppException;
 import com.example.wardrobeservices.exception.ErrorCode;
+import com.example.wardrobeservices.repository.ChatConversationRepository;
 import com.example.wardrobeservices.repository.ConversationMemberRepository;
 import com.example.wardrobeservices.repository.MessageRepository;
 import com.example.wardrobeservices.service.ChatService;
@@ -19,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -30,6 +34,9 @@ public class ChatServiceImpl implements ChatService {
 
     private final ConversationMemberRepository conversationMemberRepository;
     private final MessageRepository messageRepository;
+    private final SocketIOServer socketIOServer;
+    private final ChatConversationRepository chatConversationRepository;
+
 
     @Override
     public List<ConversationResponse> getMyConversations() {
@@ -75,18 +82,56 @@ public class ChatServiceImpl implements ChatService {
 
         member.setLastReadAt(Instant.now());
         conversationMemberRepository.save(member);
-        return messages.map(m -> MessageResponse.builder()
-                .id(m.getId())
-                .senderId(m.getSender().getId())
-                .senderName(m.getSender().getDisplayName())
-                .content(m.getContent())
-                .type(m.getType())
-                .imageUrl(m.getImageUrl())
-                .sharedOutfitId(m.getSharedOutfitId())
-                .createdAt(m.getCreatedAt())
-                .readAt(m.getReadAt())
-                .build());
-
+        return messages.map(this::mapToMessageResponse);
     }
 
+    @Override
+    @Transactional
+    public MessageResponse sendMessage(MessageRequest request) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        var conversation = chatConversationRepository.findById(request.getConversationId())
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        var member = conversationMemberRepository.findByConversationIdAndUserId(conversation.getId(), currentUser.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+
+        var message = Message.builder()
+                .conversation(conversation)
+                .sender(currentUser)
+                .content(request.getContent())
+                .type(request.getType())
+                .imageUrl(request.getImageUrl())
+                .sharedOutfitId(request.getSharedOutfitId())
+                .build();
+
+        var savedMessage = messageRepository.save(message);
+
+        conversation.setLastMessage(request.getContent());
+        conversation.setLastMessageAt(Instant.now());
+        chatConversationRepository.save(conversation);
+
+        member.setLastReadAt(Instant.now());
+        conversationMemberRepository.save(member);
+
+        var response = mapToMessageResponse(savedMessage);
+
+        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message",response);
+
+        return response;
+    }
+
+    private MessageResponse mapToMessageResponse(Message message){
+        return MessageResponse.builder()
+                .id(message.getId())
+                .senderId(message.getSender().getId())
+                .senderName(message.getSender().getDisplayName())
+                .content(message.getContent())
+                .type(message.getType())
+                .imageUrl(message.getImageUrl())
+                .sharedOutfitId(message.getSharedOutfitId())
+                .createdAt(message.getCreatedAt())
+                .readAt(message.getReadAt())
+                .build();
+    }
 }
