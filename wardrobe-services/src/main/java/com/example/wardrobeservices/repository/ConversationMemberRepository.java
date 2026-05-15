@@ -1,6 +1,7 @@
 package com.example.wardrobeservices.repository;
 
 import com.example.wardrobeservices.entity.ConversationMember;
+import com.example.wardrobeservices.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,9 @@ import java.util.UUID;
 
 @Repository
 public interface ConversationMemberRepository extends JpaRepository<ConversationMember, UUID> {
+
+    List<ConversationMember> findByUser(User user);
+
     List<ConversationMember> findByConversationId(UUID conversationId);
 
     Optional<ConversationMember> findByConversationIdAndUserId(UUID conversationId, UUID userId);
