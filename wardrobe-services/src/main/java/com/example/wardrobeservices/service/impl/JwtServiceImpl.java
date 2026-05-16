@@ -2,11 +2,11 @@ package com.example.wardrobeservices.service.impl;
 
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.service.JwtService;
-import lombok.RequiredArgsConstructor;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +33,7 @@ public class JwtServiceImpl implements JwtService {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole().name());
         extraClaims.put("userId", user.getId().toString());
+        extraClaims.put("username", user.getUsername());
 
         return Jwts.builder()
                 .claims(extraClaims)
@@ -49,21 +50,36 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    public String extractUsername(String token) {
+        return extractClaim(token, claims -> claims.get("username", String.class));
+    }
+
+    @Override
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
+    @Override
     public boolean isTokenValid(String token, User user) {
         final String email = extractEmail(token);
-        // Token hợp lệ khi: email khớp, chưa hết hạn và không nằm trong blacklist
         return (email.equals(user.getEmail())) && !isTokenExpired(token) && !isTokenBlacklisted(token);
     }
 
     @Override
+    public boolean isTokenValid(String token) {
+        try {
+            return !isTokenExpired(token) && !isTokenBlacklisted(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public void blacklistToken(String token) {
-        // Lấy thời điểm hết hạn của Token
         var expiration = extractClaim(token, Claims::getExpiration);
-        // Tính thời gian còn lại (ms)
         var diff = expiration.getTime() - System.currentTimeMillis();
 
         if (diff > 0) {
-            // Lưu vào Redis với tiền tố blacklist, giá trị là "true", TTL là thời gian còn lại của token
             redisTemplate.opsForValue().set(
                     "jwt:blacklist:" + token,
                     "true",
@@ -74,7 +90,6 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean isTokenBlacklisted(String token) {
-        // Kiểm tra xem key này có tồn tại trong Redis không
         return Boolean.TRUE.equals(redisTemplate.hasKey("jwt:blacklist:" + token));
     }
 

@@ -11,6 +11,7 @@ public enum ErrorCode {
     EMAIL_EXISTED(400, "Email already existed", HttpStatus.BAD_REQUEST),
     USERNAME_EXISTED(400, "Username already existed", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(404, "User is not found", HttpStatus.NOT_FOUND),
+    CONVERSATION_NOT_FOUND(404, "User is not found", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     CANNOT_FRIEND_SELF(400, "Malformed request body", HttpStatus.BAD_REQUEST),
     FRIEND_REQUEST_ALREADY_SENT(400, "Malformed request body", HttpStatus.BAD_REQUEST),

@@ -49,6 +49,13 @@ public class User {
 
     private String providerId;
 
+    private String fcmToken;
+
+    @Builder.Default
+    private boolean isOnline = false;
+
+    private Instant lastSeen;
+
     @Builder.Default
     private boolean isPrivateProfile = false;
 
