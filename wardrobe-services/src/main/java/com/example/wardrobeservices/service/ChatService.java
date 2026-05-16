@@ -15,4 +15,5 @@ public interface ChatService {
     Page<MessageResponse> getMessageHistory(UUID conversationId, Pageable pageable);
     MessageResponse sendMessage(MessageRequest request);
 
+
 }

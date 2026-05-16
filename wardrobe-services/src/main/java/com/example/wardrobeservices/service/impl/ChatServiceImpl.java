@@ -14,6 +14,7 @@ import com.example.wardrobeservices.exception.ErrorCode;
 import com.example.wardrobeservices.repository.ChatConversationRepository;
 import com.example.wardrobeservices.repository.ConversationMemberRepository;
 import com.example.wardrobeservices.repository.MessageRepository;
+import com.example.wardrobeservices.repository.OutfitRepository;
 import com.example.wardrobeservices.service.ChatService;
 import jakarta.transaction.TransactionScoped;
 import jakarta.transaction.Transactional;
@@ -36,6 +37,7 @@ public class ChatServiceImpl implements ChatService {
     private final MessageRepository messageRepository;
     private final SocketIOServer socketIOServer;
     private final ChatConversationRepository chatConversationRepository;
+    private final OutfitRepository outfitRepository;
 
 
     @Override
@@ -95,6 +97,17 @@ public class ChatServiceImpl implements ChatService {
 
         var member = conversationMemberRepository.findByConversationIdAndUserId(conversation.getId(), currentUser.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+
+        if(request.getType() == MessageType.OUTFIT_SHARE && request.getSharedOutfitId() != null) {
+            var outfit = outfitRepository.findById(request.getSharedOutfitId())
+                    .orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+            if(!outfit.getId().equals(currentUser.getId())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+            if (request.getContent()== null || request.getContent().isBlank()) {
+                request.setContent("I've shared an outfit: "+ outfit.getName());
+            }
+        }
 
         var message = Message.builder()
                 .conversation(conversation)

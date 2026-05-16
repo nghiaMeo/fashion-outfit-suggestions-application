@@ -1,11 +1,15 @@
 package com.example.wardrobeservices.stocket;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.example.wardrobeservices.dto.response.UserStatusResponse;
 import com.example.wardrobeservices.repository.ConversationMemberRepository;
 import com.example.wardrobeservices.repository.UserRepository;
 import com.example.wardrobeservices.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.UUID;
 
 
 @Component
@@ -27,7 +31,10 @@ public class SocketIOHandler {
 
                     if (user != null) {
                         client.set("userId", user.getId());
-
+                        user.setOnline(true);
+                        userRepository.save(user);
+                        server.getBroadcastOperations().sendEvent("user_status",
+                                new UserStatusResponse(user.getId(), true, null));
                         var memberships = conversationMemberRepository.findByUser(user);
                         for (var member : memberships) {
                             client.joinRoom(member.getConversation().getId().toString());
@@ -54,7 +61,19 @@ public class SocketIOHandler {
         });
 
         server.addDisconnectListener(client -> {
+            var userId = client.get("userId");
+            if (userId != null){
+                userRepository.findById((UUID) userId).ifPresent(user -> {
+                    user.setOnline(false);
+                    user.setLastSeen(Instant.now());
+                    userRepository.save(user);
+                    server.getBroadcastOperations().sendEvent("user_status",
+                            new UserStatusResponse(user.getId(), false, null));
+                });
+            }
+
             log.info("client offline: {}", client.getSessionId());
+
         });
 
     }
