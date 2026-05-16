@@ -14,6 +14,6 @@ public interface ChatService {
     List<ConversationResponse> getMyConversations();
     Page<MessageResponse> getMessageHistory(UUID conversationId, Pageable pageable);
     MessageResponse sendMessage(MessageRequest request);
-
+    ConversationResponse createConversation(UUID friendId);
 
 }
