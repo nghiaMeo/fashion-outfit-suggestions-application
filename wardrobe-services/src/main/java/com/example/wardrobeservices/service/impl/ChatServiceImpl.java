@@ -16,6 +16,7 @@ import com.example.wardrobeservices.repository.ConversationMemberRepository;
 import com.example.wardrobeservices.repository.MessageRepository;
 import com.example.wardrobeservices.repository.OutfitRepository;
 import com.example.wardrobeservices.service.ChatService;
+import com.example.wardrobeservices.service.NotificationService;
 import jakarta.transaction.TransactionScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class ChatServiceImpl implements ChatService {
     private final SocketIOServer socketIOServer;
     private final ChatConversationRepository chatConversationRepository;
     private final OutfitRepository outfitRepository;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -98,14 +100,14 @@ public class ChatServiceImpl implements ChatService {
         var member = conversationMemberRepository.findByConversationIdAndUserId(conversation.getId(), currentUser.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
-        if(request.getType() == MessageType.OUTFIT_SHARE && request.getSharedOutfitId() != null) {
+        if (request.getType() == MessageType.OUTFIT_SHARE && request.getSharedOutfitId() != null) {
             var outfit = outfitRepository.findById(request.getSharedOutfitId())
                     .orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
-            if(!outfit.getId().equals(currentUser.getId())) {
+            if (!outfit.getId().equals(currentUser.getId())) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
-            if (request.getContent()== null || request.getContent().isBlank()) {
-                request.setContent("I've shared an outfit: "+ outfit.getName());
+            if (request.getContent() == null || request.getContent().isBlank()) {
+                request.setContent("I've shared an outfit: " + outfit.getName());
             }
         }
 
@@ -129,12 +131,25 @@ public class ChatServiceImpl implements ChatService {
 
         var response = mapToMessageResponse(savedMessage);
 
-        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message",response);
+        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message", response);
+
+        var recipients = conversation.getMembers().stream().map(ConversationMember::getUser)
+                .filter(u -> !u.getId().equals(currentUser.getId())).toList();
+
+        for (var receiver : recipients) {
+            if (receiver.getFcmToken() != null) {
+                notificationService.sendPushNotification(
+                        receiver.getFcmToken(),
+                        currentUser.getDisplayName(),
+                        request.getContent()
+                );
+            }
+        }
 
         return response;
     }
 
-    private MessageResponse mapToMessageResponse(Message message){
+    private MessageResponse mapToMessageResponse(Message message) {
         return MessageResponse.builder()
                 .id(message.getId())
                 .senderId(message.getSender().getId())
