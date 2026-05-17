@@ -25,5 +25,8 @@ public interface OutfitRepository extends JpaRepository<Outfit, UUID> {
             @Param("occasion") String occasion,
             @Param("isFavorite") Boolean isFavorite
     );
+
+    List<Outfit> findByUserInAndIsPublicTrueOrderByCreatedAtDesc(List<User> user);
+
 }
 

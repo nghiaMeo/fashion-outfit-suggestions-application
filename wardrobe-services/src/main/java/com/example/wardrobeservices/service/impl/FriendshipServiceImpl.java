@@ -5,11 +5,13 @@ import com.example.wardrobeservices.dto.response.UserSearchResponse;
 import com.example.wardrobeservices.entity.Friendship;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.entity.enums.FriendshipStatus;
+import com.example.wardrobeservices.entity.enums.NotificationType;
 import com.example.wardrobeservices.exception.AppException;
 import com.example.wardrobeservices.exception.ErrorCode;
 import com.example.wardrobeservices.repository.FriendshipRepository;
 import com.example.wardrobeservices.repository.UserRepository;
 import com.example.wardrobeservices.service.FriendshipService;
+import com.example.wardrobeservices.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+
 
     @Override
     public String sendFriendRequest(UUID receiverId) {
@@ -48,6 +52,10 @@ public class FriendshipServiceImpl implements FriendshipService {
                 .build();
 
         friendshipRepository.save(friendship);
+        var content = currentUser.getDisplayName() + " has been sent to  accept";
+        notificationService.sendNotification(receiver,currentUser,
+                NotificationType.FRIEND_REQUEST,currentUser.getId(),content);
+
         return "Request has been sent";
     }
 
@@ -64,6 +72,15 @@ public class FriendshipServiceImpl implements FriendshipService {
         friendship.setStatus(FriendshipStatus.ACCEPTED);
         friendship.setUpdatedAt(Instant.now());
         friendshipRepository.save(friendship);
+
+        var content = currentUser.getDisplayName() + " has been accepted";
+        notificationService.sendNotification(
+                friendship.getRequester(),
+                currentUser,
+                NotificationType.FRIEND_ACCEPT,
+                currentUser.getId(),content
+        );
+
         return "friendships have been accepted";
 
     }

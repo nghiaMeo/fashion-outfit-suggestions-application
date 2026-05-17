@@ -5,17 +5,20 @@ import com.example.wardrobeservices.dto.response.ItemResponse;
 import com.example.wardrobeservices.dto.response.OutfitResponse;
 import com.example.wardrobeservices.entity.Item;
 import com.example.wardrobeservices.entity.Outfit;
+import com.example.wardrobeservices.entity.OutfitLike;
 import com.example.wardrobeservices.entity.User;
+import com.example.wardrobeservices.entity.enums.NotificationType;
 import com.example.wardrobeservices.exception.AppException;
 import com.example.wardrobeservices.exception.ErrorCode;
-import com.example.wardrobeservices.repository.ItemRepository;
-import com.example.wardrobeservices.repository.OutfitRepository;
+import com.example.wardrobeservices.repository.*;
+import com.example.wardrobeservices.service.NotificationService;
 import com.example.wardrobeservices.service.OutfitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,6 +29,9 @@ public class OutfitServiceImpl implements OutfitService {
 
     private final OutfitRepository outfitRepository;
     private final ItemRepository itemRepository;
+    private final OutfitLikeRepository outfitLikeRepository;
+    private final NotificationService notificationService;
+    private final FriendshipRepository friendshipRepository;
 
     @Override
     @Transactional
@@ -115,8 +121,69 @@ public class OutfitServiceImpl implements OutfitService {
         return outfits.stream().map(this::mapToOutfitResponse).toList();
     }
 
+    @Override
+    @Transactional
+    public OutfitResponse toggleLike(UUID id) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
+                .getContext().getAuthentication()).getPrincipal();
+        var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+
+        var existingLike = outfitLikeRepository.findByOutfitIdAndUserId(outfit.getId(), currentUser.getId());
+
+        if (existingLike.isPresent()) {
+            outfitLikeRepository.delete(existingLike.get());
+        } else {
+            var outfitLike = OutfitLike.builder()
+                    .outfit(outfit)
+                    .user(currentUser)
+                    .build();
+            outfitLikeRepository.save(outfitLike);
+
+            if (!outfit.getUser().getId().equals(currentUser.getId())) {
+                var content = currentUser.getDisplayName() + "has liked your outfit" + outfit.getName();
+                notificationService.sendNotification(
+                        outfit.getUser(),
+                        currentUser,
+                        NotificationType.OUTFIT_LIKE,
+                        outfit.getId(),
+                        content
+                );
+            }
+        }
+        return mapToOutfitResponse(outfit);
+    }
+
+    @Override
+    public List<OutfitResponse> getHomeFeed() {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        var friendships = friendshipRepository.findAllAcceptedFriendships(currentUser);
+
+        var friends = friendships.stream().map(
+                f -> f.getRequester().getId().equals(currentUser.getId()) ? f.getReceiver() : f.getRequester()
+        ).toList();
+
+        if (friendships.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        var feedOutfits = outfitRepository.findByUserInAndIsPublicTrueOrderByCreatedAtDesc(friends);
+
+        return feedOutfits.stream().map(this::mapToOutfitResponse).toList();
+    }
+
 
     private OutfitResponse mapToOutfitResponse(Outfit outfit) {
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var isCurrentUserLiked = false;
+
+        if (authentication != null && authentication.getPrincipal() instanceof User currentUser) {
+            isCurrentUserLiked = outfitLikeRepository.existsByOutfitIdAndUserId(outfit.getId(), currentUser.getId());
+        }
+
+        var totalLikes = outfitLikeRepository.countByOutfitId(outfit.getId());
+
         return OutfitResponse.builder()
                 .id(outfit.getId())
                 .name(outfit.getName())
@@ -124,6 +191,10 @@ public class OutfitServiceImpl implements OutfitService {
                 .isAiGenerated(outfit.isAiGenerated())
                 .isFavorite(outfit.isFavorite())
                 .items(outfit.getItems().stream().map(this::mapToItemResponse).toList())
+                .likeCount(totalLikes)
+                .isLiked(isCurrentUserLiked)
+                .ownerName(outfit.getUser().getDisplayName())
+                .ownerAvatar(outfit.getUser().getAvatarUrl())
                 .createdAt(outfit.getCreatedAt())
                 .build();
     }

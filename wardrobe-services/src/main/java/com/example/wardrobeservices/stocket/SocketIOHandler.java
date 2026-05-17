@@ -35,6 +35,9 @@ public class SocketIOHandler {
                         userRepository.save(user);
                         server.getBroadcastOperations().sendEvent("user_status",
                                 new UserStatusResponse(user.getId(), true, null));
+
+                        client.joinRoom(user.getId().toString());
+
                         var memberships = conversationMemberRepository.findByUser(user);
                         for (var member : memberships) {
                             client.joinRoom(member.getConversation().getId().toString());

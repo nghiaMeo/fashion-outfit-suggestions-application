@@ -62,4 +62,18 @@ public class OutfitController {
                 .build();
     }
 
+    @PostMapping("/{id}/like")
+    public ApiResponse<OutfitResponse> likeOutfit(@PathVariable UUID id) {
+        return ApiResponse.<OutfitResponse>builder()
+                .result(outfitService.toggleLike(id))
+                .build();
+    }
+
+    @GetMapping("/home-feed")
+    public ApiResponse<List<OutfitResponse>> getHomeFeed() {
+        return ApiResponse.<List<OutfitResponse>>builder()
+                .result(outfitService.getHomeFeed())
+                .build();
+    }
+
 }

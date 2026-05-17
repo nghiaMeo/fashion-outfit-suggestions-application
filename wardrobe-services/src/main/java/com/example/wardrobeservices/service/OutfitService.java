@@ -21,4 +21,9 @@ public interface OutfitService {
 
     List<OutfitResponse> searchOutfits(String occasion, Boolean isFavorite);
 
+    OutfitResponse toggleLike(UUID id);
+
+    List<OutfitResponse> getHomeFeed();
+
+
 }

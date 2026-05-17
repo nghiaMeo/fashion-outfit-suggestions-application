@@ -9,17 +9,18 @@ import com.example.wardrobeservices.entity.ConversationMember;
 import com.example.wardrobeservices.entity.Message;
 import com.example.wardrobeservices.entity.User;
 import com.example.wardrobeservices.entity.enums.MessageType;
+import com.example.wardrobeservices.entity.enums.NotificationType;
 import com.example.wardrobeservices.exception.AppException;
 import com.example.wardrobeservices.exception.ErrorCode;
 import com.example.wardrobeservices.repository.*;
 import com.example.wardrobeservices.service.ChatService;
 import com.example.wardrobeservices.service.NotificationService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -114,6 +115,10 @@ public class ChatServiceImpl implements ChatService {
                     if (receiver.getFcmToken() != null) {
                         notificationService.sendPushNotification(receiver.getFcmToken(), currentUser.getDisplayName(), request.getContent());
                     }
+                    var content = currentUser.getDisplayName() + "had send message to you: "+ request.getContent();
+
+                    notificationService.sendNotification(receiver, currentUser,
+                            NotificationType.NEW_MESSAGE,conversation.getId(), content);
                 });
 
         return response;

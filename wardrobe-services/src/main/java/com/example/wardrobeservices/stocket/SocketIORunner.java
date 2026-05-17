@@ -2,19 +2,18 @@ package com.example.wardrobeservices.stocket;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SocketIORunner implements CommandLineRunner {
-
-    private final SocketIOServer socketIOServer;
-
+    private final SocketIOServer server;
     @Override
     public void run(String... args) throws Exception {
-        socketIOServer.start();
-        System.out.println("SocketIO Server started in port 9002");
+        server.start();
+        log.info("SocketIO Server running success in port 9002!");
     }
-
 }

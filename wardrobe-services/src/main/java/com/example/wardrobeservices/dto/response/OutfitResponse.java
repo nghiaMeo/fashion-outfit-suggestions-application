@@ -21,5 +21,9 @@ public class OutfitResponse {
     private boolean isFavorite;
     private boolean isAiGenerated;
     private List<ItemResponse> items;
+    private long likeCount;
+    private boolean isLiked;
+    private String ownerName;
+    private String ownerAvatar;
     private Instant createdAt;
 }

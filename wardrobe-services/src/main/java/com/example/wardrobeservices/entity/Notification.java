@@ -23,7 +23,7 @@ public class Notification {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id", nullable = false)
+    @JoinColumn(name = "recipient_id")
     private User recipient;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,18 +31,15 @@ public class Notification {
     private User actor;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private NotificationType type;
 
-    private UUID referenceId;
+    private UUID targetId;
 
+    private String content;
     @Builder.Default
     private boolean isRead = false;
 
     @Builder.Default
     private Instant createdAt = Instant.now();
-    
-    @Builder.Default
-    private Instant updatedAt = Instant.now();
 }
 
