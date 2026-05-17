@@ -1,53 +1,87 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.5'
+    id 'org.springframework.boot' version '4.0.5' apply false
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-description = 'wardrobe-services'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+allprojects {
+    group = 'com.example'
+    version = '0.0.1-SNAPSHOT'
+//    description = 'wardrobe-services'
+    repositories {
+        mavenCentral()
     }
 }
 
-repositories {
-    mavenCentral()
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+
+        implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+    }
+
 }
 
-dependencies {
-    // Source: https://mvnrepository.com/artifact/com.google.firebase/firebase-admin
-    implementation 'com.google.firebase:firebase-admin:9.9.0'
-    // Source: https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
-    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.14'
-    // Source: https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
-    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
-    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-    testCompileOnly 'org.projectlombok:lombok'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+//
+//
+//java {
+//    toolchain {
+//        languageVersion = JavaLanguageVersion.of(21)
+//    }
+//}
+//
+//repositories {
+//    mavenCentral()
+//}
+//
+//dependencies {
+//    // Source: https://mvnrepository.com/artifact/com.google.firebase/firebase-admin
+//    implementation 'com.google.firebase:firebase-admin:9.9.0'
+//    // Source: https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
+//    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.14'
+//    // Source: https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
+//    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
+//    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//    implementation 'org.springframework.boot:spring-boot-starter-validation'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
+//    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+//    implementation 'org.springframework.boot:spring-boot-starter-security'
+//    implementation 'org.springframework.boot:spring-boot-starter-mail'
+//    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+//    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+//    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+//    compileOnly 'org.projectlombok:lombok'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    runtimeOnly 'org.postgresql:postgresql'
+//    annotationProcessor 'org.projectlombok:lombok'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+//    testCompileOnly 'org.projectlombok:lombok'
+//    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//    testAnnotationProcessor 'org.projectlombok:lombok'
+//}
+//
+//tasks.named('test') {
+//    useJUnitPlatform()
+//}

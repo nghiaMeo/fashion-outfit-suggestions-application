@@ -1,0 +1,30 @@
+server:
+  port: 8880
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**, /api/user/**
+        - id: wardrobe-service
+          uri: lb://wardrobe-service
+          predicates:
+            - Path=/api/outfits/**, /api/items/**
+        - id: social-service
+          uri: lb://social-service
+          predicates:
+            - Path=/api/friendships/**, /api/chats/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
