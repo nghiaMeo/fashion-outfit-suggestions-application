@@ -48,6 +48,9 @@ public class Outfit {
 
     private String suitableWeather;
 
+    @Builder.Default
+    private boolean isDeleted = false;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "outfit_items",

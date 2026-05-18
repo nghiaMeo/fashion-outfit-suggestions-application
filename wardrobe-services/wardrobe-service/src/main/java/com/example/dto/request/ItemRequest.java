@@ -23,4 +23,5 @@ public class ItemRequest {
     private String brand;
     private String occasion;
     private String imageUrl;
+    private String tags; // Danh sách tag, ví dụ: "casual,summer,trending"
 }

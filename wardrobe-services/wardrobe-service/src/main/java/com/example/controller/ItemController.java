@@ -62,10 +62,11 @@ public class ItemController {
     public ApiResponse<PageResponse<ItemResponse>> searchItems(@RequestParam(required = false) String name,
                                                                @RequestParam(required = false) String type,
                                                                @RequestParam(required = false) String color,
+                                                               @RequestParam(required = false) String tag,
                                                                @RequestParam(defaultValue = "1") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<ItemResponse>>builder()
-                .result(itemService.searchItems(name, type, color, page, size))
+                .result(itemService.searchItems(name, type, color, tag, page, size))
                 .build();
     }
 
@@ -92,7 +93,7 @@ public class ItemController {
 
     @DeleteMapping("/hard-delete/{id}")
     public ApiResponse<String> deleteHardItem(@PathVariable UUID id) {
-        itemService.deleteItem(id);
+        itemService.hardDeleteItem(id);
         return ApiResponse.<String>builder()
                 .result("Item has been deleted")
                 .build();

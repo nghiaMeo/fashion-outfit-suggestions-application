@@ -40,10 +40,32 @@ public class OutfitController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<OutfitResponse> getOutfitById(@PathVariable UUID id) {
+        return ApiResponse.<OutfitResponse>builder()
+                .result(outfitService.getOutfitById(id))
+                .build();
+    }
+
     @GetMapping("/public/{id}")
     public ApiResponse<OutfitResponse> getPublicOutfit(@PathVariable UUID id) {
         return ApiResponse.<OutfitResponse>builder()
-                .result(outfitService.getPublicOutfit(id))
+                .result(outfitService.getOutfitById(id))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteOutfit(@PathVariable UUID id) {
+        outfitService.deleteOutfit(id);
+        return ApiResponse.<String>builder()
+                .result("Outfit deleted successfully")
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<OutfitResponse> updateOutfit(@PathVariable UUID id, @RequestBody @Valid OutfitRequest outfitRequest) {
+        return ApiResponse.<OutfitResponse>builder()
+                .result(outfitService.updateOutfit(id, outfitRequest))
                 .build();
     }
 
@@ -55,10 +77,11 @@ public class OutfitController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<OutfitResponse>> searchOutfits(@RequestParam(required = false) String occasion,
+    public ApiResponse<List<OutfitResponse>> searchOutfits(@RequestParam(required = false) String name,
+                                                           @RequestParam(required = false) String occasion,
                                                            @RequestParam(required = false) Boolean isFavorite) {
         return ApiResponse.<List<OutfitResponse>>builder()
-                .result(outfitService.searchOutfits(occasion, isFavorite))
+                .result(outfitService.searchOutfits(name, occasion, isFavorite))
                 .build();
     }
 

@@ -17,13 +17,15 @@ public interface OutfitService {
 
     OutfitResponse toggleVisibility(UUID id);
 
-    OutfitResponse getPublicOutfit(UUID id);
+    OutfitResponse getOutfitById(UUID id);
 
-    List<OutfitResponse> searchOutfits(String occasion, Boolean isFavorite);
+    void deleteOutfit(UUID id);
+
+    OutfitResponse updateOutfit(UUID id, OutfitRequest outfitRequest);
+
+    List<OutfitResponse> searchOutfits(String name, String occasion, Boolean isFavorite);
 
     OutfitResponse toggleLike(UUID id);
 
     List<OutfitResponse> getHomeFeed();
-
-
 }

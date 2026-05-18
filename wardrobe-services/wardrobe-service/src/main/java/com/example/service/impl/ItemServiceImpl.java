@@ -42,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
                 .brand(itemRequest.getBrand())
                 .occasion(itemRequest.getOccasion())
                 .imageUrl(itemRequest.getImageUrl())
+                .tags(itemRequest.getTags())
                 .userId(currentUser.getId())
                 .aiItemId(UUID.randomUUID())
                 .build();
@@ -68,6 +69,7 @@ public class ItemServiceImpl implements ItemService {
         item.setBrand(itemRequest.getBrand());
         item.setOccasion(itemRequest.getOccasion());
         item.setImageUrl(itemRequest.getImageUrl());
+        item.setTags(itemRequest.getTags());
 
         item.setUpdatedAt(Instant.now());
 
@@ -104,13 +106,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public PageResponse<ItemResponse> searchItems(String name, String type, String color, int page, int size) {
+    public PageResponse<ItemResponse> searchItems(String name, String type, String color, String tag, int page, int size) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
                 .getContext().getAuthentication()).getPrincipal();
         // create Object from pageable
         var pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
-        var itemPage = itemRepository.searchItems(currentUser.getId(), name, type, color, pageable);
+        var itemPage = itemRepository.searchItems(currentUser.getId(), name, type, color, tag, pageable);
 
         var itemResponses = itemPage.getContent().stream().map(this::mapToItemResponse).toList();
         return PageResponse.<ItemResponse>builder()
@@ -164,7 +166,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemResponse> getTrashItems() {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
-        var trashItems = itemRepository.findByUserIdAndIsDeletedFalse(currentUser.getId());
+        var trashItems = itemRepository.findByUserIdAndIsDeletedTrue(currentUser.getId());
 
         return trashItems.stream().map(this::mapToItemResponse).toList();
     }
@@ -191,6 +193,7 @@ public class ItemServiceImpl implements ItemService {
                 .brand(item.getBrand())
                 .occasion(item.getOccasion())
                 .imageUrl(item.getImageUrl())
+                .tags(item.getTags())
                 .createdAt(item.getCreatedAt())
                 .build();
     }

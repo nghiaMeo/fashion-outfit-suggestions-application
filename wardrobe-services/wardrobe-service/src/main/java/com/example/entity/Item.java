@@ -42,6 +42,9 @@ public class Item {
     @Column(columnDefinition = "text")
     private String imageUrl;
 
+    @Column(columnDefinition = "text")
+    private String tags; // Lưu dạng chuỗi phân cách bởi dấu phẩy, ví dụ: "casual,summer,trending"
+
     @Column(name = "ai_item_id", nullable = false)
     private UUID aiItemId;
 
