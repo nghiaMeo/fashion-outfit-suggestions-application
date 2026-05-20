@@ -58,5 +58,12 @@ public class FriendshipController {
                 .build();
     }
 
+    @GetMapping("/friend-ids")
+    public ApiResponse<List<UUID>> getFriendIds() {
+        return ApiResponse.<List<UUID>>builder()
+                .result(friendshipService.getFriendIds())
+                .build();
+    }
+
 
 }

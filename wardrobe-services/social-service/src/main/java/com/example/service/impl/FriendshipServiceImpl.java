@@ -204,6 +204,17 @@ public class FriendshipServiceImpl implements FriendshipService {
         }).toList();
     }
 
+    @Override
+    public List<UUID> getFriendIds() {
+        var currentUser = getCurrentUser();
+
+        var friendships = friendshipRepository.findAllAcceptedFriendships(currentUser.getId());
+
+        return friendships.stream().map(f -> f.getRequesterId().equals(currentUser.getId())
+                ? f.getReceiverId() : f.getRequesterId()
+        ).toList();
+    }
+
     private FriendResponse mapToFriendResponse(Friendship friendship, UserProfileResponse friend, UUID friendId) {
         return FriendResponse.builder()
                 .id(friendship.getId())
