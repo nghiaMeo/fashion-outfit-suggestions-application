@@ -5,6 +5,7 @@ import com.example.dto.request.UserCreationRequest;
 import com.example.dto.response.UserProfileResponse;
 import com.example.dto.response.UserResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -17,6 +18,12 @@ public interface UserService {
 
     java.util.List<UserProfileResponse> searchUsers(String query, UUID currentUserId);
 
-    java.util.List<UserProfileResponse> getUsersProfiles(java.util.List<UUID> userIds);
+    List<UserProfileResponse> getUsersProfiles(java.util.List<UUID> userIds);
+
+    java.util.List<UserProfileResponse> getSuggestCandidates(UUID currentUserId);
+
+    void updatePresence(UUID userId, boolean isOnline);
+
+    String getFcmToken(UUID userId);
 }
 

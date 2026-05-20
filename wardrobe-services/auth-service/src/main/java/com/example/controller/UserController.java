@@ -57,4 +57,24 @@ public class UserController {
                 .result(userService.getUsersProfiles(userIds))
                 .build();
     }
+
+    @GetMapping("/suggest-candidates")
+    public ApiResponse<List<UserProfileResponse>> getSuggestCandidates(@RequestParam UUID currentUserId) {
+        return ApiResponse.<List<UserProfileResponse>>builder()
+                .result(userService.getSuggestCandidates(currentUserId))
+                .build();
+    }
+
+    @PostMapping("/presence")
+    public ApiResponse<Void> updatePresence(@RequestParam UUID userId, @RequestParam boolean isOnline) {
+        userService.updatePresence(userId, isOnline);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @GetMapping("/fcm-token/{userId}")
+    public ApiResponse<String> getFcmToken(@PathVariable UUID userId) {
+        return ApiResponse.<String>builder()
+                .result(userService.getFcmToken(userId))
+                .build();
+    }
 }

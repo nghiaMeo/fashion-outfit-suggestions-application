@@ -8,5 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserPreferenceRepository extends JpaRepository<UserPreference, UUID> {
+    java.util.Optional<UserPreference> findByUserId(UUID userId);
 }
 

@@ -77,6 +77,9 @@ public class UserServiceImpl implements UserService {
                     .build();
         }
 
+        var preference = userPreferenceRepository.findByUserId(userId).orElse(null);
+        var favoriteStyles = preference != null ? preference.getFavoriteStyles() : null;
+
         return UserProfileResponse.builder()
                 .id(targetUser.getId())
                 .username(targetUser.getUsername())
@@ -87,6 +90,7 @@ public class UserServiceImpl implements UserService {
                 .outfitCount(0L)     // Sẽ bổ sung lấy qua Feign Client sau
                 .friendCount(0L)     // Sẽ bổ sung lấy qua Feign Client sau
                 .isPrivateProfile(targetUser.isPrivateProfile())
+                .favoriteStyles(favoriteStyles)
                 .friendshipStatus(null) // Sẽ bổ sung lấy qua Feign Client sau
                 .build();
     }
@@ -129,6 +133,49 @@ public class UserServiceImpl implements UserService {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    @Override
+    public java.util.List<UserProfileResponse> getSuggestCandidates(UUID currentUserId) {
+        java.util.List<User> candidates = userRepository.findPublicUsersToSuggest(currentUserId);
+        return candidates.stream()
+                .map(u -> {
+                    try {
+                        var preference = userPreferenceRepository.findByUserId(u.getId()).orElse(null);
+                        var favoriteStyles = preference != null ? preference.getFavoriteStyles() : null;
+                        return UserProfileResponse.builder()
+                                .id(u.getId())
+                                .username(u.getUsername())
+                                .displayName(u.getDisplayName())
+                                .avatarUrl(u.getAvatarUrl())
+                                .bio(u.getBio())
+                                .isPrivateProfile(false)
+                                .favoriteStyles(favoriteStyles)
+                                .build();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void updatePresence(UUID userId, boolean isOnline) {
+        var user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            user.setOnline(isOnline);
+            user.setLastSeen(java.time.Instant.now());
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public String getFcmToken(UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return user.getFcmToken();
     }
 
     private UserResponse mapToUserResponse(User user) {
