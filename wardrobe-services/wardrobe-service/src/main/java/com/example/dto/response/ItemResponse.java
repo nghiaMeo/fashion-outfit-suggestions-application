@@ -23,6 +23,7 @@ public class ItemResponse {
     private String brand;
     private String occasion;
     private String imageUrl;
+    private String tags;
     private Instant createdAt;
 
 }

@@ -3,6 +3,7 @@ package com.example.service.impl;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.example.client.NotificationClient;
 import com.example.client.UserClient;
+import com.example.cache.UserProfileCache;
 import com.example.dto.request.MessageRequest;
 import com.example.dto.request.NotificationRequest;
 import com.example.dto.response.ConversationResponse;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -42,6 +44,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatConversationRepository chatConversationRepository;
     private final NotificationClient notificationClient;
     private final UserClient userClient;
+    private final UserProfileCache userProfileCache;
 
     private User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -52,8 +55,21 @@ public class ChatServiceImpl implements ChatService {
         var currentUser = getCurrentUser();
         var myMemberships = conversationMemberRepository.findByUserId(currentUser.getId());
 
+        List<UUID> friendUserIds = myMemberships.stream()
+                .flatMap(m -> m.getConversation().getMembers().stream())
+                .map(ConversationMember::getUserId)
+                .filter(id -> !id.equals(currentUser.getId()))
+                .distinct()
+                .toList();
+
+        Map<UUID, UserProfileResponse> profilesMap = new java.util.HashMap<>();
+        if (!friendUserIds.isEmpty()) {
+            profilesMap = userProfileCache.getProfilesBatch(friendUserIds);
+        }
+
+        final var finalProfilesMap = profilesMap;
         return myMemberships.stream()
-                .map(m -> mapToConversationResponse(m.getConversation(), currentUser))
+                .map(m -> mapToConversationResponse(m.getConversation(), currentUser, finalProfilesMap))
                 .toList();
     }
 
@@ -67,7 +83,19 @@ public class ChatServiceImpl implements ChatService {
 
         member.setLastReadAt(Instant.now());
         conversationMemberRepository.save(member);
-        return messages.map(this::mapToMessageResponse);
+
+        List<UUID> senderIds = messages.getContent().stream()
+                .map(Message::getSenderId)
+                .distinct()
+                .toList();
+
+        Map<UUID, UserProfileResponse> profilesMap = new java.util.HashMap<>();
+        if (!senderIds.isEmpty()) {
+            profilesMap = userProfileCache.getProfilesBatch(senderIds);
+        }
+
+        final var finalProfilesMap = profilesMap;
+        return messages.map(m -> mapToMessageResponse(m, finalProfilesMap));
     }
 
     @Override
@@ -125,13 +153,7 @@ public class ChatServiceImpl implements ChatService {
     public ConversationResponse createConversation(UUID friendId) {
         User currentUser = getCurrentUser();
         
-        UserProfileResponse friend;
-        try {
-            friend = userClient.getProfile(friendId).getResult();
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
+        UserProfileResponse friend = userProfileCache.getProfile(friendId);
         if (friend == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
@@ -151,13 +173,25 @@ public class ChatServiceImpl implements ChatService {
                 .findFirst()
                 .orElse(null);
 
+        var profilesMap = new java.util.HashMap<UUID, UserProfileResponse>();
+        if (friendMember != null) {
+            var profile = userProfileCache.getProfile(friendMember.getUserId());
+            if (profile != null) {
+                profilesMap.put(friendMember.getUserId(), profile);
+            }
+        }
+        return mapToConversationResponse(conv, currentUser, profilesMap);
+    }
+
+    private ConversationResponse mapToConversationResponse(ChatConversation conv, User currentUser, java.util.Map<UUID, UserProfileResponse> profilesMap) {
+        var friendMember = conv.getMembers().stream()
+                .filter(m -> !m.getUserId().equals(currentUser.getId()))
+                .findFirst()
+                .orElse(null);
+
         UserProfileResponse friendProfile = null;
         if (friendMember != null) {
-            try {
-                friendProfile = userClient.getProfile(friendMember.getUserId()).getResult();
-            } catch (Exception e) {
-                // Ignore
-            }
+            friendProfile = profilesMap.get(friendMember.getUserId());
         }
 
         var myMember = conv.getMembers().stream()
@@ -180,15 +214,17 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private MessageResponse mapToMessageResponse(Message m) {
-        String displayName = "Unknown";
-        try {
-            var profile = userClient.getProfile(m.getSenderId()).getResult();
-            if (profile != null) {
-                displayName = profile.getDisplayName();
-            }
-        } catch (Exception e) {
-            // Fallback
+        var profilesMap = new java.util.HashMap<UUID, UserProfileResponse>();
+        var profile = userProfileCache.getProfile(m.getSenderId());
+        if (profile != null) {
+            profilesMap.put(m.getSenderId(), profile);
         }
+        return mapToMessageResponse(m, profilesMap);
+    }
+
+    private MessageResponse mapToMessageResponse(Message m, java.util.Map<UUID, UserProfileResponse> profilesMap) {
+        UserProfileResponse profile = profilesMap.get(m.getSenderId());
+        String displayName = profile != null ? profile.getDisplayName() : "Unknown";
 
         return MessageResponse.builder()
                 .id(m.getId())

@@ -58,7 +58,7 @@ public class OutfitServiceImpl implements OutfitService {
     public List<OutfitResponse> getAllOutfits() {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
-        var outfits = outfitRepository.findByUserId(currentUser.getId()).stream().toList();
+        var outfits = outfitRepository.findByUserIdAndIsDeletedFalse(currentUser.getId()).stream().toList();
 
         return outfits.stream().map(this::mapToOutfitResponse).toList();
     }
@@ -67,6 +67,10 @@ public class OutfitServiceImpl implements OutfitService {
     public OutfitResponse toggleFavorite(UUID id) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
         var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
 
         if (!outfit.getUserId().equals(currentUser.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -85,6 +89,10 @@ public class OutfitServiceImpl implements OutfitService {
 
         var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
 
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
+
         if (!outfit.getUserId().equals(currentUser.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
@@ -95,21 +103,81 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
-    public OutfitResponse getPublicOutfit(UUID id) {
+    public OutfitResponse getOutfitById(UUID id) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof User user) {
+            currentUserId = user.getId();
+        }
+
         var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
 
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
+
         if (!outfit.isPublic()) {
-            throw new AppException(ErrorCode.OUTFIT_PRIVATE);
+            if (currentUserId == null || !outfit.getUserId().equals(currentUserId)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
         }
 
         return mapToOutfitResponse(outfit);
     }
 
     @Override
-    public List<OutfitResponse> searchOutfits(String occasion, Boolean isFavorite) {
+    @Transactional
+    public void deleteOutfit(UUID id) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+        var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
+
+        if (!outfit.getUserId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        outfit.setDeleted(true);
+        outfitRepository.save(outfit);
+    }
+
+    @Override
+    @Transactional
+    public OutfitResponse updateOutfit(UUID id, OutfitRequest outfitRequest) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+        var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
+
+        if (!outfit.getUserId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        var items = itemRepository.findAllById(outfitRequest.getItemIds()).stream().toList();
+        for (Item item : items) {
+            if (!item.getUserId().equals(currentUser.getId())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+
+        outfit.setName(outfitRequest.getName());
+        outfit.setOccasion(outfitRequest.getOccasion());
+        outfit.setDescription(outfitRequest.getDescription());
+        outfit.setItems(items);
+
+        var savedOutfit = outfitRepository.save(outfit);
+        return mapToOutfitResponse(savedOutfit);
+    }
+
+    @Override
+    public List<OutfitResponse> searchOutfits(String name, String occasion, Boolean isFavorite) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
-        var outfits = outfitRepository.searchOutfits(currentUser.getId(), occasion, isFavorite);
+        var outfits = outfitRepository.searchOutfits(currentUser.getId(), name, occasion, isFavorite);
 
         return outfits.stream().map(this::mapToOutfitResponse).toList();
     }
@@ -119,6 +187,9 @@ public class OutfitServiceImpl implements OutfitService {
     public OutfitResponse toggleLike(UUID id) {
         // Decoupled mock implementation: Social actions belong in social-service
         var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+        if (outfit.isDeleted()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
         return mapToOutfitResponse(outfit);
     }
 
@@ -131,6 +202,9 @@ public class OutfitServiceImpl implements OutfitService {
     private OutfitResponse mapToOutfitResponse(Outfit outfit) {
         var isCurrentUserLiked = false;
         var totalLikes = 0L;
+        var shareLink = outfit.isPublic() && !outfit.isDeleted()
+                ? "http://localhost:8080/api/outfits/public/" + outfit.getId()
+                : null;
 
         return OutfitResponse.builder()
                 .id(outfit.getId())
@@ -138,6 +212,8 @@ public class OutfitServiceImpl implements OutfitService {
                 .occasion(outfit.getOccasion())
                 .isAiGenerated(outfit.isAiGenerated())
                 .isFavorite(outfit.isFavorite())
+                .isPublic(outfit.isPublic())
+                .shareLink(shareLink)
                 .items(outfit.getItems().stream().map(this::mapToItemResponse).toList())
                 .likeCount(totalLikes)
                 .isLiked(isCurrentUserLiked)

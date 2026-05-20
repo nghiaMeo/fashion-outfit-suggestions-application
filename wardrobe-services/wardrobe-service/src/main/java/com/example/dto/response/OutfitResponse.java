@@ -20,6 +20,8 @@ public class OutfitResponse {
     private String occasion;
     private boolean isFavorite;
     private boolean isAiGenerated;
+    private boolean isPublic;
+    private String shareLink;
     private List<ItemResponse> items;
     private long likeCount;
     private boolean isLiked;

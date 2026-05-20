@@ -3,6 +3,7 @@ package com.example.stocket;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.example.dto.response.UserStatusResponse;
 import com.example.repository.ConversationMemberRepository;
+import com.example.client.UserClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,8 @@ public class SocketIOHandler {
 
     public SocketIOHandler(SocketIOServer server,
                            ConversationMemberRepository conversationMemberRepository,
-                           JwtUtils jwtUtils) {
+                           JwtUtils jwtUtils,
+                           UserClient userClient) {
 
         server.addConnectListener(client -> {
             var token = client.getHandshakeData().getSingleUrlParam("token");
@@ -24,6 +26,11 @@ public class SocketIOHandler {
                     var userId = jwtUtils.extractUserId(token);
 
                     client.set("userId", userId);
+                    try {
+                        userClient.updatePresence(userId, true);
+                    } catch (Exception ex) {
+                        log.error("Failed to update presence: {}", ex.getMessage());
+                    }
                     server.getBroadcastOperations().sendEvent("user_status",
                             new UserStatusResponse(userId, true, null));
 
@@ -57,6 +64,11 @@ public class SocketIOHandler {
             var userId = client.get("userId");
             if (userId != null) {
                 var userUuid = (UUID) userId;
+                try {
+                    userClient.updatePresence(userUuid, false);
+                } catch (Exception ex) {
+                    log.error("Failed to update presence: {}", ex.getMessage());
+                }
                 server.getBroadcastOperations().sendEvent("user_status",
                         new UserStatusResponse(userUuid, false, null));
             }

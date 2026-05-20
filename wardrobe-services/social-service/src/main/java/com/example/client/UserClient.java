@@ -23,4 +23,10 @@ public interface UserClient {
 
     @PostMapping("/profile/batch")
     ApiResponse<List<UserProfileResponse>> getUsersProfiles(@org.springframework.web.bind.annotation.RequestBody List<UUID> userIds);
+
+    @GetMapping("/suggest-candidates")
+    ApiResponse<List<UserProfileResponse>> getSuggestCandidates(@RequestParam("currentUserId") UUID currentUserId);
+
+    @PostMapping("/presence")
+    ApiResponse<Void> updatePresence(@RequestParam("userId") java.util.UUID userId, @RequestParam("isOnline") boolean isOnline);
 }

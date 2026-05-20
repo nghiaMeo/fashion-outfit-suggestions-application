@@ -23,11 +23,14 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
 
     @Query("SELECT i FROM Item i WHERE i.userId = :userId AND i.isDeleted = false " +
             "AND (:name IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')))" +
-            "AND (:color IS NULL OR i.color = :color)")
+            "AND (:type IS NULL OR i.type = :type)" +
+            "AND (:color IS NULL OR i.color = :color)" +
+            "AND (:tag IS NULL OR i.tags LIKE CONCAT('%', :tag, '%'))")
     Page<Item> searchItems(@Param("userId") UUID userId,
                            @Param("name") String name,
                            @Param("type") String type,
                            @Param("color") String color,
+                           @Param("tag") String tag,
                            Pageable pageable);
 
     @Query("SELECT i.type, COUNT(i) FROM Item i WHERE i.userId = :userId AND i.isDeleted = false GROUP BY i.type")

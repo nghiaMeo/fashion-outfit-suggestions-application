@@ -10,6 +10,7 @@ import com.example.repository.NotificationRepository;
 import com.example.entity.enums.NotificationType;
 import com.example.service.NotificationService;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.example.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SocketIOServer socketIOServer;
+    private final UserClient userClient;
 
     private User getCurrentUser() {
         return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
@@ -107,14 +109,39 @@ public class NotificationServiceImpl implements NotificationService {
 
         socketIOServer.getRoomOperations(recipientId.toString())
                 .sendEvent("new_notification", mapToResponse(savedNotification));
+
+        try {
+            var fcmTokenResponse = userClient.getFcmToken(recipientId);
+            if (fcmTokenResponse != null && fcmTokenResponse.getResult() != null) {
+                String token = fcmTokenResponse.getResult();
+                if (token != null && !token.trim().isEmpty()) {
+                    sendPushNotification(token, "Bạn có thông báo mới", content);
+                }
+            }
+        } catch (Exception e) {
+            // Non-blocking fallback
+        }
     }
 
     private NotificationResponse mapToResponse(Notification notification) {
+        String actorName = "User";
+        String actorAvatar = null;
+        try {
+            var profileResponse = userClient.getProfile(notification.getActorId());
+            if (profileResponse != null && profileResponse.getResult() != null) {
+                var profile = profileResponse.getResult();
+                actorName = profile.getDisplayName();
+                actorAvatar = profile.getAvatarUrl();
+            }
+        } catch (Exception e) {
+            // Fallback
+        }
+
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .actorId(notification.getActorId())
-                .actorName("User") // Will be resolved via OpenFeign UserClient later
-                .actorAvatar(null)
+                .actorName(actorName)
+                .actorAvatar(actorAvatar)
                 .type(notification.getType())
                 .targetId(notification.getTargetId())
                 .content(notification.getContent())

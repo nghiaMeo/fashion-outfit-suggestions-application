@@ -1,0 +1,1325 @@
+{
+  "info": {
+    "_postman_id": "8da548ae-ee88-44ff-b249-b8659aefba7d",
+    "name": "Fashion Outfit Suggestions - Master Testing Suite",
+    "description": "Postman Master Collection đầy đủ 100% tất cả các APIs của dự án: Đăng nhập/Đăng ký, Tủ đồ (Item), Phối đồ (Outfit), Bạn bè (Friendship) và Trò chuyện (Chat).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "PASTE_YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "outfitId",
+      "value": "OUTFIT_ID_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "ITEM_ID_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "USER_ID_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "conversationId",
+      "value": "CONVERSATION_ID_UUID_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & Account",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123\",\n  \"username\": \"new_fashionista\",\n  \"displayName\": \"Hồng Nhung\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Đăng ký tài khoản người dùng mới."
+          }
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Đăng nhập và lấy Access Token cùng Refresh Token."
+          }
+        },
+        {
+          "name": "Login with Google",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_GOOGLE_OAUTH_TOKEN_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/oauth2/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "oauth2",
+                "google"
+              ]
+            },
+            "description": "Đăng nhập OAuth2 bằng Token xác thực của Google."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"PASTE_YOUR_REFRESH_TOKEN_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Yêu cầu sinh Access Token mới từ Refresh Token."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"PASTE_YOUR_REFRESH_TOKEN_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Đăng xuất tài khoản, thu hồi refresh token và đưa access token vào Blacklist Redis."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Password123\",\n  \"newPassword\": \"NewPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Đổi mật khẩu người dùng."
+          }
+        },
+        {
+          "name": "Forgot Password (Request OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Yêu cầu gửi mã OTP khôi phục mật khẩu về email."
+          }
+        },
+        {
+          "name": "Reset Password with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewResetPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Đặt lại mật khẩu mới sử dụng mã OTP nhận được từ email."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Profiles",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/my-profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "my-profile"
+              ]
+            },
+            "description": "Lấy thông tin cá nhân của người dùng hiện tại."
+          }
+        },
+        {
+          "name": "Get Specific Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/profile/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "profile",
+                "{{userId}}"
+              ]
+            },
+            "description": "Lấy thông tin cá nhân của người dùng bất kỳ."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Hồng Nhung Cập Nhật\",\n  \"avatarUrl\": \"http://cloudinary.com/avatar.jpg\",\n  \"favoriteStyles\": \"vintage, minimal, classic\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "profile"
+              ]
+            },
+            "description": "Cập nhật thông tin profile của tôi và thiết lập tag phong cách yêu thích."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Wardrobe Items",
+      "item": [
+        {
+          "name": "Add Item (Multipart Form)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"name\": \"Áo thun Streetwear\",\n  \"type\": \"TOPS\",\n  \"color\": \"Đen\",\n  \"tag\": \"streetwear, cotton\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "description": "Chọn ảnh tải lên",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/items/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "add"
+              ]
+            },
+            "description": "Thêm món đồ mới vào tủ đồ. Consumes form-data với file ảnh thật để upload lên Cloudinary."
+          }
+        },
+        {
+          "name": "Update Item Detail",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Áo thun Streetwear Pro\",\n  \"type\": \"TOPS\",\n  \"color\": \"Đen Carbon\",\n  \"tag\": \"streetwear, oversized\",\n  \"imageUrl\": \"http://res.cloudinary.com/demo.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Cập nhật thông tin chi tiết một món đồ."
+          }
+        },
+        {
+          "name": "Get All My Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/all-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "all-items"
+              ]
+            },
+            "description": "Lấy danh sách tất cả các món đồ đang có trong tủ đồ."
+          }
+        },
+        {
+          "name": "Search Items (Advanced Filters)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/search-items?name=áo&type=TOPS&color=Đen&tag=streetwear&page=1&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "search-items"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "áo"
+                },
+                {
+                  "key": "type",
+                  "value": "TOPS"
+                },
+                {
+                  "key": "color",
+                  "value": "Đen"
+                },
+                {
+                  "key": "tag",
+                  "value": "streetwear"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Tìm kiếm nâng cao và phân trang các món đồ trong tủ đồ."
+          }
+        },
+        {
+          "name": "Soft Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/delete-item/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "delete-item",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Xóa mềm một món đồ khỏi tủ đồ (chuyển vào Thùng rác)."
+          }
+        },
+        {
+          "name": "Restore Item from Trash",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/restore/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "restore",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Khôi phục lại một món đồ đã bị xóa mềm từ Thùng rác."
+          }
+        },
+        {
+          "name": "Get Trash Items (Thùng rác)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/trash",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "trash"
+              ]
+            },
+            "description": "Xem danh sách các món đồ hiện có trong Thùng rác."
+          }
+        },
+        {
+          "name": "Hard Delete Item (Vĩnh viễn)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/hard-delete/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "hard-delete",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Xóa vĩnh viễn món đồ ra khỏi CSDL."
+          }
+        },
+        {
+          "name": "Get Wardrobe Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/statistics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "statistics"
+              ]
+            },
+            "description": "Lấy báo cáo thống kê tủ đồ (tổng số đồ, số lượng theo phân loại TOP, BOTTOM, v.v.)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Outfit Management",
+      "item": [
+        {
+          "name": "Create Outfit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Outfit Dạo Phố Streetwear\",\n  \"description\": \"Áo thun đen phối quần túi hộp năng động\",\n  \"occasion\": \"Dạo phố\",\n  \"isPublic\": true,\n  \"itemIds\": [\n    \"{{itemId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "add"
+              ]
+            },
+            "description": "Tạo một bộ trang phục mới bằng cách lắp ghép các món đồ đơn lẻ."
+          }
+        },
+        {
+          "name": "Update Outfit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Outfit Dạo Phố Streetwear Pro\",\n  \"description\": \"Áo thun đen phối quần túi hộp năng động cập nhật\",\n  \"occasion\": \"Dạo phố\",\n  \"isPublic\": true,\n  \"itemIds\": [\n    \"{{itemId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}"
+              ]
+            },
+            "description": "Cập nhật thông tin và danh sách các món đồ lắp ghép của Outfit."
+          }
+        },
+        {
+          "name": "Get All My Outfits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/all-outfit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "all-outfit"
+              ]
+            },
+            "description": "Lấy danh sách tất cả outfit của tôi."
+          }
+        },
+        {
+          "name": "Get Outfit Detail (Owner only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}"
+              ]
+            },
+            "description": "Lấy thông tin chi tiết một bộ đồ. Chỉ chủ sở hữu mới xem được. Tự sinh shareLink nếu public."
+          }
+        },
+        {
+          "name": "Get Public Outfit Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/public/{{outfitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "public",
+                "{{outfitId}}"
+              ]
+            },
+            "description": "API công cộng cho phép bất kỳ ai xem chi tiết Outfit public mà không cần đăng nhập."
+          }
+        },
+        {
+          "name": "Toggle Favorite Outfit",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}/favorite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}",
+                "favorite"
+              ]
+            },
+            "description": "Đánh dấu hoặc bỏ đánh dấu bộ trang phục yêu thích."
+          }
+        },
+        {
+          "name": "Toggle Outfit Visibility (Public/Private)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}/visibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}",
+                "visibility"
+              ]
+            },
+            "description": "Chuyển đổi trạng thái chia sẻ của Outfit (Công khai hoặc Riêng tư)."
+          }
+        },
+        {
+          "name": "Search Outfits (Advanced Query)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/search?name=streetwear&occasion=Dạo phố&isFavorite=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "streetwear"
+                },
+                {
+                  "key": "occasion",
+                  "value": "Dạo phố"
+                },
+                {
+                  "key": "isFavorite",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Tìm kiếm các bộ trang phục của tôi theo tên, dịp lễ và mức độ yêu thích."
+          }
+        },
+        {
+          "name": "Toggle Like Outfit (Social Feed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}",
+                "like"
+              ]
+            },
+            "description": "Thích hoặc bỏ thích một Outfit công khai."
+          }
+        },
+        {
+          "name": "Get Home Feed (Public Feed)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/home-feed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "home-feed"
+              ]
+            },
+            "description": "Lấy bảng tin trang chủ gồm các Outfit public của cộng đồng."
+          }
+        },
+        {
+          "name": "Soft Delete Outfit",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/outfits/{{outfitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outfits",
+                "{{outfitId}}"
+              ]
+            },
+            "description": "Xóa mềm bộ trang phục để giữ match records."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Friendship System",
+      "item": [
+        {
+          "name": "Smart Friend Suggestions (Calculated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/suggestions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "suggestions"
+              ]
+            },
+            "description": "Gợi ý kết bạn thông minh xếp hạng theo bạn chung và tag sở thích thời trang."
+          }
+        },
+        {
+          "name": "Get My Friends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/friends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "friends"
+              ]
+            },
+            "description": "Lấy danh sách bạn bè (Đã tối ưu hóa)."
+          }
+        },
+        {
+          "name": "Get Pending Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/requests/pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "requests",
+                "pending"
+              ]
+            },
+            "description": "Lấy danh sách yêu cầu kết bạn đang chờ duyệt."
+          }
+        },
+        {
+          "name": "Send Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/request/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "request",
+                "{{userId}}"
+              ]
+            },
+            "description": "Gửi lời mời kết bạn."
+          }
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/accept/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "accept",
+                "{{userId}}"
+              ]
+            },
+            "description": "Chấp nhận lời mời kết bạn từ người khác."
+          }
+        },
+        {
+          "name": "Decline Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/decline/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "decline",
+                "{{userId}}"
+              ]
+            },
+            "description": "Từ chối yêu cầu kết bạn."
+          }
+        },
+        {
+          "name": "Unfriend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/unfriend/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "unfriend",
+                "{{userId}}"
+              ]
+            },
+            "description": "Hủy kết bạn với một người dùng."
+          }
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/friendship/search?query=hoang",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friendship",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "hoang"
+                }
+              ]
+            },
+            "description": "Tìm kiếm người dùng và kiểm tra trạng thái quan hệ bạn bè."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Chat, Messages & Presence",
+      "item": [
+        {
+          "name": "Get Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations"
+              ]
+            },
+            "description": "Lấy toàn bộ cuộc hội thoại hiện có (Tốc độ tối đa, đệm cache)."
+          }
+        },
+        {
+          "name": "Get Message History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}/messages?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                "{{conversationId}}",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Phân trang lấy lịch sử tin nhắn phòng chat (Đã tối ưu hóa Batch Feign & Cache)."
+          }
+        },
+        {
+          "name": "Create Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                "{{userId}}"
+              ]
+            },
+            "description": "Khởi tạo cuộc hội thoại chat đôi với một bạn bè."
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"content\": \"Chào bạn! Mình muốn xin gợi ý phối đồ này.\",\n  \"type\": \"TEXT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "messages"
+              ]
+            },
+            "description": "Gửi tin nhắn. Sẽ đồng bộ WebSocket và kích hoạt Push Notification FCM nếu người nhận tắt app."
+          }
+        },
+        {
+          "name": "Update User Presence (Manual)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isOnline\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/presence",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "presence"
+              ]
+            },
+            "description": "API thủ công để giả lập việc WebSocket kết nối/ngắt kết nối, cập nhật trạng thái hoạt động online/offline."
+          }
+        },
+        {
+          "name": "Get User FCM Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/fcm-token/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "fcm-token",
+                "{{userId}}"
+              ]
+            },
+            "description": "Lấy FCM Token của User (dành cho client gửi push)."
+          }
+        }
+      ]
+    }
+  ]
+}

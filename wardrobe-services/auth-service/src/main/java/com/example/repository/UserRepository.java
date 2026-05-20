@@ -30,4 +30,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "AND u.id != :currentUserId")
     List<User> searchUsers(String query, UUID currentUserId);
 
+    @Query("SELECT u FROM User u WHERE u.id != :currentUserId AND u.isPrivateProfile = false")
+    List<User> findPublicUsersToSuggest(@org.springframework.data.repository.query.Param("currentUserId") UUID currentUserId);
+
 }

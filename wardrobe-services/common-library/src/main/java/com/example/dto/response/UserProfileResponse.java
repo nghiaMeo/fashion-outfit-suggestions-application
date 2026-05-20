@@ -25,5 +25,7 @@ public class UserProfileResponse {
 
     private boolean isPrivateProfile;
 
+    private String favoriteStyles;
+
     private FriendshipStatus friendshipStatus;
 }

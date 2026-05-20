@@ -18,7 +18,7 @@ public interface ItemService {
 
     List<ItemResponse> getAllItems();
 
-    PageResponse<ItemResponse> searchItems(String name, String type, String color, int page, int size);
+    PageResponse<ItemResponse> searchItems(String name, String type, String color, String tag, int page, int size);
 
     WardrobeStatisticsResponse getWardrobeStatistics();
 

@@ -26,5 +26,8 @@ public interface FriendshipRepository extends CrudRepository<Friendship, UUID> {
     @Query("SELECT f FROM Friendship f WHERE (f.requesterId = :userId OR f.receiverId = :userId) " +
             "AND f.status = 'ACCEPTED' ")
     List<Friendship> findAllAcceptedFriendships(@Param("userId") UUID userId);
+
+    @Query("SELECT f FROM Friendship f WHERE f.requesterId = :userId OR f.receiverId = :userId")
+    List<Friendship> findAllRelations(@Param("userId") UUID userId);
 }
 
