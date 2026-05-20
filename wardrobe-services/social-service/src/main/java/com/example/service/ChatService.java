@@ -16,4 +16,5 @@ public interface ChatService {
     MessageResponse sendMessage(MessageRequest request);
     ConversationResponse createConversation(UUID friendId);
 
+
 }

@@ -18,4 +18,6 @@ public interface FriendshipService {
     List<FriendResponse> getMyFriends();
 
     List<UserSearchResponse> searchUsers(String query);
+
+    List<UUID> getFriendIds();
 }
