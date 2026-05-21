@@ -37,4 +37,4 @@ out/
 .vscode/
 .env
 .idea/workspace.xml
-./notification-service/src/main/resources/serviceAccountKey.json
+serviceAccountKey.json
