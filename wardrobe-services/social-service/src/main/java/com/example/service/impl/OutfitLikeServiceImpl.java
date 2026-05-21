@@ -85,7 +85,7 @@ public class OutfitLikeServiceImpl implements OutfitLikeService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<UUID, OutfitLikeStatusResponse> getLikeStatuses(List<UUID> outfitIds) {
+    public Map<UUID, OutfitLikeStatusResponse> getLikesBatch(List<UUID> outfitIds) {
         var currentUser = getCurrentUser();
         Map<UUID, OutfitLikeStatusResponse> result = new HashMap<>();
 

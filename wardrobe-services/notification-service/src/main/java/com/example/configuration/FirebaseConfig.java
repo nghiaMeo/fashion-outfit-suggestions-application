@@ -15,9 +15,34 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/resources/serviceAccountKey.json");
+            java.io.InputStream serviceAccountStream = null;
+            String[] possiblePaths = {
+                "serviceAccountKey.json",
+                "wardrobe-services/serviceAccountKey.json",
+                "../serviceAccountKey.json"
+            };
+
+            for (String path : possiblePaths) {
+                try {
+                    serviceAccountStream = new FileInputStream(path);
+                    System.out.println("FirebaseConfig: Successfully loaded credentials from file path: " + path);
+                    break;
+                } catch (IOException ignored) {}
+            }
+
+            if (serviceAccountStream == null) {
+                serviceAccountStream = getClass().getClassLoader().getResourceAsStream("serviceAccountKey.json");
+                if (serviceAccountStream != null) {
+                    System.out.println("FirebaseConfig: Successfully loaded credentials from classpath");
+                }
+            }
+
+            if (serviceAccountStream == null) {
+                throw new java.io.FileNotFoundException("Could not find serviceAccountKey.json in any checked paths or classpath");
+            }
+
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
                     .build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);

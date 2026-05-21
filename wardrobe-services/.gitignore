@@ -37,4 +37,4 @@ out/
 .vscode/
 .env
 .idea/workspace.xml
-/src/main/resources/serviceAccountKey.json
+serviceAccountKey.json

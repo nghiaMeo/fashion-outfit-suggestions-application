@@ -12,5 +12,5 @@ public interface OutfitLikeService {
 
     OutfitLikeStatusResponse getLikeStatus(UUID outfitId);
 
-    Map<UUID, OutfitLikeStatusResponse> getLikeStatuses(List<UUID> outfitIds);
+    Map<UUID, OutfitLikeStatusResponse> getLikesBatch(List<UUID> outfitIds);
 }
