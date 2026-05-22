@@ -1,10 +1,10 @@
-# 🔌 API Collection — Fashion Outfit Suggestions Application
+# API Collection — Fashion Outfit Suggestions Application
 
 **Tổng cộng: 38 API endpoints** trên 5 services
 
 ---
 
-## 🌐 Kiến trúc giao tiếp
+##  Kiến trúc giao tiếp
 
 ```
                         ┌──────────────────┐
@@ -30,7 +30,7 @@
 
 ---
 
-## 📡 Gateway Routes (port 8880)
+##  Gateway Routes (port 8880)
 
 | Route Pattern | → Service | Port trực tiếp |
 |--------------|-----------|----------------|
@@ -46,20 +46,20 @@
 
 ---
 
-## 🔐 1. AUTH-SERVICE (port 8881)
+## 1. AUTH-SERVICE (port 8881)
 
 ### Auth — `/api/auth` — 8 endpoints
 
-| # | Method | Path | Mô tả | Auth? |
-|---|--------|------|--------|-------|
-| 1 | `POST` | `/api/auth/register` | Đăng ký tài khoản | ❌ |
-| 2 | `POST` | `/api/auth/login` | Đăng nhập | ❌ |
-| 3 | `POST` | `/api/auth/refresh-token` | Refresh access token | ❌ |
-| 4 | `POST` | `/api/auth/oauth2/google` | Đăng nhập bằng Google | ❌ |
-| 5 | `POST` | `/api/auth/logout` | Đăng xuất | ✅ Bearer |
-| 6 | `PUT`  | `/api/auth/change-password` | Đổi mật khẩu | ✅ Bearer |
-| 7 | `POST` | `/api/auth/forgot-password` | Gửi OTP quên mật khẩu | ❌ |
-| 8 | `POST` | `/api/auth/reset-password` | Reset mật khẩu bằng OTP | ❌ |
+| # | Method | Path | Mô tả | Auth?  |
+|---|--------|------|--------|--------|
+| 1 | `POST` | `/api/auth/register` | Đăng ký tài khoản | X      |
+| 2 | `POST` | `/api/auth/login` | Đăng nhập | X      |
+| 3 | `POST` | `/api/auth/refresh-token` | Refresh access token | X      |
+| 4 | `POST` | `/api/auth/oauth2/google` | Đăng nhập bằng Google | X      |
+| 5 | `POST` | `/api/auth/logout` | Đăng xuất | Bearer |
+| 6 | `PUT`  | `/api/auth/change-password` | Đổi mật khẩu | Bearer |
+| 7 | `POST` | `/api/auth/forgot-password` | Gửi OTP quên mật khẩu | X      |
+| 8 | `POST` | `/api/auth/reset-password` | Reset mật khẩu bằng OTP | X      |
 
 #### Request Bodies
 
@@ -139,14 +139,14 @@
 
 ### User — `/api/user` — 8 endpoints
 
-| # | Method | Path | Mô tả | Auth? |
-|---|--------|------|--------|-------|
-| 9 | `GET` | `/api/user/my-profile` | Profile hiện tại | ✅ Bearer |
-| 10 | `GET` | `/api/user/profile/{userId}` | Xem profile theo ID | ✅ Bearer |
-| 11 | `PUT` | `/api/user/profile` | Cập nhật profile | ✅ Bearer |
-| 12 | `GET` | `/api/user/search?query=xxx&currentUserId=uuid` | Tìm user | ✅ Bearer |
-| 13 | `POST` | `/api/user/profile/batch` | Lấy profiles hàng loạt | ✅ Bearer |
-| 14 | `GET` | `/api/user/suggest-candidates?currentUserId=uuid` | Gợi ý kết bạn | ✅ Bearer |
+| # | Method | Path | Mô tả | Auth?   |
+|---|--------|------|--------|---------|
+| 9 | `GET` | `/api/user/my-profile` | Profile hiện tại | Bearer  |
+| 10 | `GET` | `/api/user/profile/{userId}` | Xem profile theo ID | Bearer  |
+| 11 | `PUT` | `/api/user/profile` | Cập nhật profile | Bearer  |
+| 12 | `GET` | `/api/user/search?query=xxx&currentUserId=uuid` | Tìm user |  Bearer |
+| 13 | `POST` | `/api/user/profile/batch` | Lấy profiles hàng loạt |  Bearer |
+| 14 | `GET` | `/api/user/suggest-candidates?currentUserId=uuid` | Gợi ý kết bạn |  Bearer |
 | 15 | `POST` | `/api/user/presence?userId=uuid&isOnline=true` | Cập nhật online | Internal |
 | 16 | `GET` | `/api/user/fcm-token/{userId}` | Lấy FCM token | Internal |
 
@@ -165,7 +165,7 @@
 
 ---
 
-## 👗 2. WARDROBE-SERVICE (port 8882)
+##  2. WARDROBE-SERVICE (port 8882)
 
 ### Items — `/api/items` — 8 endpoints
 
@@ -210,19 +210,19 @@ Key: file (File) → image.jpg
 
 ### Outfits — `/api/outfits` — 9 endpoints
 
-| # | Method | Path | Mô tả | Auth? |
-|---|--------|------|--------|-------|
-| 26 | `POST` | `/api/outfits/add` | Tạo outfit | ✅ Bearer |
-| 27 | `GET` | `/api/outfits/all-outfit` | Tất cả outfits | ✅ Bearer |
-| 28 | `PATCH` | `/api/outfits/{id}/favorite` | Toggle yêu thích | ✅ Bearer |
-| 29 | `GET` | `/api/outfits/{id}` | Chi tiết outfit | ✅ Bearer |
-| 30 | `GET` | `/api/outfits/public/{id}` | Xem outfit công khai | ❌ |
-| 31 | `DELETE` | `/api/outfits/{id}` | Xóa outfit | ✅ Bearer |
-| 32 | `PUT` | `/api/outfits/{id}` | Cập nhật outfit | ✅ Bearer |
-| 33 | `PATCH` | `/api/outfits/{id}/visibility` | Toggle public/private | ✅ Bearer |
-| 34 | `GET` | `/api/outfits/search?name=&occasion=&isFavorite=` | Tìm kiếm | ✅ Bearer |
-| 35 | `POST` | `/api/outfits/{id}/like` | Like outfit | ✅ Bearer |
-| 36 | `GET` | `/api/outfits/home-feed` | Home feed công khai | ✅ Bearer |
+| # | Method | Path | Mô tả | Auth?  |
+|---|--------|------|--------|--------|
+| 26 | `POST` | `/api/outfits/add` | Tạo outfit | Bearer |
+| 27 | `GET` | `/api/outfits/all-outfit` | Tất cả outfits | Bearer |
+| 28 | `PATCH` | `/api/outfits/{id}/favorite` | Toggle yêu thích | Bearer |
+| 29 | `GET` | `/api/outfits/{id}` | Chi tiết outfit | Bearer |
+| 30 | `GET` | `/api/outfits/public/{id}` | Xem outfit công khai | x      |
+| 31 | `DELETE` | `/api/outfits/{id}` | Xóa outfit | Bearer |
+| 32 | `PUT` | `/api/outfits/{id}` | Cập nhật outfit | Bearer |
+| 33 | `PATCH` | `/api/outfits/{id}/visibility` | Toggle public/private | Bearer |
+| 34 | `GET` | `/api/outfits/search?name=&occasion=&isFavorite=` | Tìm kiếm | Bearer |
+| 35 | `POST` | `/api/outfits/{id}/like` | Like outfit | Bearer |
+| 36 | `GET` | `/api/outfits/home-feed` | Home feed công khai | Bearer |
 
 **26. POST /api/outfits/add**
 ```json
@@ -235,15 +235,15 @@ Key: file (File) → image.jpg
 
 ---
 
-## 💬 3. SOCIAL-SERVICE (port 8883)
+##  3. SOCIAL-SERVICE (port 8883)
 
 ### Chat — `/api/chat` — 3 endpoints
 
 | # | Method | Path | Mô tả | Auth? |
 |---|--------|------|--------|-------|
-| 37 | `GET` | `/api/chat/conversations` | Danh sách hội thoại | ✅ Bearer |
-| 38 | `GET` | `/api/chat/conversations/{id}/messages?page=0&size=20` | Lịch sử tin nhắn | ✅ Bearer |
-| 39 | `POST` | `/api/chat/send` | Gửi tin nhắn | ✅ Bearer |
+| 37 | `GET` | `/api/chat/conversations` | Danh sách hội thoại |  Bearer |
+| 38 | `GET` | `/api/chat/conversations/{id}/messages?page=0&size=20` | Lịch sử tin nhắn |  Bearer |
+| 39 | `POST` | `/api/chat/send` | Gửi tin nhắn |  Bearer |
 
 **39. POST /api/chat/send**
 ```json
@@ -257,21 +257,21 @@ Key: file (File) → image.jpg
 
 | # | Method | Path | Mô tả | Auth? |
 |---|--------|------|--------|-------|
-| 40 | `POST` | `/api/friendship/request/{receiverId}` | Gửi lời mời kết bạn | ✅ Bearer |
-| 41 | `POST` | `/api/friendship/accept/{friendshipId}` | Chấp nhận lời mời | ✅ Bearer |
-| 42 | `DELETE` | `/api/friendship/cancel/{friendshipId}` | Từ chối/hủy lời mời | ✅ Bearer |
-| 43 | `GET` | `/api/friendship/pending` | Lời mời đang chờ | ✅ Bearer |
-| 44 | `GET` | `/api/friendship/my-friends` | Danh sách bạn bè | ✅ Bearer |
-| 45 | `GET` | `/api/friendship/search-users?query=xxx` | Tìm kiếm user | ✅ Bearer |
-| 46 | `GET` | `/api/friendship/friend-ids` | Lấy friend IDs | ✅ Bearer |
+| 40 | `POST` | `/api/friendship/request/{receiverId}` | Gửi lời mời kết bạn |  Bearer |
+| 41 | `POST` | `/api/friendship/accept/{friendshipId}` | Chấp nhận lời mời |  Bearer |
+| 42 | `DELETE` | `/api/friendship/cancel/{friendshipId}` | Từ chối/hủy lời mời |  Bearer |
+| 43 | `GET` | `/api/friendship/pending` | Lời mời đang chờ |  Bearer |
+| 44 | `GET` | `/api/friendship/my-friends` | Danh sách bạn bè |  Bearer |
+| 45 | `GET` | `/api/friendship/search-users?query=xxx` | Tìm kiếm user |  Bearer |
+| 46 | `GET` | `/api/friendship/friend-ids` | Lấy friend IDs |  Bearer |
 
 ### Outfit Like — `/api/social/outfits` — 3 endpoints
 
 | # | Method | Path | Mô tả | Auth? |
 |---|--------|------|--------|-------|
-| 47 | `POST` | `/api/social/outfits/{outfitId}/like?ownerId=uuid` | Like/Unlike outfit | ✅ Bearer |
-| 48 | `GET` | `/api/social/outfits/{outfitId}/like-status` | Trạng thái like | ✅ Bearer |
-| 49 | `POST` | `/api/social/outfits/likes-batch` | Like status hàng loạt | ✅ Bearer |
+| 47 | `POST` | `/api/social/outfits/{outfitId}/like?ownerId=uuid` | Like/Unlike outfit |  Bearer |
+| 48 | `GET` | `/api/social/outfits/{outfitId}/like-status` | Trạng thái like |  Bearer |
+| 49 | `POST` | `/api/social/outfits/likes-batch` | Like status hàng loạt |  Bearer |
 
 **49. POST /api/social/outfits/likes-batch**
 ```json
@@ -280,17 +280,17 @@ Key: file (File) → image.jpg
 
 ---
 
-## 🔔 4. NOTIFICATION-SERVICE (port 8884)
+##  4. NOTIFICATION-SERVICE (port 8884)
 
 Base path: `/api/notifications` — 5 endpoints
 
 | # | Method | Path | Mô tả | Auth? |
 |---|--------|------|--------|-------|
-| 50 | `GET` | `/api/notifications` | Danh sách thông báo | ✅ Bearer |
-| 51 | `GET` | `/api/notifications/unread-count` | Số chưa đọc | ✅ Bearer |
-| 52 | `PUT` | `/api/notifications/{notificationId}/read` | Đánh dấu đã đọc | ✅ Bearer |
-| 53 | `PUT` | `/api/notifications/read-all` | Đánh dấu tất cả đã đọc | ✅ Bearer |
-| 54 | `POST` | `/api/notifications/send` | Gửi thông báo | ✅ Bearer |
+| 50 | `GET` | `/api/notifications` | Danh sách thông báo |  Bearer |
+| 51 | `GET` | `/api/notifications/unread-count` | Số chưa đọc |  Bearer |
+| 52 | `PUT` | `/api/notifications/{notificationId}/read` | Đánh dấu đã đọc |  Bearer |
+| 53 | `PUT` | `/api/notifications/read-all` | Đánh dấu tất cả đã đọc |  Bearer |
+| 54 | `POST` | `/api/notifications/send` | Gửi thông báo |  Bearer |
 
 **54. POST /api/notifications/send**
 ```json
@@ -305,7 +305,7 @@ Base path: `/api/notifications` — 5 endpoints
 
 ---
 
-## 🧪 Test Flows — Copy vào Postman/Bruno
+##  Test Flows — Copy vào Postman/Bruno
 
 ### Flow 1: Auth cơ bản
 ```
@@ -350,7 +350,7 @@ Base path: `/api/notifications` — 5 endpoints
 
 ---
 
-## 📋 Thứ tự khởi động services
+##  Thứ tự khởi động services
 
 | Bước | Service | Port | Lý do |
 |------|---------|------|-------|
