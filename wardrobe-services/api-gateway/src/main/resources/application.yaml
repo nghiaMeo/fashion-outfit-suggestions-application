@@ -17,7 +17,7 @@ spring:
         - id: social-service
           uri: lb://social-service
           predicates:
-            - Path=/api/friendships/**, /api/chats/**
+            - Path=/api/friendship/**, /api/chat/**, /api/social/outfits/**
         - id: notification-service
           uri: lb://notification-service
           predicates:
