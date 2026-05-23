@@ -99,7 +99,7 @@
 **4. POST /api/auth/oauth2/google**
 ```json
 {
-  "idToken": "google-id-token-here"
+  "token": "google-id-token-here"
 }
 ```
 
