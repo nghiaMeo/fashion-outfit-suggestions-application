@@ -25,7 +25,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
                         request.requestMatchers("/api/outfits/public/**").permitAll()
-                                .anyRequest().permitAll()) // API Gateway performs coarse-grained auth, filter sets context
+                                .anyRequest().authenticated()) // Reject unauthenticated requests
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();

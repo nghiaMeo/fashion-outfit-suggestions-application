@@ -132,7 +132,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"google-id-token-here\"\n}"
+                  "raw": "{\n  \"token\": \"google-id-token-here\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/api/auth/oauth2/google",
