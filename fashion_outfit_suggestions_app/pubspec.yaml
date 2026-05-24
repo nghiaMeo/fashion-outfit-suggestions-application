@@ -6,10 +6,14 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.11.4
+
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  get: ^4.7.3
+  dio: ^5.9.2
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:
