@@ -1,1 +1,11 @@
 rootProject.name = 'wardrobe-services'
+
+include 'common-library'
+include 'api-gateway'
+include 'auth-service'
+include 'wardrobe-service'
+include 'social-service'
+include 'notification-service'
+include 'discovery-service'
+
+

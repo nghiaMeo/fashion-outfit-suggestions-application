@@ -36,3 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 .env
+.idea/workspace.xml
+serviceAccountKey.json
