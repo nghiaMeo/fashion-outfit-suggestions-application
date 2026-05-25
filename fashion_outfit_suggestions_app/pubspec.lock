@@ -227,6 +227,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.0"
+  math_curve_loaders:
+    dependency: "direct main"
+    description:
+      name: math_curve_loaders
+      sha256: fa598bc4cb5e25b56cfc605c34cfaa491d867a62e0aa7eafcf3bec6ce64811bf
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   meta:
     dependency: transitive
     description:

@@ -14,6 +14,7 @@ dependencies:
   get: ^4.7.3
   dio: ^5.9.2
   get_storage: ^2.1.1
+  math_curve_loaders: ^0.1.0
 
 dev_dependencies:
   flutter_test:
