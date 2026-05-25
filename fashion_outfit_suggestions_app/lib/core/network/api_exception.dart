@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:fashion_outfit_suggestions_app/core/models/error_response.dart';
 
 class ApiException implements Exception {

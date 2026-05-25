@@ -13,7 +13,7 @@ class SplashController extends GetxController {
   }
 
   Future<void> _goNext() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 3000));
     if (_storage.accessToken != null) {
       Get.offAllNamed(AppRoutes.home);
     } else {
