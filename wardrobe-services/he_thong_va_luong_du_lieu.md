@@ -12,39 +12,33 @@ Dự án đã được chuyển đổi hoàn toàn từ kiến trúc Microservic
 
 ```mermaid
 graph TD
-    classDef client fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef monolith fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef module fill:#bfb,stroke:#333,stroke-width:2px;
-    classDef database fill:#ffb,stroke:#333,stroke-width:2px;
-    classDef external fill:#fbb,stroke:#333,stroke-width:2px;
-
-    Client["Frontend Client (Web/Mobile)"]:::client
-    MonolithApp["Monolith Application (Port 8880)\nSpring Boot App"]:::monolith
+    Client["Frontend Client (Web/Mobile)"]
+    MonolithApp["Monolith Application (Port 8880) - Spring Boot App"]
 
     %% Internal Modules
     subgraph Modules [Internal Modular Structure]
-        AuthMod["Auth & User Module\n(com.example.controller/service/entity)"]:::module
-        WardrobeMod["Wardrobe Module\n(Quản lý Items & Outfits)"]:::module
-        SocialMod["Social Module\n(Chat & Friendships)"]:::module
-        NotificationMod["Notification Module\n(Thông báo & Push)"]:::module
+        AuthMod["Auth & User Module"]
+        WardrobeMod["Wardrobe Module - Quản lý Items & Outfits"]
+        SocialMod["Social Module - Chat & Friendships"]
+        NotificationMod["Notification Module - Thông báo & Push"]
     end
 
     %% Databases & External Services
-    DB_Monolith[("PostgreSQL\nwardrobe_fashion_db")]:::database
-    Redis[("Redis Cache & Presence\n(Port 6379)")]:::database
+    DB_Monolith[("PostgreSQL - wardrobe_fashion_db")]
+    Redis[("Redis Cache & Presence - Port 6379")]
     
-    SocketIO_Social["Netty-SocketIO Server\n(Social Server - Port 9002)"]:::monolith
-    SocketIO_Notif["Netty-SocketIO Server\n(Notification Server - Port 9003)"]:::monolith
+    SocketIO_Social["Netty-SocketIO Server (Social Server - Port 9002)"]
+    SocketIO_Notif["Netty-SocketIO Server (Notification Server - Port 9003)"]
 
-    Cloudinary[["Cloudinary\n(Storage)"]]:::external
-    Gmail[["Gmail SMTP\n(OTP Mailer)"]]:::external
+    Cloudinary[["Cloudinary (Storage)"]]
+    Gmail[["Gmail SMTP (OTP Mailer)"]]
 
     %% Routing
     Client -->|HTTP Requests| MonolithApp
     Client <-->|Socket.IO Connection| SocketIO_Social
     Client <-->|Socket.IO Connection| SocketIO_Notif
 
-    %% Internal Calls (Direct Method Injections instead of Feign Client)
+    %% Internal Calls
     SocialMod -->|Direct Java Call| AuthMod
     SocialMod -->|Direct Java Call| NotificationMod
 
@@ -118,7 +112,7 @@ sequenceDiagram
     participant Cloudinary as Cloudinary API
     database DB as PostgreSQL (wardrobe_fashion_db)
 
-    User->>Tomcat: POST /api/items/add (Multipart: data JSON + file Image) <br>[Header: Bearer token]
+    User->>Tomcat: POST /api/items/add (Multipart: data JSON + file Image)
     Note over Tomcat: Spring Security xác thực JWT và nạp thông tin vào SecurityContext
     Tomcat->>Wardrobe: Gọi ItemController.addItem() trực tiếp
     Note over Wardrobe: Lấy userId từ SecurityContext nội bộ
@@ -150,16 +144,13 @@ sequenceDiagram
     participant Notif as Notification Module (NotificationService)
     database DB as PostgreSQL (wardrobe_fashion_db)
 
-    User1->>Tomcat: POST /api/friendship/request/{receiverId} [Header: Bearer UserA_Token]
+    User1->>Tomcat: POST /api/friendship/request/{receiverId}
     Tomcat->>Social: Gọi FriendshipController.sendFriendRequest()
     Note over Social: Lấy thông tin User A từ SecurityContext nội bộ
     
-    %% Gọi trực tiếp thông qua Java Dependency Injection
-    rect rgb(230, 245, 255)
-        Note over Social, Auth: Java Method Call (Direct Injection)
-        Social->>Auth: userService.getUserProfile(receiverId)
-        Auth-->>Social: Trả về UserProfileResponse (không thông qua mạng HTTP)
-    end
+    Note over Social, Auth: Java Method Call (Direct Injection)
+    Social->>Auth: userService.getUserProfile(receiverId)
+    Auth-->>Social: Trả về UserProfileResponse
 
     alt User B không tồn tại
         Social-->>Tomcat: Ném lỗi USER_NOT_FOUND
@@ -170,14 +161,11 @@ sequenceDiagram
         Social->>DB: Lưu bản ghi mới vào bảng 'friendship' (status=PENDING)
         DB-->>Social: Trả về bản ghi Friendship thành công
         
-        %% Gọi dịch vụ thông báo nội bộ
-        rect rgb(240, 255, 240)
-            Note over Social, Notif: Java Method Call (Direct Injection)
-            Social->>Notif: notificationService.sendNotification(recipientId=B, actorId=A, type=FRIEND_REQUEST, ...)
-            Note over Notif: NotificationService lưu vào bảng 'notification' & đẩy ra Socket.IO cổng 9003
-            Notif-->>Social: Trả về thành công (Void)
-        end
-
+        Note over Social, Notif: Java Method Call (Direct Injection)
+        Social->>Notif: notificationService.sendNotification(recipientId=B, actorId=A, type=FRIEND_REQUEST, ...)
+        Note over Notif: NotificationService lưu vào bảng 'notification' & đẩy ra Socket.IO cổng 9003
+        Notif-->>Social: Trả về thành công
+        
         Social-->>Tomcat: Trả về chuỗi: "Request has been sent"
         Tomcat-->>User1: Phản hồi 200 OK gửi lời mời kết bạn thành công
     end
@@ -200,36 +188,28 @@ sequenceDiagram
     participant NotifSocket as Notification SocketIO Server (Port 9003)
     database DB as PostgreSQL (wardrobe_fashion_db)
 
-    %% Khởi động & Connect Socket
-    Note over UserA, SocialSocket: ─── LUỒNG KẾT NỐI SOCKET & ĐỒNG BỘ TRẠNG THÁI (PRESENCE) ───
+    Note over UserA, SocialSocket: KẾT NỐI SOCKET VÀ CẬP NHẬT TRẠNG THÁI PRESENCE
     UserA->>SocialSocket: Khởi tạo kết nối Socket.IO kèm token
     Note over SocialSocket: Xác thực token hợp lệ & Giải mã lấy userId A
     
-    rect rgb(230, 245, 255)
-        SocialSocket->>Tomcat: Cập nhật trạng thái thông qua userService.updatePresence(A, true)
-        Tomcat-->>SocialSocket: Cập nhật DB thành công
-    end
+    SocialSocket->>Tomcat: Cập nhật trạng thái thông qua userService.updatePresence(A, true)
+    Tomcat-->>SocialSocket: Cập nhật DB thành công
     
-    SocialSocket->>SocialSocket: User A gia nhập phòng (Room) cá nhân của mình
+    SocialSocket->>SocialSocket: User A gia nhập phòng Room cá nhân
     SocialSocket->>UserB: Phát sự kiện broadcast "user_status" thông báo User A Online
     
-    %% Luồng gửi tin nhắn
-    Note over UserA, Social: ─── LUỒNG GỬI TIN NHẮN CHAT & THÔNG BÁO ───
+    Note over UserA, Social: GỬI TIN NHẮN CHAT VÀ THÔNG BÁO
     UserA->>Tomcat: HTTP POST /api/chat/send {conversationId, content}
     Tomcat->>Social: Gọi ChatService.sendMessage() trực tiếp
     Social->>DB: Lưu tin nhắn mới vào bảng 'message'
     DB-->>Social: Trả về Message entity đã lưu
     
-    %% Phát real-time qua Social Socket
     Social->>SocialSocket: Lấy Room theo conversationId
-    SocialSocket->>UserB: socket.sendEvent("new_message", MessageResponse) [Real-time Chat]
+    SocialSocket->>UserB: socket.sendEvent("new_message", MessageResponse)
     
-    %% Gửi thông báo real-time qua Notification Socket (Port 9003)
-    rect rgb(240, 255, 240)
-        Social->>DB: Lưu bản ghi thông báo mới vào bảng 'notification'
-        Social->>NotifSocket: Lấy Room theo userId B
-        NotifSocket->>UserB: socket.sendEvent("new_notification", NotificationResponse)
-    end
+    Social->>DB: Lưu bản ghi thông báo mới vào bảng 'notification'
+    Social->>NotifSocket: Lấy Room theo userId B
+    NotifSocket->>UserB: socket.sendEvent("new_notification", NotificationResponse)
     
     Social-->>Tomcat: Trả về MessageResponse
     Tomcat-->>UserA: Trả về phản hồi tin nhắn thành công
