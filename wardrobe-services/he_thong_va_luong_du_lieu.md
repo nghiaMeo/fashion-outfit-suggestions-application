@@ -73,11 +73,11 @@ Luồng xử lý khi người dùng gửi yêu cầu đăng nhập bằng Email 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Người dùng (Client)
-    participant Tomcat as Web Server (8880)
-    participant Auth as Auth Module (Java Class)
-    database DB as PostgreSQL (wardrobe_fashion_db)
-    database Redis as Redis Cache
+    actor User as "Người dùng (Client)"
+    participant Tomcat as "Web Server (8880)"
+    participant Auth as "Auth Module (Java Class)"
+    database DB as "PostgreSQL (wardrobe_fashion_db)"
+    database Redis as "Redis Cache"
 
     User->>Tomcat: POST /api/auth/login {email, password}
     Tomcat->>Auth: Gọi AuthController.login() trực tiếp
@@ -106,11 +106,11 @@ Luồng tải ảnh trang phục dạng `multipart/form-data` và lưu thông ti
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Người dùng (Client)
-    participant Tomcat as Web Server (8880)
-    participant Wardrobe as Wardrobe Module (Java Class)
-    participant Cloudinary as Cloudinary API
-    database DB as PostgreSQL (wardrobe_fashion_db)
+    actor User as "Người dùng (Client)"
+    participant Tomcat as "Web Server (8880)"
+    participant Wardrobe as "Wardrobe Module (Java Class)"
+    participant Cloudinary as "Cloudinary API"
+    database DB as "PostgreSQL (wardrobe_fashion_db)"
 
     User->>Tomcat: POST /api/items/add (Multipart: data JSON + file Image)
     Note over Tomcat: Spring Security xác thực JWT và nạp thông tin vào SecurityContext
@@ -137,12 +137,12 @@ Giao tiếp nội bộ bằng cách tiêm trực tiếp Java Service (`@Autowire
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User1 as User A (Client)
-    participant Tomcat as Web Server (8880)
-    participant Social as Social Module (FriendshipService)
-    participant Auth as Auth Module (UserService)
-    participant Notif as Notification Module (NotificationService)
-    database DB as PostgreSQL (wardrobe_fashion_db)
+    actor User1 as "User A (Client)"
+    participant Tomcat as "Web Server (8880)"
+    participant Social as "Social Module (FriendshipService)"
+    participant Auth as "Auth Module (UserService)"
+    participant Notif as "Notification Module (NotificationService)"
+    database DB as "PostgreSQL (wardrobe_fashion_db)"
 
     User1->>Tomcat: POST /api/friendship/request/{receiverId}
     Tomcat->>Social: Gọi FriendshipController.sendFriendRequest()
@@ -180,13 +180,13 @@ Sơ đồ kết hợp giữa luồng HTTP của Monolith Server và hệ thống
 ```mermaid
 sequenceDiagram
     autonumber
-    actor UserA as User A (Client)
-    actor UserB as User B (Client)
-    participant SocialSocket as Social SocketIO Server (Port 9002)
-    participant Tomcat as Monolith HTTP Server (Port 8880)
-    participant Social as Social Module (ChatService)
-    participant NotifSocket as Notification SocketIO Server (Port 9003)
-    database DB as PostgreSQL (wardrobe_fashion_db)
+    actor UserA as "User A (Client)"
+    actor UserB as "User B (Client)"
+    participant SocialSocket as "Social SocketIO Server (Port 9002)"
+    participant Tomcat as "Monolith HTTP Server (Port 8880)"
+    participant Social as "Social Module (ChatService)"
+    participant NotifSocket as "Notification SocketIO Server (Port 9003)"
+    database DB as "PostgreSQL (wardrobe_fashion_db)"
 
     Note over UserA, SocialSocket: KẾT NỐI SOCKET VÀ CẬP NHẬT TRẠNG THÁI PRESENCE
     UserA->>SocialSocket: Khởi tạo kết nối Socket.IO kèm token
