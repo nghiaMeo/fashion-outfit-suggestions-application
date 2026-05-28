@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../core/theme/app_text_styles.dart';
-import '../modules/auth/login_view.dart';
-import '../modules/home/home_view.dart';
-import '../modules/splash/splash_binding.dart';
-import '../modules/splash/splash_view.dart';
 import 'bindings/initial_binding.dart';
+import 'modules/home/home_view.dart';
+import 'modules/login/views/login_view.dart';
+import 'modules/splash/splash_binding.dart';
+import 'modules/splash/splash_view.dart';
 
 class FashionApp extends StatefulWidget {
   const FashionApp({super.key});
@@ -24,7 +24,7 @@ class _FashionAppState extends State<FashionApp> {
       debugShowCheckedModeBanner: false,
       title: 'Fashion Outfit',
       initialBinding: InitialBinding(),
-      initialRoute: AppRoutes.splash,
+      initialRoute: Routes.splash,
       themeMode: ThemeMode.dark,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -37,12 +37,12 @@ class _FashionAppState extends State<FashionApp> {
       ),
       getPages: [
         GetPage(
-          name: AppRoutes.splash,
+          name: Routes.splash,
           page: () => const SplashView(),
           binding: SplashBinding(),
         ),
-        GetPage(name: AppRoutes.login, page: () => const LoginView()),
-        GetPage(name: AppRoutes.home, page: () => const HomeView()),
+        GetPage(name: Routes.login, page: () => const LoginView()),
+        GetPage(name: Routes.home, page: () => const HomeView()),
       ],
     );
   }

@@ -1,4 +1,4 @@
-import 'package:fashion_outfit_suggestions_app/modules/splash/splash_controller.dart';
+import 'package:fashion_outfit_suggestions_app/app/modules/splash/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:math_curve_loaders/math_curve_loaders.dart';

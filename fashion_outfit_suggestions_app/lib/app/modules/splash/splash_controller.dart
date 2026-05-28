@@ -1,7 +1,7 @@
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
 import 'package:get/get.dart';
 
-import '../../app/routes/app_routes.dart';
+import '../../routes/app_routes.dart';
 
 class SplashController extends GetxController {
   final _storage = Get.find<TokenStorage>();
@@ -15,9 +15,9 @@ class SplashController extends GetxController {
   Future<void> _goNext() async {
     await Future.delayed(const Duration(milliseconds: 3000));
     if (_storage.accessToken != null) {
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(Routes.home);
     } else {
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(Routes.login);
     }
   }
 }
