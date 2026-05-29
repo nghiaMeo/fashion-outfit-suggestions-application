@@ -3,6 +3,8 @@ import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/dialog_alert.dart';
 import '../../../routes/app_routes.dart';
 
 class RegisterController extends GetxController {
@@ -19,7 +21,7 @@ class RegisterController extends GetxController {
   final DioClient _dioClient = Get.find<DioClient>();
 
   Future<void> register() async {
-    if (formKey.currentState!.validate() ?? false) {
+    if (!(formKey.currentState!.validate() ?? false)) {
       return;
     }
     isLoading.value = true;
@@ -37,21 +39,43 @@ class RegisterController extends GetxController {
         ),
         (json) => UserResponse.fromJson(json! as Map<String, dynamic>),
       );
-
-      Get.snackbar(
-        'Success',
-        'Register successfully',
-        snackPosition: SnackPosition.BOTTOM,
+      Get.dialog(
+        DialogAlert(
+          onConfirm: () {
+            Get.offAllNamed(Routes.login);
+          },
+          color: AppColors.primary,
+          icon: Icons.check_circle,
+          title: 'Sign up success',
+          description: 'Now you can login with your new account',
+        ),
+        barrierDismissible: false,
       );
-
-      Get.offAllNamed(Routes.login);
     } on Exception catch (e) {
-      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
-    } catch (_) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong',
-        snackPosition: SnackPosition.BOTTOM,
+      Get.dialog(
+        DialogAlert(
+          onConfirm: () {
+             Get.back();
+          },
+          color: AppColors.error,
+          icon: Icons.error,
+          title: 'Error sign up',
+          description: e.toString().replaceAll('Exception: ', ''),
+        ),
+        barrierDismissible: false,
+      );
+    } catch (e) {
+      Get.dialog(
+        DialogAlert(
+          onConfirm: () {
+            Get.back();
+          },
+          color: AppColors.error,
+          icon: Icons.error,
+          title: 'Error sign up',
+          description: e.toString(),
+        ),
+        barrierDismissible: false,
       );
     } finally {
       isLoading.value = false;
