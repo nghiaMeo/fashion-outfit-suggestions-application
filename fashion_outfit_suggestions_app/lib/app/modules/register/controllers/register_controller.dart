@@ -84,7 +84,7 @@ class RegisterController extends GetxController {
 
   String? validateEmail(String? email) {
     final value = (email ?? '').trim();
-    if (email!.isEmpty) return ('Email is required');
+    if (value.isEmpty) return ('Email is required');
 
     if (!GetUtils.isEmail(value)) return ('Invalid email');
 
@@ -93,15 +93,15 @@ class RegisterController extends GetxController {
 
   String? validateUsername(String? username) {
     final value = (username ?? '').trim();
-    if (username!.isEmpty) return ('Username is required');
-    if (username.length < 6) return ('username must at latest 6 characters');
+    if (value.isEmpty) return ('Username is required');
+    if (value.length < 6) return ('username must at latest 6 characters');
     return null;
   }
 
   String? validateDisplayName(String? displayName) {
     final value = (displayName ?? '').trim();
-    if (displayName!.isEmpty) return ('Display name is required');
-    if (displayName.length < 8) {
+    if (value.isEmpty) return ('Display name is required');
+    if (value.length < 8) {
       return ('display name must at latest 8 characters');
     }
     return null;
@@ -109,8 +109,8 @@ class RegisterController extends GetxController {
 
   String? validatePassword(String? password) {
     final value = (password ?? '').trim();
-    if (password!.isEmpty) return ('Password is required');
-    if (password.length < 8) return ('Password must at latest 8 characters');
+    if (value.isEmpty) return ('Password is required');
+    if (value.length < 8) return ('Password must at latest 8 characters');
     return null;
   }
 
