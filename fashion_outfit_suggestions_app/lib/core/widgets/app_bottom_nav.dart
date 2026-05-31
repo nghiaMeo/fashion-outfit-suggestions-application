@@ -17,34 +17,48 @@ class AppBottomNav extends StatelessWidget {
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: Color(0xFF2C2C2C), width: 0.5)),
       ),
-      child: BottomNavigationBar(
-        backgroundColor: AppColors.background,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.secondary,
-        unselectedItemColor: AppColors.placeholder,
-        showUnselectedLabels: false,
-        showSelectedLabels: false,
-        currentIndex: currentIndex,
-        onTap: onTap,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined, size: 28),
-            activeIcon: Icon(Icons.home, size: 28),
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.search, size: 28)),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dry_cleaning_outlined, size: 28),
-            activeIcon: Icon(Icons.dry_cleaning, size: 28),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.send_outlined, size: 28),
-            activeIcon: Icon(Icons.send, size: 28),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline, size: 28),
-            activeIcon: Icon(Icons.person, size: 28),
-          ),
-        ],
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: AppColors.background,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: AppColors.secondary,
+          unselectedItemColor: AppColors.placeholder,
+          showUnselectedLabels: false,
+          showSelectedLabels: false,
+          currentIndex: currentIndex,
+          onTap: onTap,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined, size: 28),
+              activeIcon: Icon(Icons.home, size: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search, size: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dry_cleaning_outlined, size: 28),
+              activeIcon: Icon(Icons.dry_cleaning, size: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.send_outlined, size: 28),
+              activeIcon: Icon(Icons.send, size: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline, size: 28),
+              activeIcon: Icon(Icons.person, size: 28),
+              label: '',
+            ),
+          ],
+        ),
       ),
     );
   }

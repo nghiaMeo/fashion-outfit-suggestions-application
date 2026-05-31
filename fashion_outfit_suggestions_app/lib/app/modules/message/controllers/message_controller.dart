@@ -1,23 +1,9 @@
 import 'package:get/get.dart';
 
 class MessageController extends GetxController {
-  //TODO: Implement MessageController
+  final currentIndex = 3.obs;
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
+  void changPage(int index) {
+    currentIndex.value = index;
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

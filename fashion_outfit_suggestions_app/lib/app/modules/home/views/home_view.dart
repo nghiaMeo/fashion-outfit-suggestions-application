@@ -1,8 +1,10 @@
+import 'package:fashion_outfit_suggestions_app/app/modules/searches/views/searches_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
 import '../../../../core/widgets/app_bottom_nav.dart';
+import '../../message/views/message_view.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -12,9 +14,9 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       const HomeFeedView(),
-      const Center(child: Text('Search View')),
+      const SearchesView(),
       const Center(child: Text('Dry Cleaning View')),
-      const Center(child: Text('Chat View')),
+      const MessageView(),
       const Center(child: Text('Profile View')),
     ];
 
@@ -23,9 +25,11 @@ class HomeView extends GetView<HomeController> {
         () =>
             IndexedStack(index: controller.currentIndex.value, children: pages),
       ),
-      bottomNavigationBar: AppBottomNav(
-        currentIndex: controller.currentIndex.value,
-        onTap: controller.changPage,
+      bottomNavigationBar: Obx(
+        () => AppBottomNav(
+          currentIndex: controller.currentIndex.value,
+          onTap: controller.changPage,
+        ),
       ),
     );
   }
