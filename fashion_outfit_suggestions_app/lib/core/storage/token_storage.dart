@@ -11,6 +11,8 @@ class TokenStorage {
 
   String? get refreshToken => _box.read<String>(StorageKeys.refreshToken);
 
+  String? get userId => _box.read<String>(StorageKeys.userId);
+
   bool get hasSession =>
       accessToken != null &&
       accessToken!.isNotEmpty &&

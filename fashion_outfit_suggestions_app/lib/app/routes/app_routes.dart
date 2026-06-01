@@ -4,5 +4,6 @@ abstract class Routes {
   static const register = '/register';
   static const home = '/home';
   static const searches = '/searches';
-  static const MESSAGE = '/message';
+  static const message = '/message';
+  static const chatDetail = '/chat-detail';
 }

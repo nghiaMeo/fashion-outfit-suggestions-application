@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/chat_detail/bindings/chat_detail_binding.dart';
+import '../modules/chat_detail/views/chat_detail_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -46,7 +48,7 @@ class AppPages {
       binding: SearchesBinding(),
     ),
     GetPage(
-      name: Routes.MESSAGE,
+      name: Routes.message,
       page: () => const MessageView(),
       binding: MessageBinding(),
     ),
