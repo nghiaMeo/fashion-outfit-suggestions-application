@@ -44,4 +44,12 @@ public class ChatController {
                 .result(chatService.sendMessage(messageRequest))
                 .build();
     }
+
+    @PostMapping("/conversations/{friendId}")
+    public ApiResponse<ConversationResponse> createConversation(@PathVariable UUID friendId) {
+        return ApiResponse.<ConversationResponse>builder()
+                .result(chatService.createConversation(friendId))
+                .build();
+
+    }
 }
