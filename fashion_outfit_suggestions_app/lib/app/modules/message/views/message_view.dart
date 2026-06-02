@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../chat_detail/views/chat_detail_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../controllers/message_controller.dart';
 
@@ -274,59 +275,76 @@ class MessageView extends GetView<MessageController> {
     required String lastMessage,
     required String time,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: NetworkImage(avatarUrl),
-            backgroundColor: Colors.grey.shade800,
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: CircularProgressIndicator(color: Colors.white),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: AppFonts.base(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      lastMessage,
-                      style: AppFonts.base(
-                        color: Color(0xFF8E8E93),
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(width: 4),
-                    Text('•', style: AppFonts.base(color: Color(0xFF8E8E93))),
-                    const SizedBox(width: 4),
-                    Text(
-                      time,
-                      style: AppFonts.base(
-                        color: Color(0xFF8E8E93),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+        );
+      }
+      if (controller.conversations.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Text(
+              'No conversations',
+              style: AppFonts.base(color: Color(0xFF8E8E93), fontSize: 16),
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.conversations.length,
+        itemBuilder: (BuildContext context, int index) {
+          final conv = controller.conversations[index];
+          final timeStr = _formatMessageTime(conv.lastMessageAt!);
+          return GestureDetector(
+            onTap: () {
+              Get.to(
+                () => ChatDetailView(
+                  friendId: conv.friendId ?? '',
+                  name: conv.friendName ?? '',
+                  username: conv.friendName ?? 'Unknown',
+                  avatarUrl:
+                      conv.friendAvatar ??
+                      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+                  conversationId: conv.conversationId,
+                ),
+                transition: Transition.rightToLeft,
+              );
+            },
+            child: _buildChatItem(
+              avatarUrl:
+                  conv.friendAvatar ??
+                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+              name: conv.friendName ?? 'Unknown',
+              lastMessage: conv.lastMessage ?? 'Start a conversation',
+              time: timeStr.toString(),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  String? _formatMessageTime(String? lastMessageAt) {
+    if (lastMessageAt == null) return '';
+    try {
+      final dateTime = DateTime.parse(lastMessageAt).toLocal();
+      final difference = DateTime.now().difference(dateTime);
+      if (difference.inMinutes < 1) return 'just now';
+      if (difference.inMinutes < 60) {
+        return '${difference.inMinutes} minutes ago';
+      }
+      if (difference.inHours < 24) return '${difference.inHours} hours ago';
+      if (difference.inDays < 7) return '${difference.inDays} days ago';
+      return '${difference.inDays ~/ 7} weeks ago';
+    } catch (e) {
+      return '';
+    }
   }
 }
