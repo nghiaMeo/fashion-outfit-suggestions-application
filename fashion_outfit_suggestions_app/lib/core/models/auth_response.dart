@@ -5,13 +5,31 @@ class AuthResponse {
   final String refreshToken;
   final UserResponse? userResponse;
 
-  const AuthResponse({required this.accessToken, required this.refreshToken, this.userResponse});
+  const AuthResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    this.userResponse,
+  });
 
-  factory AuthResponse.fromJson(Map<String, dynamic> json){
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
-      userResponse: json['user'] == null ? null : UserResponse.fromJson(json['user'] as Map<String, dynamic>),
+      userResponse: json['user'] == null
+          ? null
+          : UserResponse.fromJson(json['user'] as Map<String, dynamic>),
+    );
+  }
+
+  AuthResponse copyWith({
+    String? accessToken,
+    String? refreshToken,
+    UserResponse? userResponse,
+  }) {
+    return AuthResponse(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      userResponse: userResponse ?? this.userResponse,
     );
   }
 }

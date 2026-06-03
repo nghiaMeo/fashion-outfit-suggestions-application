@@ -34,10 +34,31 @@ class UserResponse {
     );
   }
 
+  UserResponse copyWith({
+    String? id,
+    String? email,
+    String? username,
+    String? displayName,
+    String? avatarUrl,
+    String? bio,
+    String? role,
+    String? createdAt,
+  }) {
+    return UserResponse(
+      id: id ?? this.id,
+      email: email,
+      username: username,
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      bio: bio,
+      role: role,
+      createdAt: createdAt,
+    );
+  }
+
   String get displayLabel => displayName?.trim().isNotEmpty == true
       ? displayName!
       : (username?.trim().isNotEmpty == true ? username! : (email ?? 'User'));
 
   bool get isAdmin => role == 'ADMIN';
-
 }

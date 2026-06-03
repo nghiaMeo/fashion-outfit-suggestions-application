@@ -8,7 +8,7 @@ class UserProfileResponse {
   final int friendCount;
   final bool isPrivateProfile;
   final String? favoriteStyle;
-  final String? friendShipStatus;
+  final String? friendshipStatus;
 
   UserProfileResponse({
     required this.id,
@@ -20,7 +20,7 @@ class UserProfileResponse {
     required this.friendCount,
     required this.isPrivateProfile,
     this.favoriteStyle,
-    this.friendShipStatus,
+    this.friendshipStatus,
   });
 
   factory UserProfileResponse.fromJson(Map<String, dynamic> json) =>
@@ -34,6 +34,31 @@ class UserProfileResponse {
         friendCount: (json["friend_count"] as num?)?.toInt() ?? 0,
         isPrivateProfile: json["is_private_profile"] as bool ?? false,
         favoriteStyle: json['favoriteStyles'] as String?,
-        friendShipStatus: json["friend_ship_status"] as String?,
+        friendshipStatus: json["friend_ship_status"] as String?,
       );
+
+  UserProfileResponse copyWith({
+    String? id,
+    String? username,
+    String? displayName,
+    String? avatarUrl,
+    String? bio,
+    int? outfitCount,
+    int? friendCount,
+    bool? isPrivateProfile,
+    String? favoriteStyle,
+    String? friendshipStatus,
+  }) {
+    return UserProfileResponse(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      bio: bio ?? this.bio,
+      outfitCount: outfitCount ?? this.outfitCount,
+      friendCount: friendCount ?? this.friendCount,
+      isPrivateProfile: isPrivateProfile ?? this.isPrivateProfile,
+      favoriteStyle: favoriteStyle ?? this.favoriteStyle,
+    );
+  }
 }

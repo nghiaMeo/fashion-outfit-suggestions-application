@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,6 +49,71 @@ class ProfileController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchSuggestedUsers() async {
+    final currentUserId = _tokenStorage.userId;
+    if (currentUserId == null) return;
+    isSuggestedLoading.value = true;
+    try {
+      final response = await _dioClient.getResult<List<UserProfileResponse>>(
+        _dioClient.dio.get(
+          '/api/user/suggest-candidates',
+          queryParameters: {'current_user_id': currentUserId},
+        ),
+        (json) {
+          final list = json as List;
+          return list
+              .map(
+                (e) => UserProfileResponse.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
+        },
+      );
+      suggestedUsers.assignAll(response);
+    } catch (e) {
+      Get.dialog(
+        Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(e.toString()),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+    } finally {
+      isSuggestedLoading.value = false;
+    }
+  }
+
+  void toggleSuggestions() {
+    if (!showSuggestion.value && suggestedUsers.isEmpty) {
+      fetchSuggestedUsers();
+    }
+    showSuggestion.value = !showSuggestion.value;
+  }
+
+  void removeSuggestion(String userId) {
+    suggestedUsers.removeWhere((user) => user.id == userId);
+    if (suggestedUsers.isEmpty) {
+      showSuggestion.value = false;
+    }
+  }
+  Future<void> sendFriendRequest(String userId) async {
+    if(targetUserId == null) return;
+    try{
+      await _dioClient.dio.post('/api/friendship/request/$targetUserId');
+      profile.value = UserProfileResponse(
+        id: profile.value!.id,
+        username: profile.value!.username,
+        displayName: profile.value!.displayName,
+        avatarUrl: profile.value!.avatarUrl,
+        bio: profile.value!.bio,
+        outfitCount: profile.value!.outfitCount,
+        friendCount: profile.value!.friendCount,
+        friendshipStatus: 'PENDING', // Vừa gửi → Chờ chấp nhận
+      );
     }
   }
 }

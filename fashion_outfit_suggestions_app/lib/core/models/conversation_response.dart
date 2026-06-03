@@ -27,4 +27,24 @@ class ConversationResponse {
         lastMessageAt: json['last_message_at'],
         unreadCount: json['unread_count'],
       );
+
+  ConversationResponse copyWith({
+    String? conversationId,
+    String? friendId,
+    String? friendName,
+    String? friendAvatar,
+    String? lastMessage,
+    String? lastMessageAt,
+    int? unreadCount,
+  }) {
+    return ConversationResponse(
+      conversationId: conversationId ?? this.conversationId,
+      friendId: friendId ?? this.friendId,
+      friendName: friendName ?? this.friendName,
+      friendAvatar: friendAvatar ?? this.friendAvatar,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      unreadCount: unreadCount ?? this.unreadCount,
+    );
+  }
 }

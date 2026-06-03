@@ -33,4 +33,28 @@ class MessageResponse {
         createdAt: json['created_at'],
         readAt: json['read_at'],
       );
+
+  MessageResponse copyWith({
+    String? id,
+    String? senderId,
+    String? senderName,
+    String? content,
+    String? type,
+    String? imageUrl,
+    String? sharedOutfits,
+    String? createdAt,
+    String? readAt,
+  }) {
+    return MessageResponse(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      senderName: senderName ?? this.senderName,
+      content: content ?? this.content,
+      type: type ?? this.type,
+      imageUrl: imageUrl ?? this.imageUrl,
+      sharedOutfits: sharedOutfits ?? this.sharedOutfits,
+      createdAt: createdAt ?? this.createdAt,
+      readAt: readAt ?? this.readAt,
+    );
+  }
 }

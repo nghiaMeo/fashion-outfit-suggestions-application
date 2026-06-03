@@ -10,4 +10,11 @@ class ErrorResponse {
       message: json['message'] as String? ?? "Internal Server Error",
     );
   }
+
+  ErrorResponse copyWith({int? code, String? message}) {
+    return ErrorResponse(
+      code: code ?? this.code,
+      message: message ?? this.message,
+    );
+  }
 }
