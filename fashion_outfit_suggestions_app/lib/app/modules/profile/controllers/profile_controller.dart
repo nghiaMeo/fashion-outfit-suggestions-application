@@ -100,20 +100,42 @@ class ProfileController extends GetxController {
       showSuggestion.value = false;
     }
   }
+
   Future<void> sendFriendRequest(String userId) async {
-    if(targetUserId == null) return;
-    try{
+    if (targetUserId == null) return;
+    try {
       await _dioClient.dio.post('/api/friendship/request/$targetUserId');
-      profile.value = UserProfileResponse(
-        id: profile.value!.id,
-        username: profile.value!.username,
-        displayName: profile.value!.displayName,
-        avatarUrl: profile.value!.avatarUrl,
-        bio: profile.value!.bio,
-        outfitCount: profile.value!.outfitCount,
-        friendCount: profile.value!.friendCount,
-        friendshipStatus: 'PENDING', // Vừa gửi → Chờ chấp nhận
+      profile.value = profile.value!.copyWith(friendshipStatus: 'PENDING');
+    } catch (e) {
+      Get.dialog(
+        Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(e.toString()),
+          ),
+        ),
+        barrierDismissible: false,
       );
     }
   }
+
+  Future<void> unfriend() async {
+    try {
+      await fetchProfile();
+      profile.value = profile.value!.copyWith(friendshipStatus: null);
+    } catch (e) {
+      Get.dialog(
+        Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(e.toString()),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+    }
+  }
+
+
 }
+
