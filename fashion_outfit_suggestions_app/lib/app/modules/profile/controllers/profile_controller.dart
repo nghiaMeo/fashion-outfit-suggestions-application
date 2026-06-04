@@ -1,10 +1,10 @@
 import 'dart:convert';
-
-import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/profile_type.dart';
 import '../../../../core/models/user_profile_response.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
 
 class ProfileController extends GetxController {
@@ -29,39 +29,27 @@ class ProfileController extends GetxController {
   Future<void> fetchProfile() async {
     isLoading.value = true;
     try {
-      final endpoint = targetUserId != null
+      final endpoint = targetUserId == null
           ? '/api/user/my-profile'
           : '/api/user/profile/$targetUserId';
+
       final response = await _dioClient.getResult<UserProfileResponse>(
         _dioClient.dio.get(endpoint),
         (json) => UserProfileResponse.fromJson(json as Map<String, dynamic>),
       );
       profile.value = response;
     } catch (e) {
-      Get.dialog(
-        Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(e.toString()),
-          ),
-        ),
-        barrierDismissible: false,
-      );
+      _showErrorDialog(e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> fetchSuggestedUsers() async {
-    final currentUserId = _tokenStorage.userId;
-    if (currentUserId == null) return;
     isSuggestedLoading.value = true;
     try {
       final response = await _dioClient.getResult<List<UserProfileResponse>>(
-        _dioClient.dio.get(
-          '/api/user/suggest-candidates',
-          queryParameters: {'current_user_id': currentUserId},
-        ),
+        _dioClient.dio.get('/api/user/suggest-candidates'),
         (json) {
           final list = json as List;
           return list
@@ -73,15 +61,7 @@ class ProfileController extends GetxController {
       );
       suggestedUsers.assignAll(response);
     } catch (e) {
-      Get.dialog(
-        Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(e.toString()),
-          ),
-        ),
-        barrierDismissible: false,
-      );
+      _showErrorDialog(e.toString());
     } finally {
       isSuggestedLoading.value = false;
     }
@@ -102,40 +82,70 @@ class ProfileController extends GetxController {
   }
 
   Future<void> sendFriendRequest(String userId) async {
-    if (targetUserId == null) return;
     try {
-      await _dioClient.dio.post('/api/friendship/request/$targetUserId');
-      profile.value = profile.value!.copyWith(friendshipStatus: 'PENDING');
+      await _dioClient.dio.post('/api/friendship/request/$userId');
+
+      if (userId == targetUserId) {
+        profile.value = profile.value!.copyWith(friendshipStatus: 'PENDING');
+      }
+
+      removeSuggestion(userId);
     } catch (e) {
-      Get.dialog(
-        Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(e.toString()),
-          ),
-        ),
-        barrierDismissible: false,
-      );
+      _showErrorDialog(e.toString());
     }
   }
 
   Future<void> unfriend() async {
+    final userIdToDelete = targetUserId;
+    if (userIdToDelete == null) return;
+
     try {
-      await fetchProfile();
+      await _dioClient.dio.delete('/api/friendship/user/$userIdToDelete');
       profile.value = profile.value!.copyWith(friendshipStatus: null);
+      fetchProfile();
     } catch (e) {
-      Get.dialog(
-        Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(e.toString()),
-          ),
-        ),
-        barrierDismissible: false,
-      );
+      _showErrorDialog(e.toString());
     }
   }
 
+  ProfileType get profileType {
+    if (targetUserId == null) return ProfileType.self;
+    final status = profile.value?.friendshipStatus;
+    if (status == 'ACCEPTED') return ProfileType.following;
+    return ProfileType.notFollowing;
+  }
 
+  bool get isPending => profile.value?.friendshipStatus == 'PENDING';
+
+  void _showErrorDialog(String message) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Color(0xFFD9C5B2)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
-
