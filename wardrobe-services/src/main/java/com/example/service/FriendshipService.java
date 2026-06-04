@@ -11,7 +11,7 @@ public interface FriendshipService {
 
     String acceptFriendRequest(UUID friendshipId);
 
-    String  declineOrCancelRequest(UUID receiverId);
+    String declineOrCancelRequest(UUID receiverId);
 
     List<FriendResponse> getPendingRequests();
 
@@ -20,4 +20,7 @@ public interface FriendshipService {
     List<UserSearchResponse> searchUsers(String query);
 
     List<UUID> getFriendIds();
+
+    String unfriendOrCancelByUserId(UUID targetUserId);
+
 }

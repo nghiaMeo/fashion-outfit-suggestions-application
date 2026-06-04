@@ -8,8 +8,7 @@ import com.example.entity.User;
 import com.example.entity.UserPreference;
 import com.example.exception.AppException;
 import com.example.exception.ErrorCode;
-import com.example.repository.UserRepository;
-import com.example.repository.UserPreferenceRepository;
+import com.example.repository.*;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +27,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserPreferenceRepository userPreferenceRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FriendshipRepository friendshipRepository;
+    private final ItemRepository itemRepository;
+    private final OutfitRepository outfitRepository;
 
     @Override
     @Transactional
@@ -59,26 +61,36 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileResponse getUserProfile(UUID userId) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
-
         var targetUser = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // DDD Note: Vì db_auth hoàn toàn độc lập với db_wardrobe và db_social,
-        // Ta tạm thời đặt các chỉ số liên kết là 0/null (sẽ gọi OpenFeign ở các Phase sau)
         boolean isSelf = targetUser.getId().equals(currentUser.getId());
 
-        if (targetUser.isPrivateProfile() && !isSelf) {
+        com.example.entity.enums.FriendshipStatus status = null;
+        if (!isSelf) {
+            status = friendshipRepository.findRelation(currentUser.getId(), userId)
+                    .map(com.example.entity.Friendship::getStatus)
+                    .orElse(null);
+        }
+
+        // Nếu profile là riêng tư, không phải của bản thân và chưa kết bạn (ACCEPTED)
+        if (targetUser.isPrivateProfile() && !isSelf && status != com.example.entity.enums.FriendshipStatus.ACCEPTED) {
             return UserProfileResponse.builder()
                     .id(targetUser.getId())
                     .displayName(targetUser.getDisplayName())
                     .username(targetUser.getUsername())
                     .avatarUrl(targetUser.getAvatarUrl())
                     .isPrivateProfile(true)
-                    .friendshipStatus(null) // Sẽ bổ sung lấy qua Feign Client sau
+                    .friendshipStatus(status)
                     .build();
         }
 
         var preference = userPreferenceRepository.findByUserId(userId).orElse(null);
         var favoriteStyles = preference != null ? preference.getFavoriteStyles() : null;
+
+        // Lấy số liệu thực tế từ DB
+        long itemCount = itemRepository.countByUserIdAndIsDeletedFalse(userId);
+        long outfitCount = outfitRepository.countByUserIdAndIsDeletedFalse(userId);
+        long friendCount = friendshipRepository.countAcceptedFriends(userId);
 
         return UserProfileResponse.builder()
                 .id(targetUser.getId())
@@ -86,12 +98,12 @@ public class UserServiceImpl implements UserService {
                 .displayName(targetUser.getDisplayName())
                 .avatarUrl(targetUser.getAvatarUrl())
                 .bio(targetUser.getBio())
-                .itemCount(0L)       // Sẽ bổ sung lấy qua Feign Client sau
-                .outfitCount(0L)     // Sẽ bổ sung lấy qua Feign Client sau
-                .friendCount(0L)     // Sẽ bổ sung lấy qua Feign Client sau
+                .itemCount(itemCount)
+                .outfitCount(outfitCount)
+                .friendCount(friendCount)
                 .isPrivateProfile(targetUser.isPrivateProfile())
                 .favoriteStyles(favoriteStyles)
-                .friendshipStatus(null) // Sẽ bổ sung lấy qua Feign Client sau
+                .friendshipStatus(status)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.example.entity.User;
 import com.example.entity.enums.AuthProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,7 +31,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "AND u.id != :currentUserId")
     List<User> searchUsers(String query, UUID currentUserId);
 
-    @Query("SELECT u FROM User u WHERE u.id != :currentUserId AND u.isPrivateProfile = false")
-    List<User> findPublicUsersToSuggest(@org.springframework.data.repository.query.Param("currentUserId") UUID currentUserId);
+    @Query("SELECT u FROM User u WHERE  u.id != :currentUserId AND u.isPrivateProfile = false " +
+            "AND u.id NOT IN (SELECT f.receiverId FROM Friendship f WHERE f.requesterId = :currentUserId)" +
+            "AND u.id NOT IN (select f.requesterId FROM Friendship f WHERE f.receiverId = :currentUserId)")
+    List<User> findPublicUsersToSuggest(@Param("currentUserId") UUID currentUserId);
+
 
 }

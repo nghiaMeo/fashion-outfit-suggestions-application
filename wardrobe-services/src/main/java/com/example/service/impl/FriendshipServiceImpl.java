@@ -214,6 +214,16 @@ public class FriendshipServiceImpl implements FriendshipService {
         ).toList();
     }
 
+    @Override
+    @Transactional
+    public String unfriendOrCancelByUserId(UUID targetUserId) {
+        var currentUser = getCurrentUser();
+        var friendships = friendshipRepository.findRelation(currentUser.getId(), targetUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+        friendshipRepository.delete(friendships);
+        return "Friendship or request cancelled successfully";
+    }
+
     private FriendResponse mapToFriendResponse(Friendship friendship, UserProfileResponse friend, UUID friendId) {
         return FriendResponse.builder()
                 .id(friendship.getId())

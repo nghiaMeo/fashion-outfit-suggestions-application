@@ -37,6 +37,14 @@ public class FriendshipController {
                 .build();
     }
 
+    @DeleteMapping("/user/{targetUserId}")
+    public ApiResponse<String> unfriendOrCancelByUserId(@PathVariable("targetUserId") UUID targetUserId) {
+        return ApiResponse.<String>builder()
+                .result(friendshipService.unfriendOrCancelByUserId(targetUserId))
+                .build();
+
+    }
+
     @GetMapping("/pending")
     public ApiResponse<List<FriendResponse>> getPendingRequests() {
         return ApiResponse.<List<FriendResponse>>builder()

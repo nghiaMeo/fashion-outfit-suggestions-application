@@ -59,9 +59,10 @@ public class UserController {
     }
 
     @GetMapping("/suggest-candidates")
-    public ApiResponse<List<UserProfileResponse>> getSuggestCandidates(@RequestParam UUID currentUserId) {
+    public ApiResponse<List<UserProfileResponse>> getSuggestCandidates() {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
         return ApiResponse.<List<UserProfileResponse>>builder()
-                .result(userService.getSuggestCandidates(currentUserId))
+                .result(userService.getSuggestCandidates(currentUser.getId()))
                 .build();
     }
 
