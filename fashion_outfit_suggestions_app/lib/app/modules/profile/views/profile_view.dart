@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../../core/constants/profile_type.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controllers/profile_controller.dart';
+import 'edit_profile_view.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -151,7 +152,9 @@ class ProfileView extends GetView<ProfileController> {
           if (type == ProfileType.self) ...[
             Expanded(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(() => const EditProfileView());
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.surface,
                   foregroundColor: Colors.white,

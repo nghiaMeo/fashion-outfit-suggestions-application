@@ -15,6 +15,11 @@ class ProfileController extends GetxController {
   final isSuggestedLoading = false.obs;
   final showSuggestion = false.obs;
 
+  final displayNameController = TextEditingController();
+  final bioController = TextEditingController();
+  final avatarUrlController = TextEditingController();
+  final editIsPrivateProfile = false.obs;
+
   final DioClient _dioClient = Get.find<DioClient>();
   final TokenStorage _tokenStorage = Get.find<TokenStorage>();
 
@@ -147,5 +152,51 @@ class ProfileController extends GetxController {
         ),
       ),
     );
+  }
+
+  void startEditing() {
+    final current = profile.value;
+    if (current != null) {
+      displayNameController.text = current.displayName ?? '';
+      bioController.text = current.bio ?? '';
+      avatarUrlController.text = current.avatarUrl ?? '';
+      editIsPrivateProfile.value = current.isPrivateProfile;
+    }
+  }
+
+  Future<bool> updateProfile() async {
+    if (displayNameController.text.isEmpty || bioController.text.isEmpty) {
+      _showErrorDialog('Please fill in all fields');
+      return false;
+    }
+    isLoading.value = true;
+    try {
+      final body = {
+        'display_name': displayNameController.text.trim(),
+        'bio': bioController.text.trim(),
+        'avatar_url': avatarUrlController.text.trim(),
+        'is_private_profile': editIsPrivateProfile.value,
+      };
+
+      final response = await _dioClient.getResult<UserProfileResponse>(
+        _dioClient.dio.put('/api/user/profile', data: body),
+        (json) => UserProfileResponse.fromJson(json as Map<String, dynamic>),
+      );
+      profile.value = response;
+      return true;
+    } catch (e) {
+      _showErrorDialog(e.toString());
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    displayNameController.dispose();
+    bioController.dispose();
+    avatarUrlController.dispose();
+    super.onClose();
   }
 }
