@@ -4,6 +4,7 @@ import com.example.dto.ProfileUpdateRequest;
 import com.example.dto.UserCreationRequest;
 import com.example.dto.UserProfileResponse;
 import com.example.dto.UserResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,4 +26,6 @@ public interface UserService {
     void updatePresence(UUID userId, boolean isOnline);
 
     String getFcmToken(UUID userId);
+    String uploadAvatar(MultipartFile file);
+
 }

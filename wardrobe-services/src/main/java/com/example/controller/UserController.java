@@ -7,9 +7,12 @@ import com.example.entity.User;
 import com.example.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -76,6 +79,13 @@ public class UserController {
     public ApiResponse<String> getFcmToken(@PathVariable UUID userId) {
         return ApiResponse.<String>builder()
                 .result(userService.getFcmToken(userId))
+                .build();
+    }
+
+    @PostMapping(value = "/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        return ApiResponse.<String>builder()
+                .result(userService.uploadAvatar(file))
                 .build();
     }
 }

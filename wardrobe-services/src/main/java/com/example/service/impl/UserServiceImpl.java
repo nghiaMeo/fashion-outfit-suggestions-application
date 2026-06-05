@@ -9,12 +9,14 @@ import com.example.entity.UserPreference;
 import com.example.exception.AppException;
 import com.example.exception.ErrorCode;
 import com.example.repository.*;
+import com.example.service.CloudinaryService;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final FriendshipRepository friendshipRepository;
     private final ItemRepository itemRepository;
     private final OutfitRepository outfitRepository;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     @Transactional
@@ -188,6 +191,19 @@ public class UserServiceImpl implements UserService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return user.getFcmToken();
+    }
+
+    @Override
+    @Transactional
+    public String uploadAvatar(MultipartFile file) {
+        var currentUser = (User) Objects.requireNonNull(SecurityContextHolder
+                .getContext().getAuthentication()).getPrincipal();
+        var user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        String imageUrl = cloudinaryService.upload(file);
+        user.setAvatarUrl(imageUrl);
+        userRepository.save(user);
+        return imageUrl;
     }
 
     private UserResponse mapToUserResponse(User user) {
