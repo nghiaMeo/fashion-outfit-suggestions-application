@@ -91,7 +91,7 @@ class EditProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 12),
                   GestureDetector(
-                    onTap: () => _showChangeAvatarDialog(context),
+                    onTap: () => controller.changAvatar(),
                     child: Text(
                       'Change Avatar',
                       style: AppFonts.base(
@@ -208,59 +208,6 @@ class EditProfileView extends GetView<ProfileController> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showChangeAvatarDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Text(
-            'Change Avatar',
-            style: AppFonts.base(color: Colors.white, fontSize: 16),
-          ),
-          content: TextField(
-            controller: controller.avatarUrlController,
-            style: AppFonts.base(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: 'Enter avatar URL',
-              hintStyle: TextStyle(color: Colors.white30),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: Text(
-                'Cancel',
-                style: AppFonts.base(color: Colors.white54),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Get.back(),
-              child: Text(
-                'Done',
-                style: AppFonts.base(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

@@ -1,11 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/profile_type.dart';
 import '../../../../core/models/user_profile_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
+import 'package:dio/dio.dart' as dio_pkg;
 
 class ProfileController extends GetxController {
   final String? targetUserId;
@@ -22,6 +23,7 @@ class ProfileController extends GetxController {
 
   final DioClient _dioClient = Get.find<DioClient>();
   final TokenStorage _tokenStorage = Get.find<TokenStorage>();
+  final ImagePicker _imagePicker = ImagePicker();
 
   ProfileController({this.targetUserId});
 
@@ -187,6 +189,39 @@ class ProfileController extends GetxController {
     } catch (e) {
       _showErrorDialog(e.toString());
       return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> changAvatar() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (image == null) return;
+      isLoading.value = true;
+      final formData = dio_pkg.FormData.fromMap({
+        'file': await dio_pkg.MultipartFile.fromFile(
+          image.path,
+          filename: image.name,
+        ),
+      });
+      final String uploadUrl = await _dioClient.getResult<String>(
+        _dioClient.dio.post(
+          '/api/user/profile/avatar',
+          data: formData,
+          options: dio_pkg.Options(contentType: 'multipart/form-data'),
+        ),
+        (json) => json as String,
+      );
+      avatarUrlController.text = uploadUrl;
+      if (profile.value != null) {
+        profile.value = profile.value!.copyWith(avatarUrl: uploadUrl);
+      }
+    } catch (e) {
+      _showErrorDialog(e.toString());
     } finally {
       isLoading.value = false;
     }
