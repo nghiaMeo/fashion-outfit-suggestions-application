@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../message/views/message_view.dart';
+import '../../profile/views/profile_view.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -17,7 +18,7 @@ class HomeView extends GetView<HomeController> {
       const SearchesView(),
       const Center(child: Text('Dry Cleaning View')),
       const MessageView(),
-      const Center(child: Text('Profile View')),
+      const ProfileView(),
     ];
 
     return Scaffold(

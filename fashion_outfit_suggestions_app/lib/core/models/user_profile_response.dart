@@ -23,19 +23,27 @@ class UserProfileResponse {
     this.friendshipStatus,
   });
 
-  factory UserProfileResponse.fromJson(Map<String, dynamic> json) =>
-      UserProfileResponse(
-        id: json["id"] as String,
-        username: json["username"] as String?,
-        displayName: json["display_name"] as String?,
-        avatarUrl: json["avatar_url"] as String?,
-        bio: json["bio"] as String?,
-        outfitCount: (json["outfit_count"] as num?)?.toInt() ?? 0,
-        friendCount: (json["friend_count"] as num?)?.toInt() ?? 0,
-        isPrivateProfile: json["is_private_profile"] as bool ?? false,
-        favoriteStyle: json['favoriteStyles'] as String?,
-        friendshipStatus: json["friend_ship_status"] as String?,
-      );
+  factory UserProfileResponse.fromJson(
+    Map<String, dynamic> json,
+  ) => UserProfileResponse(
+    id: json["id"]?.toString() ?? '',
+    username: json["username"] as String?,
+    displayName: (json["display_name"] ?? json["displayName"]) as String?,
+    avatarUrl: (json["avatar_url"] ?? json["avatarUrl"]) as String?,
+    bio: json["bio"] as String?,
+    outfitCount:
+        ((json["outfit_count"] ?? json["outfitCount"]) as num?)?.toInt() ?? 0,
+    friendCount:
+        ((json["friend_count"] ?? json["friendCount"]) as num?)?.toInt() ?? 0,
+    isPrivateProfile:
+        (json["is_private_profile"] ??
+            json["isPrivateProfile"] ??
+            json["privateProfile"]) ==
+        true,
+    favoriteStyle: (json['favoriteStyles'] ?? json['favoriteStyle']) as String?,
+    friendshipStatus:
+        (json["friend_ship_status"] ?? json["friendshipStatus"]) as String?,
+  );
 
   UserProfileResponse copyWith({
     String? id,
