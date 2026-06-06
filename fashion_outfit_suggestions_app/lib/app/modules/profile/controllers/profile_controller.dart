@@ -8,6 +8,8 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
 import 'package:dio/dio.dart' as dio_pkg;
 
+import '../../../../core/theme/app_colors.dart';
+
 class ProfileController extends GetxController {
   final String? targetUserId;
   final profile = Rxn<UserProfileResponse>();
@@ -15,6 +17,8 @@ class ProfileController extends GetxController {
   final isLoading = false.obs;
   final isSuggestedLoading = false.obs;
   final showSuggestion = false.obs;
+  final bioLength = 0.obs;
+  final displayNameLength = 0.obs;
 
   final displayNameController = TextEditingController();
   final bioController = TextEditingController();
@@ -163,6 +167,30 @@ class ProfileController extends GetxController {
       bioController.text = current.bio ?? '';
       avatarUrlController.text = current.avatarUrl ?? '';
       editIsPrivateProfile.value = current.isPrivateProfile;
+      bioLength.value = bioController.text.length;
+      displayNameLength.value = displayNameController.text.length;
+    }
+  }
+
+  Future<void> removeAvatar() async {
+    try {
+      isLoading.value = true;
+      final body = {
+        'displayName': displayNameController.text.trim(),
+        'bio': bioController.text.trim(),
+        'avatarUrl': '',
+        'isPrivateProfile': editIsPrivateProfile.value,
+      };
+      final response = await _dioClient.getResult<UserProfileResponse>(
+        _dioClient.dio.put('/api/user/profile', data: body),
+        (json) => UserProfileResponse.fromJson(json as Map<String, dynamic>),
+      );
+      profile.value = response;
+      avatarUrlController.text = '';
+    } catch (e) {
+      _showErrorDialog(e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -174,10 +202,10 @@ class ProfileController extends GetxController {
     isLoading.value = true;
     try {
       final body = {
-        'display_name': displayNameController.text.trim(),
+        'displayName': displayNameController.text.trim(),
         'bio': bioController.text.trim(),
-        'avatar_url': avatarUrlController.text.trim(),
-        'is_private_profile': editIsPrivateProfile.value,
+        'avatarUrl': avatarUrlController.text.trim(),
+        'isPrivateProfile': editIsPrivateProfile.value,
       };
 
       final response = await _dioClient.getResult<UserProfileResponse>(
@@ -194,32 +222,51 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> changAvatar() async {
+  Future<void> pickAvatarFromGallery() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80,
+        maxWidth: 400,
+        maxHeight: 400,
+        imageQuality: 85,
       );
+
       if (image == null) return;
+
       isLoading.value = true;
+
+      final bytes = await image.readAsBytes();
+
       final formData = dio_pkg.FormData.fromMap({
-        'file': await dio_pkg.MultipartFile.fromFile(
-          image.path,
+        'file': dio_pkg.MultipartFile.fromBytes(
+          bytes,
           filename: image.name,
         ),
       });
-      final String uploadUrl = await _dioClient.getResult<String>(
+
+      final String uploadedUrl = await _dioClient.getResult<String>(
         _dioClient.dio.post(
           '/api/user/profile/avatar',
           data: formData,
           options: dio_pkg.Options(contentType: 'multipart/form-data'),
         ),
-        (json) => json as String,
+            (json) => json as String,
       );
-      avatarUrlController.text = uploadUrl;
+
+      avatarUrlController.text = uploadedUrl;
       if (profile.value != null) {
-        profile.value = profile.value!.copyWith(avatarUrl: uploadUrl);
+        profile.value = profile.value!.copyWith(avatarUrl: uploadedUrl);
       }
+
+      Get.snackbar(
+
+        'Success',
+        'Profile picture updated successfully!',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.primary,
+        colorText: Colors.black,
+        margin: const EdgeInsets.all(10),
+      );
     } catch (e) {
       _showErrorDialog(e.toString());
     } finally {

@@ -24,13 +24,11 @@ abstract final class AppFonts {
         height: height,
       );
     }
-    return TextStyle(
-      fontFamily: GoogleFonts.inter(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        height: height,
-      ).fontFamily,
+    return GoogleFonts.inter(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      height: height,
     );
   }
 }
