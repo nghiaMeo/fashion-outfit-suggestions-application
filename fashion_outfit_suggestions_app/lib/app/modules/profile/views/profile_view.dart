@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 
 import '../../../../core/constants/profile_type.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../routes/app_routes.dart';
+import '../../setting/views/setting_view.dart';
 import '../controllers/profile_controller.dart';
 import 'edit_profile_view.dart';
 
@@ -34,7 +36,10 @@ class ProfileView extends GetView<ProfileController> {
                 onPressed: () => Get.back(),
                 icon: Icon(Icons.arrow_back_ios, color: Colors.white),
               )
-            : null,
+            : IconButton(
+                onPressed: () => Get.toNamed(Routes.setting),
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+              ),
         centerTitle: true,
       ),
       body: Obx(() {

@@ -6,5 +6,6 @@ abstract class Routes {
   static const searches = '/searches';
   static const message = '/message';
   static const chatDetail = '/chat-detail';
-  static const PROFILE = '/profile';
+  static const profile = '/profile';
+  static const setting = '/setting';
 }

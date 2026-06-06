@@ -14,6 +14,10 @@ import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/searches/bindings/searches_binding.dart';
 import '../modules/searches/views/searches_view.dart';
+import '../modules/setting/bindings/setting_binding.dart';
+import '../modules/setting/bindings/setting_binding.dart';
+import '../modules/setting/views/setting_view.dart';
+import '../modules/setting/views/setting_view.dart';
 import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
 import 'app_routes.dart';
@@ -55,9 +59,14 @@ class AppPages {
       binding: MessageBinding(),
     ),
     GetPage(
-      name: Routes.PROFILE,
+      name: Routes.profile,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.setting,
+      page: () => const SettingView(),
+      binding: SettingBinding(),
     ),
   ];
 }
