@@ -87,7 +87,19 @@ class LoginView extends GetView<LoginController> {
                     isLoading: controller.isLoading.value,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    'Forgot password?',
+                    style: AppFonts.base(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 OrDivider(),
                 const SizedBox(height: 32),
                 SocialButton(

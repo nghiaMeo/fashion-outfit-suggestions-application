@@ -8,4 +8,5 @@ abstract class Routes {
   static const chatDetail = '/chat-detail';
   static const profile = '/profile';
   static const setting = '/setting';
+  static const FORGOT_PASSWORD = '/forgot-password';
 }

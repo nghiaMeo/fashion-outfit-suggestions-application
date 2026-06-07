@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/chat_detail/bindings/chat_detail_binding.dart';
 import '../modules/chat_detail/views/chat_detail_view.dart';
+import '../modules/forgot_password/bindings/forgot_password_binding.dart';
+import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -67,6 +69,11 @@ class AppPages {
       name: Routes.setting,
       page: () => const SettingView(),
       binding: SettingBinding(),
+    ),
+    GetPage(
+      name: Routes.FORGOT_PASSWORD,
+      page: () => const ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
     ),
   ];
 }
