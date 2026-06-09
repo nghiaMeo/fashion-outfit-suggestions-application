@@ -1,0 +1,1 @@
+enum ForgotPasswordStep { enterEmail, enterOtp }
