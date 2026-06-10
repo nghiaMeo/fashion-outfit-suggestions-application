@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:fashion_outfit_suggestions_app/app/routes/app_routes.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
@@ -24,7 +23,7 @@ class ForgotPasswordController extends GetxController {
 
   final DioClient _dioClient = Get.find<DioClient>();
 
-  Future<void> senOtp() async {
+  Future<void> sendOtp() async {
     if (!formKeyEmail.currentState!.validate()) return;
     isLoading.value = true;
 

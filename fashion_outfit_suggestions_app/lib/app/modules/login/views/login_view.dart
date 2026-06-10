@@ -89,7 +89,9 @@ class LoginView extends GetView<LoginController> {
                 ),
                 const SizedBox(height: 20),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(Routes.forgotPassword);
+                  },
                   child: Text(
                     'Forgot password?',
                     style: AppFonts.base(
