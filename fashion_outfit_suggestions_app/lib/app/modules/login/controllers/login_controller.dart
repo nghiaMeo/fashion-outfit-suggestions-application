@@ -1,6 +1,7 @@
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/models/auth_response.dart';
 import '../../../../core/network/dio_client.dart';
@@ -18,6 +19,14 @@ class LoginController extends GetxController {
   final obscurePassword = true.obs;
 
   final DioClient _dioClient = Get.find<DioClient>();
+
+  final GoogleSignIn signIn = GoogleSignIn.instance;
+  // unawaited(signIn);
+  //
+  //   clientId:
+  //       '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
+  //   scopes: ['email', 'profile'],
+  // );
 
   Future<void> login() async {
     if (!(formKey.currentState!.validate() ?? false)) {
