@@ -207,27 +207,25 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               ),
             ),
             const SizedBox(height: 12),
-            Obx(
-              () => RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: AppFonts.base(
-                    color: Colors.white60,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Enter the OTP we sent to\n'),
-                    TextSpan(
-                      text: controller.emailController.text,
-                      style: AppFonts.base(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: AppFonts.base(
+                  color: Colors.white60,
+                  fontSize: 14,
+                  height: 1.5,
                 ),
+                children: [
+                  const TextSpan(text: 'Enter the OTP we sent to\n'),
+                  TextSpan(
+                    text: controller.emailController.text,
+                    style: AppFonts.base(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
