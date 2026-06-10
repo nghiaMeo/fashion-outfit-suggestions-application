@@ -1,4 +1,3 @@
-
 import 'package:fashion_outfit_suggestions_app/app/routes/app_routes.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,10 @@ class ForgotPasswordController extends GetxController {
   final DioClient _dioClient = Get.find<DioClient>();
 
   Future<void> sendOtp() async {
-    if (!formKeyEmail.currentState!.validate()) return;
+    if (formKeyEmail.currentState != null &&
+        !formKeyEmail.currentState!.validate()) {
+      return;
+    }
     isLoading.value = true;
 
     try {
@@ -108,10 +110,10 @@ class ForgotPasswordController extends GetxController {
 
   @override
   void onClose() {
-    emailController.dispose();
-    otpController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose();
+    // emailController.dispose();
+    // otpController.dispose();
+    // newPasswordController.dispose();
+    // confirmPasswordController.dispose();
     super.onClose();
   }
 }

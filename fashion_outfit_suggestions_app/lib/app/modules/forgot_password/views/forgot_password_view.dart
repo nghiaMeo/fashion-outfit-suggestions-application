@@ -305,7 +305,6 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               },
             ),
             const SizedBox(height: 24),
-            // Nút đặt lại mật khẩu
             Obx(
               () => SizedBox(
                 width: double.infinity,
@@ -342,14 +341,20 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               ),
             ),
             const SizedBox(height: 16),
-            TextButton(
-              onPressed: controller.isLoading.value ? null : controller.sendOtp,
-              child: Text(
-                'Resend OTP',
-                style: AppFonts.base(
-                  color: const Color(0xFF0095F6),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+            Obx(
+              () => TextButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : controller.sendOtp,
+                child: Text(
+                  'Resend OTP',
+                  style: AppFonts.base(
+                    color: controller.isLoading.value
+                        ? Colors.white30
+                        : const Color(0xFF0095F6),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

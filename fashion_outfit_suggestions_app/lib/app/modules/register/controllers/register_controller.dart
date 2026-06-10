@@ -116,10 +116,10 @@ class RegisterController extends GetxController {
 
   @override
   void onClose() {
-    emailController.dispose();
-    usernameController.dispose();
-    displayNameController.dispose();
-    passwordController.dispose();
+    // emailController.dispose();
+    // usernameController.dispose();
+    // displayNameController.dispose();
+    // passwordController.dispose();
     super.onClose();
   }
 }
