@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,14 +21,119 @@ class LoginController extends GetxController {
   final obscurePassword = true.obs;
 
   final DioClient _dioClient = Get.find<DioClient>();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
-  final GoogleSignIn signIn = GoogleSignIn.instance;
-  // unawaited(signIn);
-  //
-  //   clientId:
-  //       '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
-  //   scopes: ['email', 'profile'],
-  // );
+  @override
+  void onInit() {
+    super.onInit();
+    _googleSignIn.initialize(
+      clientId:
+          '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
+    );
+    _googleSignIn.authenticationEvents.listen(
+      (event) {
+        if (event is GoogleSignInAuthenticationEventSignIn) {
+          _handleGoogleSignInUser(event.user);
+        }
+      },
+      onError: (error) {
+        print('Google Auth Event Error: $error');
+      },
+    );
+  }
+
+  Future<void> _handleGoogleSignInUser(GoogleSignInAccount googleUser) async {
+    isLoading.value = true;
+    try {
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Cannot retrieve Google ID Token.');
+      }
+      final authResponse = await _dioClient.getResult<AuthResponse>(
+        _dioClient.dio.post<Map<String, dynamic>>(
+          '/api/auth/oauth2/google',
+          data: {'token': idToken},
+        ),
+        (json) => AuthResponse.fromJson(json! as Map<String, dynamic>),
+      );
+      final tokenStorage = Get.find<TokenStorage>();
+      await tokenStorage.saveSession(
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        userId: authResponse.userResponse?.id,
+      );
+
+      Get.offNamed(Routes.home);
+    } catch (e) {
+      Get.dialog(
+        DialogAlert(
+          onConfirm: () => Get.back(),
+          color: AppColors.error,
+          icon: Icons.error,
+          title: 'Google Login Failed',
+          description: e.toString().replaceAll('Exception: ', ''),
+        ),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    isLoading.value = true;
+    try {
+      // 1. Khởi tạo GoogleSignIn với Client ID của bạn
+      await _googleSignIn.initialize(
+        clientId: '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com', // Nhập Client ID của bạn ở đây
+      );
+      // 2. Kích hoạt Popup đăng nhập (Hàm authenticate() thay thế cho signIn() ở bản v7)
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      if (googleUser == null) {
+        isLoading.value = false;
+        return;
+      }
+      // 3. Lấy thông tin xác thực từ Google
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+      if (idToken == null) {
+        throw Exception('Cannot retrieve Google ID Token.');
+      }
+      // 4. Gửi ID Token lên Backend Spring Boot
+      final authResponse = await _dioClient.getResult<AuthResponse>(
+        _dioClient.dio.post<Map<String, dynamic>>(
+          '/api/auth/oauth2/google',
+          data: {
+            'token': idToken,
+          },
+        ),
+            (json) => AuthResponse.fromJson(json! as Map<String, dynamic>),
+      );
+      // 5. Lưu Session đăng nhập
+      final tokeStorage = Get.find<TokenStorage>();
+      await tokeStorage.saveSession(
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        userId: authResponse.userResponse?.id,
+      );
+      // 6. Chuyển sang màn hình Home
+      Get.offAllNamed(Routes.home);
+    } catch (e) {
+      Get.dialog(
+        DialogAlert(
+          onConfirm: () => Get.back(),
+          color: AppColors.error,
+          icon: Icons.error,
+          title: 'Google Login Failed',
+          description: e.toString().replaceAll('Exception: ', ''),
+        ),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   Future<void> login() async {
     if (!(formKey.currentState!.validate() ?? false)) {

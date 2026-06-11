@@ -179,7 +179,7 @@ class ProfileController extends GetxController {
         'displayName': displayNameController.text.trim(),
         'bio': bioController.text.trim(),
         'avatarUrl': '',
-        'isPrivateProfile': editIsPrivateProfile.value,
+        'privateProfile': editIsPrivateProfile.value,
       };
       final response = await _dioClient.getResult<UserProfileResponse>(
         _dioClient.dio.put('/api/user/profile', data: body),
@@ -205,7 +205,7 @@ class ProfileController extends GetxController {
         'displayName': displayNameController.text.trim(),
         'bio': bioController.text.trim(),
         'avatarUrl': avatarUrlController.text.trim(),
-        'isPrivateProfile': editIsPrivateProfile.value,
+        'privateProfile': editIsPrivateProfile.value,
       };
 
       final response = await _dioClient.getResult<UserProfileResponse>(
