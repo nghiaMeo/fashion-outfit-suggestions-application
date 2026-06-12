@@ -29,6 +29,8 @@ class LoginController extends GetxController {
     _googleSignIn.initialize(
       clientId:
           '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
+      serverClientId:
+          '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
     );
     _googleSignIn.authenticationEvents.listen(
       (event) {
@@ -85,18 +87,15 @@ class LoginController extends GetxController {
   Future<void> signInWithGoogle() async {
     isLoading.value = true;
     try {
-      // 1. Khởi tạo GoogleSignIn với Client ID của bạn
-      await _googleSignIn.initialize(
-        clientId: '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com', // Nhập Client ID của bạn ở đây
-      );
-      // 2. Kích hoạt Popup đăng nhập (Hàm authenticate() thay thế cho signIn() ở bản v7)
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAccount? googleUser = await _googleSignIn
+          .authenticate();
       if (googleUser == null) {
         isLoading.value = false;
         return;
       }
       // 3. Lấy thông tin xác thực từ Google
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
       if (idToken == null) {
         throw Exception('Cannot retrieve Google ID Token.');
@@ -105,11 +104,9 @@ class LoginController extends GetxController {
       final authResponse = await _dioClient.getResult<AuthResponse>(
         _dioClient.dio.post<Map<String, dynamic>>(
           '/api/auth/oauth2/google',
-          data: {
-            'token': idToken,
-          },
+          data: {'token': idToken},
         ),
-            (json) => AuthResponse.fromJson(json! as Map<String, dynamic>),
+        (json) => AuthResponse.fromJson(json! as Map<String, dynamic>),
       );
       // 5. Lưu Session đăng nhập
       final tokeStorage = Get.find<TokenStorage>();

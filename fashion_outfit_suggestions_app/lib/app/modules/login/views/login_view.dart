@@ -1,22 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import "package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart"
-    show GoogleSignInPlatform;
-import 'package:google_sign_in_web/google_sign_in_web.dart'
-    as google_web
-    show GoogleSignInPlugin;
 import 'package:get/get.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_fonts.dart';
 import '../../../../core/theme/app_vectors.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/or_divider.dart';
 import '../../../../core/widgets/primary_capsule_button.dart';
-import '../../../../core/widgets/social_button.dart';
 import '../../../routes/app_routes.dart';
 import '../controllers/login_controller.dart';
+import 'google_sign_in_button_stub.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
@@ -110,26 +102,18 @@ class LoginView extends GetView<LoginController> {
                 const SizedBox(height: 20),
                 OrDivider(),
                 const SizedBox(height: 32),
-                kIsWeb
-                    ? SizedBox(
-                        height: 50,
-                        width: double.infinity,
-                        child:
-                            (GoogleSignInPlatform.instance
-                                    as google_web.GoogleSignInPlugin)
-                                .renderButton(),
-                      )
-                    : Obx(
-                        () => SocialButton(
-                          text: 'Sign in with Google',
-                          svgAssetPath: AppVectors.google,
-                          onPressed: () {
-                            if (!controller.isLoading.value) {
-                              controller.signInWithGoogle();
-                            }
-                          },
-                        ),
-                      ),
+                Obx(
+                  () => buildGoogleSignInButton(
+                    text: 'Sign in with Google',
+                    svgAssetPath: AppVectors.google,
+                    onPressed: () {
+                      if (!controller.isLoading.value) {
+                        controller.signInWithGoogle();
+                      }
+                    },
+                    isLoading: controller.isLoading.value,
+                  ),
+                ),
                 const SizedBox(height: 48),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
