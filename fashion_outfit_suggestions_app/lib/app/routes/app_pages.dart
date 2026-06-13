@@ -74,7 +74,7 @@ class AppPages {
       binding: ForgotPasswordBinding(),
     ),
     GetPage(
-      name: Routes.NOTIFICATION,
+      name: Routes.notification,
       page: () => const NotificationView(),
       binding: NotificationBinding(),
     ),
