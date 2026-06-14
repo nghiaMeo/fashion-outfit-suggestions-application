@@ -13,6 +13,9 @@ class AppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // currentIndex = -1 có nghĩa là không highlight tab nào (ví dụ: màn Notification)
+    final bool hasActiveTab = currentIndex >= 0;
+
     return Container(
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: Color(0xFF2C2C2C), width: 0.5)),
@@ -26,11 +29,11 @@ class AppBottomNav extends StatelessWidget {
         child: BottomNavigationBar(
           backgroundColor: AppColors.background,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.secondary,
+          selectedItemColor: hasActiveTab ? AppColors.secondary : AppColors.placeholder,
           unselectedItemColor: AppColors.placeholder,
           showUnselectedLabels: false,
           showSelectedLabels: false,
-          currentIndex: currentIndex,
+          currentIndex: hasActiveTab ? currentIndex : 0,
           onTap: onTap,
           items: [
             BottomNavigationBarItem(

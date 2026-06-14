@@ -5,6 +5,9 @@ import '../../../../core/models/notification_type.dart';
 import '../../../../core/models/user_profile_response.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_fonts.dart';
+import '../../../../core/widgets/app_bottom_nav.dart';
+import '../../../modules/home/controllers/home_controller.dart';
+import '../../../routes/app_routes.dart';
 import '../controllers/notification_controller.dart';
 
 class NotificationView extends GetView<NotificationController> {
@@ -30,6 +33,14 @@ class NotificationView extends GetView<NotificationController> {
           ),
         ),
         centerTitle: true,
+      ),
+      bottomNavigationBar: AppBottomNav(
+        currentIndex: -1,
+        onTap: (index) {
+          final homeCtrl = Get.find<HomeController>();
+          homeCtrl.changPage(index);
+          Get.offAllNamed(Routes.home);
+        },
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -242,7 +253,7 @@ class NotificationView extends GetView<NotificationController> {
               ),
             ),
             onPressed: () => controller.acceptFriendRequest(
-              notification.targetId,
+              notification.actorId,
               mainIndex,
             ),
             child: Text(
@@ -262,7 +273,7 @@ class NotificationView extends GetView<NotificationController> {
               ),
             ),
             onPressed: () => controller.rejectFriendRequest(
-              notification.targetId,
+              notification.actorId,
               mainIndex,
             ),
             child: Text(

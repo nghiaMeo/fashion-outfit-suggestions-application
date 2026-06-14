@@ -23,9 +23,9 @@ class NotificationController extends GetxController {
     markAllNotificationsAsRead();
   }
 
-  Future<void> acceptFriendRequest(String friendshipId, int index) async {
+  Future<void> acceptFriendRequest(String actorId, int index) async {
     try {
-      await _dioClient.dio.post('/api/friendship/accept/$friendshipId');
+      await _dioClient.dio.post('/api/friendship/accept/by-requester/$actorId');
       notification.removeAt(index);
       Get.snackbar(
         'Success',
@@ -39,9 +39,9 @@ class NotificationController extends GetxController {
     }
   }
 
-  Future<void> rejectFriendRequest(String friendshipId, int index) async {
+  Future<void> rejectFriendRequest(String actorId, int index) async {
     try {
-      await _dioClient.dio.delete('/api/friendship/cancel/$friendshipId');
+      await _dioClient.dio.delete('/api/friendship/user/$actorId');
       notification.removeAt(index);
       Get.snackbar(
         'Removed',
@@ -88,13 +88,11 @@ class NotificationController extends GetxController {
             (json) {
               final data = json as List<dynamic>;
               return data
-                      ?.map(
-                        (e) => UserProfileResponse.fromJson(
-                          e as Map<String, dynamic>,
-                        ),
-                      )
-                      .toList() ??
-                  [];
+                  .map(
+                    (e) =>
+                        UserProfileResponse.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList();
             },
           );
       suggestedUsers.value = list;
@@ -114,13 +112,12 @@ class NotificationController extends GetxController {
             (json) {
               final data = json as List<dynamic>;
               return data
-                      ?.map(
-                        (e) => NotificationResponse.fromJson(
-                          e as Map<String, dynamic>,
-                        ),
-                      )
-                      .toList() ??
-                  [];
+                  .map(
+                    (e) => NotificationResponse.fromJson(
+                      e as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList();
             },
           );
       notification.value = list;

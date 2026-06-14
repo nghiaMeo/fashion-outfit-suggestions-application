@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/widgets/app_bottom_nav.dart';
+import '../../../routes/app_routes.dart';
 import '../../message/views/message_view.dart';
 import '../../profile/views/profile_view.dart';
 import '../controllers/home_controller.dart';
@@ -71,7 +72,9 @@ class HomeFeedView extends StatelessWidget {
               size: 26,
               color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Get.toNamed(Routes.notification);
+            },
           ),
         ],
       ),

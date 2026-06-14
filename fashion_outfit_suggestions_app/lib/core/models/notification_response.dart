@@ -29,15 +29,30 @@ class NotificationResponse {
       actorId: json['actorId']?.toString() ?? '',
       actorName: json['actorName'] as String? ?? '',
       actorAvatar: json['actorAvatar'] as String?,
-      type: NotificationType.values.firstWhere(
-        (e) => e.toString().split('.').last == json['type'],
-        orElse: () => NotificationType.system,
-      ),
+      type: _parseType(json['type'] as String?),
       targetId: json['targetId']?.toString() ?? '',
       content: json['content'] as String? ?? '',
       isRead: json['isRead'] == true,
       createdAt: _parseDateTime(json['createdAt']),
     );
+  }
+
+  // Map UPPER_SNAKE_CASE từ backend Java → Dart enum camelCase
+  static NotificationType _parseType(String? raw) {
+    switch (raw) {
+      case 'FRIEND_REQUEST':
+        return NotificationType.friendRequest;
+      case 'FRIEND_ACCEPT':
+        return NotificationType.friendAccept;
+      case 'NEW_MESSAGE':
+        return NotificationType.newMessage;
+      case 'OUTFIT_LIKE':
+        return NotificationType.outfitLike;
+      case 'OUTFIT_COMMENT':
+        return NotificationType.outfitComment;
+      default:
+        return NotificationType.system;
+    }
   }
 
   static DateTime _parseDateTime(dynamic value) {
