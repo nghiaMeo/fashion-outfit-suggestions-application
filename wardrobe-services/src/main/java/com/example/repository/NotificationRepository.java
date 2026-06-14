@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.entity.Notification;
+import com.example.entity.enums.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     List<Notification> findByRecipientIdOrderByCreatedAtDesc(UUID recipientId);
 
     long countByRecipientIdAndIsReadFalse(UUID recipientId);
+
+    void deleteByRecipientIdAndActorIdAndType(UUID recipientId, UUID actorId, NotificationType type);
+
 }

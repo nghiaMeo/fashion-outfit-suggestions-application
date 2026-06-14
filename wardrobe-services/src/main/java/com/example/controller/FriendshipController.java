@@ -30,6 +30,13 @@ public class FriendshipController {
                 .build();
     }
 
+    @PostMapping("/accept/by-requester/{requesterId}")
+    public ApiResponse<String> acceptFriendshipByRequester(@PathVariable("requesterId") UUID requesterId) {
+        return ApiResponse.<String>builder()
+                .result(friendshipService.acceptFriendRequestByRequesterId(requesterId))
+                .build();
+    }
+
     @DeleteMapping("/cancel/{friendshipId}")
     public ApiResponse<String> declineFriendRequest(@PathVariable UUID friendshipId) {
         return ApiResponse.<String>builder()

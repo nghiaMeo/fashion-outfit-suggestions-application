@@ -10,6 +10,8 @@ import com.example.entity.enums.NotificationType;
 import com.example.exception.AppException;
 import com.example.exception.ErrorCode;
 import com.example.repository.FriendshipRepository;
+import com.example.repository.NotificationRepository;
+import com.example.repository.UserRepository;
 import com.example.service.FriendshipService;
 import com.example.service.UserService;
 import com.example.service.NotificationService;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,6 +33,8 @@ public class FriendshipServiceImpl implements FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     private User getCurrentUser() {
         return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
@@ -43,14 +48,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             throw new AppException(ErrorCode.CANNOT_FRIEND_SELF);
         }
 
-        UserProfileResponse receiver;
-        try {
-            receiver = userService.getUserProfile(receiverId);
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        if (receiver == null) {
+        if (!userRepository.existsById(receiverId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
@@ -86,37 +84,15 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Transactional
     public String acceptFriendRequest(UUID friendshipId) {
         var currentUser = getCurrentUser();
-
         var friendship = friendshipRepository.findById(friendshipId)
                 .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-
-        if (!friendship.getReceiverId().equals(currentUser.getId())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-        friendship.setStatus(FriendshipStatus.ACCEPTED);
-        friendship.setUpdatedAt(Instant.now());
-        friendshipRepository.save(friendship);
-
-        var content = currentUser.getDisplayName() + " has accepted your friend request";
-        try {
-            notificationService.sendNotification(
-                    friendship.getRequesterId(),
-                    currentUser.getId(),
-                    NotificationType.FRIEND_ACCEPT,
-                    currentUser.getId(),
-                    content
-            );
-        } catch (Exception e) {
-            // Non-blocking
-        }
-
-        return "friendships have been accepted";
+        return processAcceptFriendship(friendship, currentUser);
     }
 
     @Override
+    @Transactional
     public String declineOrCancelRequest(UUID friendshipId) {
         var currentUser = getCurrentUser();
-
         var friendship = friendshipRepository.findById(friendshipId)
                 .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
 
@@ -124,6 +100,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        deleteFriendRequestNotification(friendship, currentUser);
         friendshipRepository.delete(friendship);
         return "request accept have been declined";
     }
@@ -143,7 +120,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             }
         }
 
-        java.util.Map<UUID, UserProfileResponse> profileMap = profiles.stream()
+        Map<UUID, UserProfileResponse> profileMap = profiles.stream()
                 .collect(java.util.stream.Collectors.toMap(UserProfileResponse::getId, p -> p, (p1, p2) -> p1));
 
         return requests.stream().map(f -> {
@@ -197,7 +174,7 @@ public class FriendshipServiceImpl implements FriendshipService {
                     .username(u.getUsername())
                     .displayName(u.getDisplayName())
                     .avatarUrl(u.getAvatarUrl())
-                    .friendshipStatus(relation.map(f -> f.getStatus()).orElse(null))
+                    .friendshipStatus(relation.map(Friendship::getStatus).orElse(null))
                     .friendshipId(relation.map(Friendship::getId).orElse(null))
                     .build();
         }).toList();
@@ -218,9 +195,11 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Transactional
     public String unfriendOrCancelByUserId(UUID targetUserId) {
         var currentUser = getCurrentUser();
-        var friendships = friendshipRepository.findRelation(currentUser.getId(), targetUserId)
+        var friendship = friendshipRepository.findRelation(currentUser.getId(), targetUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-        friendshipRepository.delete(friendships);
+
+        deleteFriendRequestNotification(friendship, currentUser);
+        friendshipRepository.delete(friendship);
         return "Friendship or request cancelled successfully";
     }
 
@@ -233,5 +212,66 @@ public class FriendshipServiceImpl implements FriendshipService {
                 .avatarUrl(friend != null ? friend.getAvatarUrl() : null)
                 .status(friendship.getStatus())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public String acceptFriendRequestByRequesterId(UUID requesterId) {
+        var currentUser = getCurrentUser();
+        var friendship = friendshipRepository.findRelation(requesterId, currentUser.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+        return processAcceptFriendship(friendship, currentUser);
+    }
+
+    private void deleteFriendRequestNotification(Friendship friendship, User currentUser) {
+        if (friendship.getStatus() == FriendshipStatus.PENDING) {
+            if (friendship.getReceiverId().equals(currentUser.getId())) {
+                notificationRepository.deleteByRecipientIdAndActorIdAndType(
+                        currentUser.getId(),
+                        friendship.getRequesterId(),
+                        NotificationType.FRIEND_REQUEST
+                );
+            } else {
+                notificationRepository.deleteByRecipientIdAndActorIdAndType(
+                        friendship.getReceiverId(),
+                        currentUser.getId(),
+                        NotificationType.FRIEND_REQUEST
+                );
+            }
+        }
+    }
+
+    private String processAcceptFriendship(Friendship friendship, User currentUser) {
+        if (!friendship.getReceiverId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            throw new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND);
+        }
+
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        friendship.setUpdatedAt(Instant.now());
+        friendshipRepository.save(friendship);
+
+        notificationRepository.deleteByRecipientIdAndActorIdAndType(
+                currentUser.getId(),
+                friendship.getRequesterId(),
+                NotificationType.FRIEND_REQUEST
+        );
+
+        var content = currentUser.getDisplayName() + " has accepted your friend request";
+        try {
+            notificationService.sendNotification(
+                    friendship.getRequesterId(),
+                    currentUser.getId(),
+                    NotificationType.FRIEND_ACCEPT,
+                    currentUser.getId(),
+                    content
+            );
+        } catch (Exception e) {
+            // Non-blocking
+        }
+
+        return "friendships have been accepted";
     }
 }

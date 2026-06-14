@@ -23,4 +23,6 @@ public interface FriendshipService {
 
     String unfriendOrCancelByUserId(UUID targetUserId);
 
+    String acceptFriendRequestByRequesterId(UUID requesterId);
+
 }
