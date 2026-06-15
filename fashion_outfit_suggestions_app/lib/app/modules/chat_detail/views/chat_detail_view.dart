@@ -58,6 +58,15 @@ class ChatDetailView extends StatelessWidget {
                         CircleAvatar(
                           radius: 56,
                           backgroundColor: Colors.grey.shade800,
+                          backgroundImage: avatarUrl.isNotEmpty
+                              ? NetworkImage(avatarUrl)
+                              : null,
+                          child: avatarUrl.isEmpty
+                              ? Text(
+                                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                  style: const TextStyle(color: Colors.white, fontSize: 32),
+                                )
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         Text(

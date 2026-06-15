@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_fonts.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../routes/app_routes.dart';
 import '../../message/views/message_view.dart';
@@ -44,17 +46,15 @@ class HomeFeedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: false,
-        title: const Text(
-          'Instagram',
-          style: TextStyle(
+        title: Text(
+          'Stylist',
+          style: AppFonts.base(
             color: Colors.white,
-            fontSize: 28,
-            fontFamily: 'Billabong',
+            fontSize: 20,
             fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
           ),
         ),
         actions: [
@@ -78,7 +78,7 @@ class HomeFeedView extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(child: Text('Home Feed View')),
+      body: Center(child: Text('Home Feed View')),
     );
   }
 }

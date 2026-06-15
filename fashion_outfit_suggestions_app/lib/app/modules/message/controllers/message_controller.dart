@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/models/conversation_response.dart';
+import '../../../../core/models/friend_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dialog_alert.dart';
@@ -10,12 +11,18 @@ class MessageController extends GetxController {
   final currentIndex = 3.obs;
   final conversations = <ConversationResponse>[].obs;
   final isLoading = false.obs;
+  
+  final friends = <FriendResponse>[].obs;
+  final isFriendsLoading = false.obs;
+  final selectedFriend = Rxn<FriendResponse>();
+
   final DioClient _dioClient = Get.find<DioClient>();
 
   @override
   void onInit() {
     super.onInit();
     fetchConversations();
+    fetchFriends();
   }
 
   Future<void> fetchConversations() async {
@@ -53,6 +60,26 @@ class MessageController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchFriends() async {
+    isFriendsLoading.value = true;
+    try {
+      final response = await _dioClient.getResult<List<FriendResponse>>(
+        _dioClient.dio.get('/api/friendship/my-friends'),
+        (json) {
+          final list = json as List;
+          return list
+              .map((e) => FriendResponse.fromJson(e as Map<String, dynamic>))
+              .toList();
+        },
+      );
+      friends.assignAll(response);
+    } catch (e) {
+      // Silently ignore - friends list is non-critical
+    } finally {
+      isFriendsLoading.value = false;
     }
   }
 

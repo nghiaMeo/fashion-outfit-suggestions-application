@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../chat_detail/views/chat_detail_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../controllers/message_controller.dart';
+import 'new_message_view.dart';
 
 class MessageView extends GetView<MessageController> {
   const MessageView({super.key});
@@ -37,8 +38,13 @@ class MessageView extends GetView<MessageController> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_square, color: Colors.white, size: 24),
-            onPressed: () {},
+            icon: const Icon(Icons.edit_note_outlined, color: Colors.white, size: 24),
+            onPressed: () {
+              Get.to(
+                () => const NewMessageView(),
+                transition: Transition.downToUp,
+              );
+            },
           ),
         ],
         centerTitle: true,
@@ -80,41 +86,6 @@ class MessageView extends GetView<MessageController> {
                 ],
               ),
               const SizedBox(height: 16),
-              _buildChatItem(
-                avatarUrl:
-                    'https://images.unsplash.com/photo-1607990283143-e81e7a2c93ab?w=150',
-                name: 'Quang Huy',
-                lastMessage: 'Đã ta',
-                time: '1w',
-              ),
-              _buildChatItem(
-                avatarUrl:
-                    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-                name: 'Kaylee Thuy Phuong Truong',
-                lastMessage: 'Kaylee sent a sticker.',
-                time: '1w',
-              ),
-              _buildChatItem(
-                avatarUrl:
-                    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-                name: 'Nhật Nam',
-                lastMessage: 'Có gì đâu',
-                time: '2w',
-              ),
-              _buildChatItem(
-                avatarUrl:
-                    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-                name: 'Instagram User',
-                lastMessage: 'You: cho mình xin giá những mẫu giống ...',
-                time: '12w',
-              ),
-              _buildChatItem(
-                avatarUrl:
-                    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150',
-                name: 'Minh Tâm',
-                lastMessage: 'You: đúng rồi',
-                time: '24w',
-              ),
               _buildChatItem(
                 avatarUrl:
                     'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
