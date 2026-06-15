@@ -1,8 +1,8 @@
 package com.example.service;
 
-import com.example.dto.MessageRequest;
-import com.example.dto.ConversationResponse;
-import com.example.dto.MessageResponse;
+import com.example.dto.request.MessageRequest;
+import com.example.dto.response.ConversationResponse;
+import com.example.dto.response.MessageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

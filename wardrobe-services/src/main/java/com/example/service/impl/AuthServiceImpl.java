@@ -1,7 +1,9 @@
 package com.example.service.impl;
 
 
-import com.example.dto.*;
+import com.example.dto.request.*;
+import com.example.dto.response.AuthResponse;
+import com.example.dto.response.UserResponse;
 import com.example.entity.PasswordResetOtp;
 import com.example.entity.RefreshToken;
 import com.example.entity.User;

@@ -1,7 +1,8 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.NotificationResponse;
+import com.example.dto.request.NotificationRequest;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.NotificationResponse;
 import com.example.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class NotificationController {
     }
 
     @PostMapping("/send")
-    public ApiResponse<Void> sendNotification(@RequestBody com.example.dto.NotificationRequest request) {
+    public ApiResponse<Void> sendNotification(@RequestBody NotificationRequest request) {
         notificationService.sendNotification(
                 request.getRecipientId(),
                 request.getActorId(),

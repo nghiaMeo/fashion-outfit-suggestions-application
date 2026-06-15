@@ -1,10 +1,10 @@
 package com.example.controller;
 
-import com.example.dto.ItemRequest;
-import com.example.dto.ApiResponse;
-import com.example.dto.ItemResponse;
-import com.example.dto.PageResponse;
-import com.example.dto.WardrobeStatisticsResponse;
+import com.example.dto.request.ItemRequest;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.ItemResponse;
+import com.example.dto.response.PageResponse;
+import com.example.dto.response.WardrobeStatisticsResponse;
 import com.example.service.CloudinaryService;
 import com.example.service.ItemService;
 import jakarta.validation.Valid;

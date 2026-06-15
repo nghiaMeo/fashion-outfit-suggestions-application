@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.request;
 
 import com.example.entity.enums.MessageType;
 import jakarta.validation.constraints.NotBlank;

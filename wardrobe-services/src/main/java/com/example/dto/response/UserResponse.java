@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.response;
 
 import com.example.entity.enums.Role;
 import lombok.AllArgsConstructor;

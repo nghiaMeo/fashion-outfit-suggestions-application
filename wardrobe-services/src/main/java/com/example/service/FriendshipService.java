@@ -1,7 +1,7 @@
 package com.example.service;
 
-import com.example.dto.FriendResponse;
-import com.example.dto.UserSearchResponse;
+import com.example.dto.response.FriendResponse;
+import com.example.dto.response.UserSearchResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,5 +24,6 @@ public interface FriendshipService {
     String unfriendOrCancelByUserId(UUID targetUserId);
 
     String acceptFriendRequestByRequesterId(UUID requesterId);
+
 
 }

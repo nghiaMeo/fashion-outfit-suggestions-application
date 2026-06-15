@@ -1,8 +1,8 @@
 package com.example.service.impl;
 
-import com.example.dto.FriendResponse;
-import com.example.dto.UserSearchResponse;
-import com.example.dto.UserProfileResponse;
+import com.example.dto.response.FriendResponse;
+import com.example.dto.response.UserSearchResponse;
+import com.example.dto.response.UserProfileResponse;
 import com.example.entity.Friendship;
 import com.example.entity.User;
 import com.example.entity.enums.FriendshipStatus;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,15 +44,12 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Override
     public String sendFriendRequest(UUID receiverId) {
         var currentUser = getCurrentUser();
-
         if (currentUser.getId().equals(receiverId)) {
             throw new AppException(ErrorCode.CANNOT_FRIEND_SELF);
         }
-
         if (!userRepository.existsById(receiverId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-
         if (friendshipRepository.findRelation(currentUser.getId(), receiverId).isPresent()) {
             throw new AppException(ErrorCode.FRIEND_REQUEST_ALREADY_SENT);
         }
@@ -86,7 +84,8 @@ public class FriendshipServiceImpl implements FriendshipService {
         var currentUser = getCurrentUser();
         var friendship = friendshipRepository.findById(friendshipId)
                 .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-        return processAcceptFriendship(friendship, currentUser);
+        processAcceptFriendship(friendship, currentUser);
+        return "friendships have been accepted";
     }
 
     @Override
@@ -121,7 +120,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         }
 
         Map<UUID, UserProfileResponse> profileMap = profiles.stream()
-                .collect(java.util.stream.Collectors.toMap(UserProfileResponse::getId, p -> p, (p1, p2) -> p1));
+                .collect(Collectors.toMap(UserProfileResponse::getId, p -> p, (p1, p2) -> p1));
 
         return requests.stream().map(f -> {
             UserProfileResponse friendProfile = profileMap.get(f.getRequesterId());
@@ -147,8 +146,8 @@ public class FriendshipServiceImpl implements FriendshipService {
             }
         }
 
-        java.util.Map<UUID, UserProfileResponse> profileMap = profiles.stream()
-                .collect(java.util.stream.Collectors.toMap(UserProfileResponse::getId, p -> p, (p1, p2) -> p1));
+        Map<UUID, UserProfileResponse> profileMap = profiles.stream()
+                .collect(Collectors.toMap(UserProfileResponse::getId, p -> p, (p1, p2) -> p1));
 
         return friendships.stream().map(f -> {
             UUID friendId = f.getRequesterId().equals(currentUser.getId()) ? f.getReceiverId() : f.getRequesterId();
@@ -220,7 +219,8 @@ public class FriendshipServiceImpl implements FriendshipService {
         var currentUser = getCurrentUser();
         var friendship = friendshipRepository.findRelation(requesterId, currentUser.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-        return processAcceptFriendship(friendship, currentUser);
+        processAcceptFriendship(friendship, currentUser);
+        return "friendships have been accepted";
     }
 
     private void deleteFriendRequestNotification(Friendship friendship, User currentUser) {
@@ -241,10 +241,20 @@ public class FriendshipServiceImpl implements FriendshipService {
         }
     }
 
-    private String processAcceptFriendship(Friendship friendship, User currentUser) {
+    private void processAcceptFriendship(Friendship friendship, User currentUser) {
         if (!friendship.getReceiverId().equals(currentUser.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+
+        if (friendship.getStatus() == FriendshipStatus.ACCEPTED) {
+            notificationRepository.deleteByRecipientIdAndActorIdAndType(
+                    currentUser.getId(),
+                    friendship.getRequesterId(),
+                    NotificationType.FRIEND_REQUEST
+            );
+            return;
+        }
+
         if (friendship.getStatus() != FriendshipStatus.PENDING) {
             throw new AppException(ErrorCode.FRIEND_REQUEST_NOT_FOUND);
         }
@@ -271,7 +281,5 @@ public class FriendshipServiceImpl implements FriendshipService {
         } catch (Exception e) {
             // Non-blocking
         }
-
-        return "friendships have been accepted";
     }
 }

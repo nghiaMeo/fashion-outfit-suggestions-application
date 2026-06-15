@@ -1,7 +1,7 @@
 package com.example.service.impl;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import com.example.dto.NotificationResponse;
+import com.example.dto.response.NotificationResponse;
 import com.example.entity.Notification;
 import com.example.entity.User;
 import com.example.exception.AppException;

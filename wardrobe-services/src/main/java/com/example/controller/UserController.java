@@ -1,8 +1,8 @@
 package com.example.controller;
 
-import com.example.dto.ProfileUpdateRequest;
-import com.example.dto.ApiResponse;
-import com.example.dto.UserProfileResponse;
+import com.example.dto.request.ProfileUpdateRequest;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.UserProfileResponse;
 import com.example.entity.User;
 import com.example.service.UserService;
 import jakarta.validation.Valid;
@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;

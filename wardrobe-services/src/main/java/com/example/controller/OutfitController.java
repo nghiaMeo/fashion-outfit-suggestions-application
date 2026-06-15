@@ -1,8 +1,8 @@
 package com.example.controller;
 
-import com.example.dto.OutfitRequest;
-import com.example.dto.ApiResponse;
-import com.example.dto.OutfitResponse;
+import com.example.dto.request.OutfitRequest;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.OutfitResponse;
 import com.example.service.OutfitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

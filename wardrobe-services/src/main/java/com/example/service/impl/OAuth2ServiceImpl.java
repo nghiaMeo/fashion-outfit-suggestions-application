@@ -1,8 +1,8 @@
 package com.example.service.impl;
 
-import com.example.dto.OAuth2Request;
-import com.example.dto.AuthResponse;
-import com.example.dto.UserResponse;
+import com.example.dto.request.OAuth2Request;
+import com.example.dto.response.AuthResponse;
+import com.example.dto.response.UserResponse;
 import com.example.entity.User;
 import com.example.entity.UserPreference;
 import com.example.entity.enums.AuthProvider;

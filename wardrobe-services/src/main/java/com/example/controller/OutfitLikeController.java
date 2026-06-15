@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.OutfitLikeStatusResponse;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.OutfitLikeStatusResponse;
 import com.example.service.OutfitLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

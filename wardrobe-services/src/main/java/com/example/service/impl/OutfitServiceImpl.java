@@ -1,9 +1,9 @@
 package com.example.service.impl;
 
-import com.example.dto.OutfitRequest;
-import com.example.dto.ItemResponse;
-import com.example.dto.OutfitLikeStatusResponse;
-import com.example.dto.OutfitResponse;
+import com.example.dto.request.OutfitRequest;
+import com.example.dto.response.ItemResponse;
+import com.example.dto.response.OutfitLikeStatusResponse;
+import com.example.dto.response.OutfitResponse;
 import com.example.entity.Item;
 import com.example.entity.Outfit;
 import com.example.entity.User;

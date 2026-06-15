@@ -1,6 +1,6 @@
 package com.example.security;
 
-import com.example.dto.ErrorResponse;
+import com.example.dto.response.ErrorResponse;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

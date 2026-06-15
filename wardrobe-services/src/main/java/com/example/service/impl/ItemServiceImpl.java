@@ -1,9 +1,9 @@
 package com.example.service.impl;
 
-import com.example.dto.ItemRequest;
-import com.example.dto.ItemResponse;
-import com.example.dto.PageResponse;
-import com.example.dto.WardrobeStatisticsResponse;
+import com.example.dto.request.ItemRequest;
+import com.example.dto.response.ItemResponse;
+import com.example.dto.response.PageResponse;
+import com.example.dto.response.WardrobeStatisticsResponse;
 import com.example.entity.Item;
 import com.example.entity.User;
 import com.example.exception.AppException;
@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
 
 
         var itemsByType = results.stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         result -> result[0].toString(),
                         result -> Long.valueOf(String.valueOf(result[1]))
                 ));

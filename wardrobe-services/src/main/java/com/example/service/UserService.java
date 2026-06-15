@@ -1,9 +1,9 @@
 package com.example.service;
 
-import com.example.dto.ProfileUpdateRequest;
-import com.example.dto.UserCreationRequest;
-import com.example.dto.UserProfileResponse;
-import com.example.dto.UserResponse;
+import com.example.dto.request.ProfileUpdateRequest;
+import com.example.dto.request.UserCreationRequest;
+import com.example.dto.response.UserProfileResponse;
+import com.example.dto.response.UserResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

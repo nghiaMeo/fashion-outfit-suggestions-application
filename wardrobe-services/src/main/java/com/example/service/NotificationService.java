@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.NotificationResponse;
+import com.example.dto.response.NotificationResponse;
 import com.example.entity.enums.NotificationType;
 
 import java.util.List;

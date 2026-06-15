@@ -1,9 +1,9 @@
 package com.example.service;
 
-import com.example.dto.ItemRequest;
-import com.example.dto.ItemResponse;
-import com.example.dto.PageResponse;
-import com.example.dto.WardrobeStatisticsResponse;
+import com.example.dto.request.ItemRequest;
+import com.example.dto.response.ItemResponse;
+import com.example.dto.response.PageResponse;
+import com.example.dto.response.WardrobeStatisticsResponse;
 
 import java.util.List;
 import java.util.UUID;

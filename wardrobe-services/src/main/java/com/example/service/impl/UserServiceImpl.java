@@ -1,9 +1,9 @@
 package com.example.service.impl;
 
-import com.example.dto.ProfileUpdateRequest;
-import com.example.dto.UserCreationRequest;
-import com.example.dto.UserProfileResponse;
-import com.example.dto.UserResponse;
+import com.example.dto.request.ProfileUpdateRequest;
+import com.example.dto.request.UserCreationRequest;
+import com.example.dto.response.UserProfileResponse;
+import com.example.dto.response.UserResponse;
 import com.example.entity.User;
 import com.example.entity.UserPreference;
 import com.example.exception.AppException;
@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -128,15 +130,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public java.util.List<UserProfileResponse> searchUsers(String query, UUID currentUserId) {
-        java.util.List<User> users = userRepository.searchUsers(query, currentUserId);
+    public List<UserProfileResponse> searchUsers(String query, UUID currentUserId) {
+       List<User> users = userRepository.searchUsers(query, currentUserId);
         return users.stream().map(u -> getUserProfile(u.getId())).toList();
     }
 
     @Override
-    public java.util.List<UserProfileResponse> getUsersProfiles(java.util.List<UUID> userIds) {
+    public List<UserProfileResponse> getUsersProfiles(List<UUID> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         return userIds.stream()
                 .map(id -> {
@@ -151,8 +153,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public java.util.List<UserProfileResponse> getSuggestCandidates(UUID currentUserId) {
-        java.util.List<User> candidates = userRepository.findPublicUsersToSuggest(currentUserId);
+    public List<UserProfileResponse> getSuggestCandidates(UUID currentUserId) {
+        List<User> candidates = userRepository.findPublicUsersToSuggest(currentUserId);
         return candidates.stream()
                 .map(u -> {
                     try {

@@ -1,8 +1,8 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.FriendResponse;
-import com.example.dto.UserSearchResponse;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.FriendResponse;
+import com.example.dto.response.UserSearchResponse;
 import com.example.service.FriendshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

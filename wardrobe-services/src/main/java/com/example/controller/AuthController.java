@@ -2,7 +2,10 @@ package com.example.controller;
 
 
 
-import com.example.dto.*;
+import com.example.dto.request.*;
+import com.example.dto.response.ApiResponse;
+import com.example.dto.response.AuthResponse;
+import com.example.dto.response.UserResponse;
 import com.example.service.AuthService;
 import com.example.service.OAuth2Service;
 import com.example.service.UserService;

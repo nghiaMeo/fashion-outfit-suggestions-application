@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RefreshTokenRequest {
+public class OAuth2Request {
 
-    @NotBlank(message = "Refresh token is mandatory")
-    private String refreshToken;
+    @NotBlank(message = "Token is mandatory")
+    private String token;
 }

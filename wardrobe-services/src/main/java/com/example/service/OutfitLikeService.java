@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.OutfitLikeStatusResponse;
+import com.example.dto.response.OutfitLikeStatusResponse;
 
 import java.util.List;
 import java.util.Map;

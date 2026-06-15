@@ -2,7 +2,8 @@ package com.example.service;
 
 
 
-import com.example.dto.*;
+import com.example.dto.request.*;
+import com.example.dto.response.AuthResponse;
 
 public interface AuthService {
     

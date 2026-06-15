@@ -1,6 +1,6 @@
 package com.example.service.impl;
 
-import com.example.dto.OutfitLikeStatusResponse;
+import com.example.dto.response.OutfitLikeStatusResponse;
 import com.example.entity.OutfitLike;
 import com.example.entity.User;
 import com.example.entity.enums.NotificationType;

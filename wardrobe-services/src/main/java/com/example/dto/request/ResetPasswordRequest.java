@@ -1,5 +1,6 @@
-package com.example.dto;
+package com.example.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,10 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChangePasswordRequest {
+public class ResetPasswordRequest {
 
-    @NotBlank(message = "Old password is mandatory")
-    private String oldPassword;
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email should be valid")
+    private String email;
+
+    @NotBlank(message = "OTP is mandatory")
+    private String otp;
 
     @NotBlank(message = "New password is mandatory")
     @Size(min = 8, message = "New password must be at least 8 characters")

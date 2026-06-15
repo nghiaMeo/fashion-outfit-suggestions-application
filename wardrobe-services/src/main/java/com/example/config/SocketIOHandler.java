@@ -2,7 +2,7 @@ package com.example.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.example.security.JwtUtils;
-import com.example.dto.UserStatusResponse;
+import com.example.dto.response.UserStatusResponse;
 import com.example.repository.ConversationMemberRepository;
 import com.example.service.UserService;
 

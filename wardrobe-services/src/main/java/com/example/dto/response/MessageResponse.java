@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.response;
 
 import com.example.entity.enums.MessageType;
 import lombok.Builder;
@@ -19,4 +19,5 @@ public class MessageResponse {
     private UUID sharedOutfitId;
     private Instant createdAt;
     private Instant readAt;
+    private UUID conversationId;
 }

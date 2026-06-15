@@ -1,6 +1,6 @@
 package com.example.cache;
 
-import com.example.dto.UserProfileResponse;
+import com.example.dto.response.UserProfileResponse;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
