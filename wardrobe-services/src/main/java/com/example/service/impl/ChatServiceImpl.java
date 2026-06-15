@@ -18,6 +18,7 @@ import com.example.exception.ErrorCode;
 import com.example.repository.ChatConversationRepository;
 import com.example.repository.ConversationMemberRepository;
 import com.example.repository.MessageRepository;
+import com.example.repository.UserRepository;
 import com.example.service.ChatService;
 import com.example.service.NotificationService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +44,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatConversationRepository chatConversationRepository;
     private final NotificationService notificationService;
     private final UserProfileCache userProfileCache;
+    private final UserRepository userRepository;
 
     public ChatServiceImpl(
             ConversationMemberRepository conversationMemberRepository,
@@ -50,13 +52,14 @@ public class ChatServiceImpl implements ChatService {
             @Qualifier("socialSocketIOServer") SocketIOServer socketIOServer,
             ChatConversationRepository chatConversationRepository,
             NotificationService notificationService,
-            UserProfileCache userProfileCache) {
+            UserProfileCache userProfileCache, UserRepository userRepository) {
         this.conversationMemberRepository = conversationMemberRepository;
         this.messageRepository = messageRepository;
         this.socketIOServer = socketIOServer;
         this.chatConversationRepository = chatConversationRepository;
         this.notificationService = notificationService;
         this.userProfileCache = userProfileCache;
+        this.userRepository = userRepository;
     }
 
     private User getCurrentUser() {
@@ -166,16 +169,23 @@ public class ChatServiceImpl implements ChatService {
     public ConversationResponse createConversation(UUID friendId) {
         User currentUser = getCurrentUser();
 
-        UserProfileResponse friend = userProfileCache.getProfile(friendId);
-        if (friend == null) {
+        // Kiểm tra nhẹ: user có tồn tại không
+        if (!userRepository.existsById(friendId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
+        // Nếu đã có cuộc trò chuyện rồi, trả về luôn — không tạo trùng
+        var existing = chatConversationRepository.findDirectConversation(currentUser.getId(), friendId);
+        if (existing.isPresent()) {
+            return mapToConversationResponse(existing.get(), currentUser);
+        }
+
+        // Tạo cuộc trò chuyện mới
         var conversation = ChatConversation.builder().build();
         chatConversationRepository.save(conversation);
 
         conversationMemberRepository.save(new ConversationMember(null, conversation, currentUser.getId(), null, Instant.now(), null, false));
-        conversationMemberRepository.save(new ConversationMember(null, conversation, friend.getId(), null, Instant.now(), null, false));
+        conversationMemberRepository.save(new ConversationMember(null, conversation, friendId, null, Instant.now(), null, false));
 
         return mapToConversationResponse(conversation, currentUser);
     }
