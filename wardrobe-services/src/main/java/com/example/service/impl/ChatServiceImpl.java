@@ -227,9 +227,10 @@ public class ChatServiceImpl implements ChatService {
                 .filter(m -> m.getUserId().equals(currentUser.getId()))
                 .findFirst()
                 .orElse(null);
-
-        var unreadCount = messageRepository.countUnreadMessages(conv.getId(), currentUser.getId(),
-                myMember != null ? myMember.getLastReadAt() : null);
+        var lastReadAt = myMember != null ? myMember.getLastReadAt() : null;
+        var unreadCount = lastReadAt == null
+                ? messageRepository.countByConversationIdAndSenderIdNot(conv.getId(), currentUser.getId())
+                : messageRepository.countByConversationIdAndSenderIdNotAndCreatedAtGreaterThan(conv.getId(), currentUser.getId(), lastReadAt);
 
         return ConversationResponse.builder()
                 .conversationId(conv.getId())

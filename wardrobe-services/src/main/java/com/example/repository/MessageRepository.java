@@ -15,11 +15,6 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     Page<Message> findByConversationIdOrderByCreatedAtDesc(UUID conversationId, Pageable pageable);
-
-    @Query("SELECT COUNT(m) FROM Message m WHERE m.conversation.id = :conversationId " +
-            "AND m.senderId != :userId " +
-            "AND (m.createdAt > :lastReadAt OR :lastReadAt IS NULL)")
-    long countUnreadMessages(@Param("conversationId") UUID conversationId,
-                             @Param("userId") UUID senderId,
-                             @Param("lastReadAt") Instant lastReadAt);
+    long countByConversationIdAndSenderIdNot(UUID conversationId, UUID senderId);
+    long countByConversationIdAndSenderIdNotAndCreatedAtGreaterThan(UUID conversationId, UUID senderId, Instant lastReadAt);
 }
