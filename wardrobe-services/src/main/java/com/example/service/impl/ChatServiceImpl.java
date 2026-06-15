@@ -182,10 +182,16 @@ public class ChatServiceImpl implements ChatService {
 
         // Tạo cuộc trò chuyện mới
         var conversation = ChatConversation.builder().build();
-        chatConversationRepository.save(conversation);
+        conversation = chatConversationRepository.save(conversation);
 
-        conversationMemberRepository.save(new ConversationMember(null, conversation, currentUser.getId(), null, Instant.now(), null, false));
-        conversationMemberRepository.save(new ConversationMember(null, conversation, friendId, null, Instant.now(), null, false));
+        var member1 = new ConversationMember(null, conversation, currentUser.getId(), null, Instant.now(), null, false);
+        var member2 = new ConversationMember(null, conversation, friendId, null, Instant.now(), null, false);
+
+        conversationMemberRepository.save(member1);
+        conversationMemberRepository.save(member2);
+
+        // ĐỒNG BỘ DANH SÁCH MEMBERS cho đối tượng trong bộ nhớ để tránh NullPointerException khi map response
+        conversation.setMembers(List.of(member1, member2));
 
         return mapToConversationResponse(conversation, currentUser);
     }

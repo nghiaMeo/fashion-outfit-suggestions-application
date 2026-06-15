@@ -13,9 +13,11 @@ import java.util.UUID;
 public interface ChatConversationRepository extends JpaRepository<ChatConversation, UUID> {
     @Query("""
                 SELECT c FROM ChatConversation c
-                WHERE (SELECT COUNT(m) FROM ConversationMember m WHERE m.conversation = c) = 2
-                AND EXISTS (SELECT m FROM ConversationMember m WHERE m.conversation = c AND m.userId = :userId1)
-                AND EXISTS (SELECT m FROM ConversationMember m WHERE m.conversation = c AND m.userId = :userId2)
+                JOIN c.members m1
+                JOIN c.members m2
+                WHERE m1.userId = :userId1
+                AND m2.userId = :userId2
+                AND SIZE(c.members) = 2
             """)
     Optional<ChatConversation> findDirectConversation(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
 }
