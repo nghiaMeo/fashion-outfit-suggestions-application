@@ -19,13 +19,17 @@ class ConversationResponse {
 
   factory ConversationResponse.fromJson(Map<String, dynamic> json) =>
       ConversationResponse(
-        conversationId: json['conversation_id'],
-        friendId: json['friend_id'],
-        friendName: json['friend_name'],
-        friendAvatar: json['friend_avatar'],
-        lastMessage: json['last_message'],
-        lastMessageAt: json['last_message_at'],
-        unreadCount: json['unread_count'],
+        conversationId: (json['conversation_id'] ?? json['conversationId'])
+            ?.toString(),
+        friendId: (json['friend_id'] ?? json['friendId'])?.toString(),
+        friendName: (json['friend_name'] ?? json['friendName'])?.toString(),
+        friendAvatar: (json['friend_avatar'] ?? json['friendAvatar'])
+            ?.toString(),
+        lastMessage: (json['last_message'] ?? json['lastMessage'])?.toString(),
+        lastMessageAt: (json['last_message_at'] ?? json['lastMessageAt'])
+            ?.toString(),
+        unreadCount: ((json['unread_count'] ?? json['unreadCount']) as num?)
+            ?.toInt(),
       );
 
   ConversationResponse copyWith({

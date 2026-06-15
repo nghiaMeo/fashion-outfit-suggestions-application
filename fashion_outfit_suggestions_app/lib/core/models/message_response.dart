@@ -6,6 +6,7 @@ class MessageResponse {
   final String? type;
   final String? imageUrl;
   final String? sharedOutfits;
+  final String? conversationId;
   final String? createdAt;
   final String? readAt;
 
@@ -19,19 +20,26 @@ class MessageResponse {
     this.sharedOutfits,
     this.createdAt,
     this.readAt,
+    this.conversationId,
   });
 
   factory MessageResponse.fromJson(Map<String, dynamic> json) =>
       MessageResponse(
-        id: json['id'],
-        senderId: json['sender_id'],
-        senderName: json['sender_name'],
-        content: json['content'],
-        type: json['type'],
-        imageUrl: json['image_url'],
-        sharedOutfits: json['shared_outfits'],
-        createdAt: json['created_at'],
-        readAt: json['read_at'],
+        id: json['id']?.toString(),
+        senderId: (json['senderId'] ?? json['sender_id'])?.toString(),
+        senderName: (json['senderName'] ?? json['sender_name'])?.toString(),
+        content: json['content']?.toString(),
+        type: json['type']?.toString(),
+        imageUrl: (json['imageUrl'] ?? json['image_url'])?.toString(),
+        sharedOutfits:
+            (json['sharedOutfitId'] ??
+                    json['shared_outfit_id'] ??
+                    json['shared_outfits'])
+                ?.toString(),
+        createdAt: (json['createdAt'] ?? json['created_at'])?.toString(),
+        readAt: (json['readAt'] ?? json['read_at'])?.toString(),
+        conversationId: (json['conversationId'] ?? json['conversation_id'])
+            ?.toString(),
       );
 
   MessageResponse copyWith({
@@ -44,6 +52,7 @@ class MessageResponse {
     String? sharedOutfits,
     String? createdAt,
     String? readAt,
+    String? conversationId,
   }) {
     return MessageResponse(
       id: id ?? this.id,
@@ -55,6 +64,7 @@ class MessageResponse {
       sharedOutfits: sharedOutfits ?? this.sharedOutfits,
       createdAt: createdAt ?? this.createdAt,
       readAt: readAt ?? this.readAt,
+      conversationId: conversationId ?? this.conversationId,
     );
   }
 }

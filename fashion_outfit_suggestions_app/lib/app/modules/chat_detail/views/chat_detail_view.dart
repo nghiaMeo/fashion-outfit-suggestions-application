@@ -6,7 +6,7 @@ import '../../../../core/models/message_response.dart';
 import '../../../../core/theme/app_fonts.dart';
 import '../controllers/chat_detail_controller.dart';
 
-class ChatDetailView extends StatelessWidget {
+class ChatDetailView extends GetView<ChatDetailController> {
   final String friendId;
   final String name;
   final String username;
@@ -127,8 +127,7 @@ class ChatDetailView extends StatelessWidget {
                   bool isLastInGroup = true;
                   if (index < controller.messages.length - 1) {
                     final nextMessage = controller.messages[index + 1];
-                    final bool nextIsMe = nextMessage.senderId == currentUserId;
-                    if (nextIsMe) {
+                    if (message.senderId == nextMessage.senderId) {
                       isLastInGroup = false;
                     }
                   }

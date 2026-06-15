@@ -1,5 +1,6 @@
 import 'package:fashion_outfit_suggestions_app/core/models/conversation_response.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
+import 'package:fashion_outfit_suggestions_app/core/network/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -7,6 +8,7 @@ import '../../../../core/models/message_response.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dialog_alert.dart';
+import '../../message/controllers/message_controller.dart';
 
 class ChatDetailController extends GetxController {
   final String friendId;
@@ -20,6 +22,8 @@ class ChatDetailController extends GetxController {
 
   final DioClient _dioClient = Get.find<DioClient>();
   final TokenStorage _tokenStorage = Get.find<TokenStorage>();
+  final SocketService _socketService =
+      Get.find<SocketService>(); // <--- Thêm socket service
 
   final textController = TextEditingController();
   final scrollController = ScrollController();
@@ -39,10 +43,37 @@ class ChatDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // Đảm bảo kết nối Socket và lắng nghe sự kiện tin nhắn mới
+    _socketService.connect();
+    _socketService.addMessageListener(_onNewMessageReceived);
+
     if (rxConversationId.value != null) {
+      _socketService.joinRoom(
+        rxConversationId.value!,
+      ); // Tham gia vào phòng chat của cuộc trò chuyện này
       fetchMessages();
     } else {
       checkOrCreateConversation();
+    }
+    ever(rxConversationId, (_) => _markAsReadInMessageList());
+  }
+
+  // Lắng nghe sự kiện tin nhắn mới từ Socket.IO
+  void _onNewMessageReceived(Map<String, dynamic> data) {
+    try {
+      final message = MessageResponse.fromJson(data);
+      // Kiểm tra xem tin nhắn có thuộc về cuộc trò chuyện hiện tại không
+      if (message.conversationId == rxConversationId.value) {
+        // Tránh trùng lặp tin nhắn (khi ta gửi đi, REST phản hồi đã add trước đó)
+        final alreadyExists = messages.any((m) => m.id == message.id);
+        if (!alreadyExists) {
+          messages.add(message);
+          scrollBottom();
+        }
+      }
+    } catch (e) {
+      // Bỏ qua lỗi parse nếu có
     }
   }
 
@@ -64,6 +95,9 @@ class ChatDetailController extends GetxController {
 
       if (existing != null) {
         rxConversationId.value = existing.conversationId;
+        _socketService.joinRoom(
+          existing.conversationId!,
+        ); // Tham gia phòng chat
         await fetchMessages();
       }
     } catch (e) {
@@ -123,15 +157,21 @@ class ChatDetailController extends GetxController {
   Future<void> sendMessage() async {
     final text = textController.text.trim();
     if (text.isEmpty) return;
-    // if user are not chat before
+
+    // Nếu chưa từng nhắn tin với nhau trước đó, tạo cuộc trò chuyện mới
     if (rxConversationId.value == null) {
       isSending.value = true;
+      debugPrint('>>> Creating conversation with friendId: $friendId');
+
       try {
         final createResponse = await _dioClient.getResult<ConversationResponse>(
           _dioClient.dio.post('/api/chat/conversations/$friendId'),
           (json) => ConversationResponse.fromJson(json as Map<String, dynamic>),
         );
         rxConversationId.value = createResponse.conversationId;
+        _socketService.joinRoom(
+          createResponse.conversationId!,
+        ); // Tham gia phòng chat
       } catch (e) {
         Get.dialog(
           DialogAlert(
@@ -155,17 +195,22 @@ class ChatDetailController extends GetxController {
         _dioClient.dio.post(
           '/api/chat/send',
           data: {
-            'conversation_id': rxConversationId.value,
+            'conversationId': rxConversationId.value,
             'content': text,
             'type': 'TEXT',
           },
         ),
         (json) => MessageResponse.fromJson(json as Map<String, dynamic>),
       );
-      messages.add(response);
+
+      // Kiểm tra trùng lặp trước khi thêm để bảo đảm tính an toàn mạng
+      final alreadyExists = messages.any((m) => m.id == response.id);
+      if (!alreadyExists) {
+        messages.add(response);
+        scrollBottom();
+      }
       textController.clear();
       isTyping.value = false;
-      scrollBottom();
     } catch (e) {
       Get.dialog(
         DialogAlert(
@@ -196,8 +241,33 @@ class ChatDetailController extends GetxController {
     });
   }
 
+  void _markAsReadInMessageList() {
+    final conversationId = rxConversationId.value;
+    if (conversationId != null && Get.isRegistered<MessageController>()) {
+      try {
+        final messageController = Get.find<MessageController>();
+        final index = messageController.conversations.indexWhere(
+          (c) => c.conversationId == conversationId,
+        );
+        if (index != -1) {
+          final existing = messageController.conversations[index];
+          messageController.conversations[index] = existing.copyWith(
+            unreadCount: 0,
+          );
+        }
+      } catch (e) {
+        // Bỏ qua lỗi nếu controller chưa khởi tạo
+      }
+    }
+  }
+
   @override
   void onClose() {
+    _markAsReadInMessageList(); // Đánh dấu đã đọc lần cuối khi thoát chat
+    if (rxConversationId.value != null) {
+      _socketService.leaveRoom(rxConversationId.value!);
+    }
+    _socketService.removeMessageListener(_onNewMessageReceived);
     textController.dispose();
     scrollController.dispose();
     super.onClose();
