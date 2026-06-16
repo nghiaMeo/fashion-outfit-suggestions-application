@@ -35,6 +35,7 @@ public class SecurityConfig {
             "/api/outfits/public/**",
             "/api/auth/forgot-password",
             "/api/auth/reset-password",
+            "/api/chat/debug",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html"

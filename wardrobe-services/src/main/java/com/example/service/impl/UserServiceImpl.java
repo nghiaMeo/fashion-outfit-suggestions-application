@@ -11,6 +11,7 @@ import com.example.exception.ErrorCode;
 import com.example.repository.*;
 import com.example.service.CloudinaryService;
 import com.example.service.UserService;
+import org.springframework.cache.CacheManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final ItemRepository itemRepository;
     private final OutfitRepository outfitRepository;
     private final CloudinaryService cloudinaryService;
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional
@@ -126,6 +128,15 @@ public class UserServiceImpl implements UserService {
 
         var updatedUser = userRepository.save(user);
 
+        try {
+            var cache = cacheManager.getCache("userProfiles");
+            if (cache != null) {
+                cache.evict(updatedUser.getId());
+            }
+        } catch (Exception e) {
+            // Non-blocking cache eviction error
+        }
+
         return getUserProfile(updatedUser.getId());
     }
 
@@ -145,6 +156,8 @@ public class UserServiceImpl implements UserService {
                     try {
                         return getUserProfile(id);
                     } catch (Exception e) {
+                        System.err.println("Error in UserServiceImpl.getUsersProfiles for " + id + ":");
+                        e.printStackTrace();
                         return null;
                     }
                 })

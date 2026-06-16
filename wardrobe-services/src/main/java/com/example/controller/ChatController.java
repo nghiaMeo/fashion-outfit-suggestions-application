@@ -5,6 +5,12 @@ import com.example.dto.response.ApiResponse;
 import com.example.dto.response.ConversationResponse;
 import com.example.dto.response.MessageResponse;
 import com.example.service.ChatService;
+import com.example.service.UserService;
+import com.example.repository.UserRepository;
+import com.example.entity.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.cache.CacheManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +27,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
+    private final UserRepository userRepository;
+    private final UserService userService;
+    private final CacheManager cacheManager;
 
     @GetMapping("/conversations")
     public ApiResponse<List<ConversationResponse>> getConversations() {
@@ -51,5 +60,35 @@ public class ChatController {
                 .result(chatService.createConversation(friendId))
                 .build();
 
+    }
+
+    @GetMapping("/debug")
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            List<User> users = userRepository.findAll();
+            if (users.isEmpty()) {
+                return "No users in DB";
+            }
+            User dummyUser = users.get(0);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(dummyUser, null, java.util.Collections.emptyList());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            for (User u : users) {
+                sb.append("User: ").append(u.getId()).append(" | ").append(u.getUsername()).append(" | ").append(u.getDisplayName()).append("\n");
+                try {
+                    var profile = userService.getUserProfile(u.getId());
+                    sb.append("  Profile: ").append(profile.getDisplayName()).append(" | ").append(profile.getAvatarUrl()).append("\n");
+                } catch (Exception e) {
+                    sb.append("  Profile Error: ").append(e.getClass().getName()).append(": ").append(e.getMessage()).append("\n");
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    e.printStackTrace(new java.io.PrintWriter(sw));
+                    sb.append(sw.toString()).append("\n");
+                }
+            }
+        } catch (Exception e) {
+            sb.append("Global Error: ").append(e.getMessage());
+        }
+        return sb.toString();
     }
 }

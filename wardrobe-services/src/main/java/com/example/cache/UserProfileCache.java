@@ -73,7 +73,8 @@ public class UserProfileCache {
                 return profile;
             }
         } catch (Exception e) {
-            // Graceful fallback
+            System.err.println("Error in UserProfileCache.getProfile for " + userId + ":");
+            e.printStackTrace();
         }
         return null;
     }
