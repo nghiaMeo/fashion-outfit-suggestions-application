@@ -19,30 +19,41 @@ class MessageController extends GetxController {
   final isFriendsLoading = false.obs;
   final selectedFriend = Rxn<FriendResponse>();
 
+  final searchQuery = ''.obs;
   final DioClient _dioClient = Get.find<DioClient>();
-  final TokenStorage _tokenStorage = Get.find<TokenStorage>(); // <--- Inject TokenStorage
-  final SocketService _socketService = Get.find<SocketService>(); // <--- Inject SocketService
+  final TokenStorage _tokenStorage = Get.find<TokenStorage>();
+  final SocketService _socketService = Get.find<SocketService>();
 
   @override
   void onInit() {
     super.onInit();
     fetchConversations();
     fetchFriends();
-
-    // Đảm bảo kết nối socket và lắng nghe sự kiện tin nhắn mới để cập nhật danh sách hội thoại
     _socketService.connect();
     _socketService.addMessageListener(_onNewMessageReceived);
   }
 
-  // Lắng nghe socket để cập nhật thời gian thực danh sách cuộc trò chuyện ngoài trang chính
+  List<FriendResponse> get filteredFriends {
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isEmpty) {
+      return [];
+    }
+    return friends.where((friend) {
+      final name = friend.fullName.toLowerCase();
+      final username = friend.username.toLowerCase();
+      return name.contains(query) || username.contains(query);
+    }).toList();
+  }
+
   void _onNewMessageReceived(Map<String, dynamic> data) {
     try {
       final msg = MessageResponse.fromJson(data);
-      final convIndex = conversations.indexWhere((c) => c.conversationId == msg.conversationId);
+      final convIndex = conversations.indexWhere(
+        (c) => c.conversationId == msg.conversationId,
+      );
 
       if (convIndex != -1) {
         final existing = conversations[convIndex];
-        // Tính toán số tin nhắn chưa đọc (chỉ tăng khi đối phương gửi)
         int newUnread = existing.unreadCount ?? 0;
         if (msg.senderId != _tokenStorage.userId) {
           newUnread += 1;
@@ -54,11 +65,9 @@ class MessageController extends GetxController {
           unreadCount: newUnread,
         );
 
-        // Đưa cuộc hội thoại có tin nhắn mới nhất lên đầu danh sách
         conversations.removeAt(convIndex);
         conversations.insert(0, updated);
       } else {
-        // Nếu là cuộc trò chuyện mới chưa có trong danh sách, tải lại từ API
         fetchConversations();
       }
     } catch (_) {}
@@ -69,12 +78,12 @@ class MessageController extends GetxController {
     try {
       final response = await _dioClient.getResult<List<ConversationResponse>>(
         _dioClient.dio.get('/api/chat/conversations'),
-            (json) {
+        (json) {
           final list = json as List;
           return list
               .map(
                 (e) => ConversationResponse.fromJson(e as Map<String, dynamic>),
-          )
+              )
               .toList();
         },
       );
@@ -107,7 +116,7 @@ class MessageController extends GetxController {
     try {
       final response = await _dioClient.getResult<List<FriendResponse>>(
         _dioClient.dio.get('/api/friendship/my-friends'),
-            (json) {
+        (json) {
           final list = json as List;
           return list
               .map((e) => FriendResponse.fromJson(e as Map<String, dynamic>))

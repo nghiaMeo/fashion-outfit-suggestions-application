@@ -65,34 +65,93 @@ class MessageView extends GetView<MessageController> {
                 const SizedBox(height: 16),
                 _buildSearchBar(context),
                 const SizedBox(height: 20),
-                _buildNotesFriends(context),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Messages',
-                      style: AppFonts.base(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Requests',
-                        style: AppFonts.base(
-                          color: const Color(0xFF8E8E93),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                Obx(() {
+                  if (controller.searchQuery.value.trim().isNotEmpty) {
+                    final results = controller.filteredFriends;
+                    if (results.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          child: Text(
+                            'No friends found',
+                            style: AppFonts.base(
+                              color: const Color(0xFF8E8E93),
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: results.length,
+                      itemBuilder: (context, index) {
+                        final friend = results[index];
+                        return GestureDetector(
+                          onTap: () {
+                            final existingConv = controller.conversations.firstWhereOrNull(
+                              (c) => c.friendId == friend.friendId,
+                            );
+
+                            Get.to(
+                              () => ChatDetailView(
+                                friendId: friend.friendId,
+                                name: friend.fullName,
+                                username: friend.username,
+                                avatarUrl: friend.avatarUrl ?? '',
+                                conversationId: existingConv?.conversationId,
+                              ),
+                              transition: Transition.rightToLeft,
+                            );
+                          },
+                          child: _buildChatItemRow(
+                            avatarUrl: friend.avatarUrl ?? '',
+                            name: friend.fullName,
+                            lastMessage: '@${friend.username}',
+                            time: '',
+                            unreadCount: 0,
+                          ),
+                        );
+                      },
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildNotesFriends(context),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Messages',
+                            style: AppFonts.base(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Requests',
+                              style: AppFonts.base(
+                                color: const Color(0xFF8E8E93),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _buildChatList(),
+                      const SizedBox(height: 8),
+                      _buildChatList(),
+                    ],
+                  );
+                }),
               ],
             ),
           ),
@@ -110,6 +169,9 @@ class MessageView extends GetView<MessageController> {
       ),
       child: TextField(
         style: AppFonts.base(color: Colors.white, fontSize: 16),
+        onChanged: (value) {
+          controller.searchQuery.value = value;
+        },
         decoration: InputDecoration(
           hintText: 'Search',
           hintStyle: AppFonts.base(
@@ -182,8 +244,7 @@ class MessageView extends GetView<MessageController> {
     String? songName,
     VoidCallback? onTap,
   }) {
-    final bool hasNote =
-        (noteText != null && noteText.isNotEmpty) ||
+    final bool hasNote = (noteText != null && noteText.isNotEmpty) ||
         (songName != null && songName.isNotEmpty);
     final bool hasMusic = songName != null && songName.isNotEmpty;
     return GestureDetector(
@@ -191,6 +252,7 @@ class MessageView extends GetView<MessageController> {
       child: Container(
         width: 90,
         margin: const EdgeInsets.only(right: 12),
+        color: Colors.transparent,
         child: Column(
           children: [
             if (hasNote)
@@ -206,17 +268,14 @@ class MessageView extends GetView<MessageController> {
                     ),
                     child: CircleAvatar(
                       radius: 34,
-                      backgroundImage: NetworkImage(avatarUrl),
+                      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                       backgroundColor: Colors.grey.shade800,
                     ),
                   ),
                   Positioned(
                     top: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       constraints: const BoxConstraints(maxWidth: 85),
                       decoration: BoxDecoration(
                         color: const Color(0xFF262626),
@@ -226,11 +285,7 @@ class MessageView extends GetView<MessageController> {
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.music_note,
-                                  color: Colors.white,
-                                  size: 10,
-                                ),
+                                const Icon(Icons.music_note, color: Colors.white, size: 10),
                                 const SizedBox(height: 2),
                                 Expanded(
                                   child: Text(
@@ -317,6 +372,8 @@ class MessageView extends GetView<MessageController> {
           ),
         );
       }
+
+
 
       return ListView.builder(
         shrinkWrap: true,
