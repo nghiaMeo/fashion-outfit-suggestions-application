@@ -8,7 +8,7 @@ import '../../../../core/widgets/or_divider.dart';
 import '../../../../core/widgets/primary_capsule_button.dart';
 import '../../../routes/app_routes.dart';
 import '../controllers/login_controller.dart';
-import 'google_sign_in_button_stub.dart';
+import 'google_sign_in_button.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});

@@ -26,15 +26,22 @@ class MessageView extends GetView<MessageController> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Messages', style: AppFonts.base(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              'Messages',
+              style: AppFonts.base(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_note_outlined, color: Colors.white, size: 24),
+            icon: const Icon(
+              Icons.edit_note_outlined,
+              color: Colors.white,
+              size: 24,
+            ),
             onPressed: () {
               Get.to(
-                    () => const NewMessageView(),
+                () => const NewMessageView(),
                 transition: Transition.downToUp,
               );
             },
@@ -47,7 +54,9 @@ class MessageView extends GetView<MessageController> {
         color: Colors.white,
         backgroundColor: const Color(0xFF262626),
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -83,7 +92,7 @@ class MessageView extends GetView<MessageController> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildChatList(), // <--- Gọi hàm hiển thị list chat thực tế
+                _buildChatList(),
               ],
             ),
           ),
@@ -103,8 +112,15 @@ class MessageView extends GetView<MessageController> {
         style: AppFonts.base(color: Colors.white, fontSize: 16),
         decoration: InputDecoration(
           hintText: 'Search',
-          hintStyle: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 16),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93), size: 20),
+          hintStyle: AppFonts.base(
+            color: const Color(0xFF8E8E93),
+            fontSize: 16,
+          ),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Color(0xFF8E8E93),
+            size: 20,
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 9),
         ),
@@ -115,27 +131,47 @@ class MessageView extends GetView<MessageController> {
   Widget _buildNotesFriends(BuildContext context) {
     return SizedBox(
       height: 125,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        children: [
-          _buildNoteItem(
-            avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-            name: 'Your note',
-            noteText: "What's on your mind?",
-          ),
-          _buildNoteItem(
-            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-            name: 'Nhật Nam',
-            songName: 'Cho Con (L...',
-          ),
-          _buildNoteItem(
-            avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-            name: 'Kaylee Thuy Phu...',
-            songName: 'Too Good ...',
-          ),
-        ],
-      ),
+      child: Obx(() {
+        if (controller.isFriendsLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.friends.isEmpty) {
+          return Center(
+            child: Text(
+              'No friends active',
+              style: AppFonts.base(color: Colors.grey, fontSize: 12),
+            ),
+          );
+        }
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: controller.friends.length,
+          itemBuilder: (context, index) {
+            final friend = controller.friends[index];
+            return _buildNoteItem(
+              avatarUrl: friend.avatarUrl ?? '',
+              name: friend.username,
+              onTap: () {
+                final existingConv = controller.conversations.firstWhereOrNull(
+                  (c) => c.friendId == friend.friendId,
+                );
+                Get.to(
+                  ChatDetailView(
+                    friendId: friend.friendId,
+                    name: friend.fullName,
+                    username: friend.username,
+                    avatarUrl: friend.avatarUrl ?? '',
+                    conversationId: existingConv?.conversationId,
+                  ),
+                  transition: Transition.rightToLeft,
+                );
+              },
+            );
+          },
+        );
+      }),
     );
   }
 
@@ -144,82 +180,118 @@ class MessageView extends GetView<MessageController> {
     required String name,
     String? noteText,
     String? songName,
+    VoidCallback? onTap,
   }) {
-    final bool hasMusic = songName != null;
-    return Container(
-      width: 90,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          Stack(
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 25),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey.shade900, width: 1),
-                ),
-                child: CircleAvatar(
-                  radius: 34,
-                  backgroundImage: NetworkImage(avatarUrl),
-                  backgroundColor: Colors.grey.shade800,
-                ),
-              ),
-              Positioned(
-                top: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  constraints: const BoxConstraints(maxWidth: 85),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF262626),
-                    borderRadius: BorderRadius.circular(15),
+    final bool hasNote =
+        (noteText != null && noteText.isNotEmpty) ||
+        (songName != null && songName.isNotEmpty);
+    final bool hasMusic = songName != null && songName.isNotEmpty;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 90,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          children: [
+            if (hasNote)
+              Stack(
+                alignment: Alignment.topCenter,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 25),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade900, width: 1),
+                    ),
+                    child: CircleAvatar(
+                      radius: 34,
+                      backgroundImage: NetworkImage(avatarUrl),
+                      backgroundColor: Colors.grey.shade800,
+                    ),
                   ),
-                  child: hasMusic
-                      ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.music_note, color: Colors.white, size: 10),
-                      const SizedBox(height: 2),
-                      Expanded(
-                        child: Text(
-                          songName,
-                          style: AppFonts.base(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                  Positioned(
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                    ],
-                  )
-                      : Text(
-                    noteText ?? '',
-                    style: AppFonts.base(color: const Color(0xFFEFEFEF), fontSize: 9),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                      constraints: const BoxConstraints(maxWidth: 85),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF262626),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: hasMusic
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.music_note,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
+                                const SizedBox(height: 2),
+                                Expanded(
+                                  child: Text(
+                                    songName,
+                                    style: AppFonts.base(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              noteText ?? '',
+                              style: AppFonts.base(
+                                color: const Color(0xFFEFEFEF),
+                                fontSize: 9,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              Container(
+                height: 93,
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey.shade900, width: 1),
+                  ),
+                  child: CircleAvatar(
+                    radius: 34,
+                    backgroundImage: NetworkImage(avatarUrl),
+                    backgroundColor: Colors.grey.shade800,
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              name,
+              style: AppFonts.base(
+                color: const Color(0xFF8E8E93),
+                fontSize: 12,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Hàm hiển thị danh sách hội thoại thực tế
   Widget _buildChatList() {
     return Obx(() {
       if (controller.isLoading.value) {
@@ -237,7 +309,10 @@ class MessageView extends GetView<MessageController> {
             padding: const EdgeInsets.symmetric(vertical: 40),
             child: Text(
               'No conversations',
-              style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 16),
+              style: AppFonts.base(
+                color: const Color(0xFF8E8E93),
+                fontSize: 16,
+              ),
             ),
           ),
         );
@@ -255,9 +330,8 @@ class MessageView extends GetView<MessageController> {
 
           return GestureDetector(
             onTap: () {
-              // Đi tới màn hình chat chi tiết và truyền thông tin cần thiết
               Get.to(
-                    () => ChatDetailView(
+                () => ChatDetailView(
                   friendId: conv.friendId ?? '',
                   name: name,
                   username: name,
@@ -280,7 +354,6 @@ class MessageView extends GetView<MessageController> {
     });
   }
 
-  // Widget hiển thị một dòng hội thoại đơn lẻ (Sửa lỗi đệ quy ban đầu)
   Widget _buildChatItemRow({
     required String avatarUrl,
     required String name,
@@ -297,12 +370,14 @@ class MessageView extends GetView<MessageController> {
           CircleAvatar(
             radius: 28,
             backgroundColor: Colors.grey.shade900,
-            backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+            backgroundImage: avatarUrl.isNotEmpty
+                ? NetworkImage(avatarUrl)
+                : null,
             child: avatarUrl.isEmpty
                 ? Text(
-              name.isNotEmpty ? name[0].toUpperCase() : '?',
-              style: AppFonts.base(color: Colors.white, fontSize: 18),
-            )
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    style: AppFonts.base(color: Colors.white, fontSize: 18),
+                  )
                 : null,
           ),
           const SizedBox(width: 14),
@@ -341,7 +416,9 @@ class MessageView extends GetView<MessageController> {
               Text(
                 time,
                 style: AppFonts.base(
-                  color: hasUnread ? const Color(0xFF3797F3) : const Color(0xFF8E8E93),
+                  color: hasUnread
+                      ? const Color(0xFF3797F3)
+                      : const Color(0xFF8E8E93),
                   fontSize: 12,
                 ),
               ),

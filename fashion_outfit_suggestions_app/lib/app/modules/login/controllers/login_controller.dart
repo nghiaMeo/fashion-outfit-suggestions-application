@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -23,37 +22,49 @@ class LoginController extends GetxController {
   final DioClient _dioClient = Get.find<DioClient>();
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
+  // Web Client ID từ Firebase project fashion-suggestion-application
+  static const String _webClientId =
+      '998694839236-hsd608q7li7teq7dcu1fgpo21amdp8tl.apps.googleusercontent.com';
+
   @override
   void onInit() {
     super.onInit();
-    _googleSignIn.initialize(
-      clientId:
-          '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
-      serverClientId:
-          '921930100611-njvs57c1fdoadsfcdsepib00phi87pnm.apps.googleusercontent.com',
-    );
-    _googleSignIn.authenticationEvents.listen(
-      (event) {
-        if (event is GoogleSignInAuthenticationEventSignIn) {
-          _handleGoogleSignInUser(event.user);
-        }
-      },
-      onError: (error) {
-        print('Google Auth Event Error: $error');
-      },
-    );
+    _initGoogleSignIn();
+  }
+
+  Future<void> _initGoogleSignIn() async {
+    try {
+      if (kIsWeb) {
+        // Web: dùng clientId (Web Client ID)
+        await _googleSignIn.initialize(clientId: _webClientId);
+      } else {
+        // Android/iOS: serverClientId = Web Client ID để lấy idToken
+        // clientId lấy từ google-services.json (không cần khai báo)
+        await _googleSignIn.initialize(serverClientId: _webClientId);
+      }
+
+      // Gắn listener SAU KHI initialize() hoàn tất
+      _googleSignIn.authenticationEvents.listen(
+        (event) {
+          if (event is GoogleSignInAuthenticationEventSignIn) {
+            _handleGoogleSignInUser(event.user);
+          }
+        },
+        onError: (error) {
+          debugPrint('Google Auth Event Error: $error');
+        },
+      );
+    } catch (e) {
+      debugPrint('Google Sign-In initialize error: $e');
+    }
   }
 
   Future<void> _handleGoogleSignInUser(GoogleSignInAccount googleUser) async {
     isLoading.value = true;
     try {
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
-
-      if (idToken == null) {
-        throw Exception('Cannot retrieve Google ID Token.');
-      }
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final String idToken = googleAuth.idToken
+          ?? (throw Exception('Can\'t get Google ID Token. please try again.'));
       final authResponse = await _dioClient.getResult<AuthResponse>(
         _dioClient.dio.post<Map<String, dynamic>>(
           '/api/auth/oauth2/google',
@@ -93,14 +104,10 @@ class LoginController extends GetxController {
         isLoading.value = false;
         return;
       }
-      // 3. Lấy thông tin xác thực từ Google
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
-      if (idToken == null) {
-        throw Exception('Cannot retrieve Google ID Token.');
-      }
-      // 4. Gửi ID Token lên Backend Spring Boot
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final String idToken = googleAuth.idToken
+          ?? (throw Exception('Can\'t get Google ID Token. please try again.'));
       final authResponse = await _dioClient.getResult<AuthResponse>(
         _dioClient.dio.post<Map<String, dynamic>>(
           '/api/auth/oauth2/google',
@@ -108,14 +115,12 @@ class LoginController extends GetxController {
         ),
         (json) => AuthResponse.fromJson(json! as Map<String, dynamic>),
       );
-      // 5. Lưu Session đăng nhập
       final tokeStorage = Get.find<TokenStorage>();
       await tokeStorage.saveSession(
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
         userId: authResponse.userResponse?.id,
       );
-      // 6. Chuyển sang màn hình Home
       Get.offAllNamed(Routes.home);
     } catch (e) {
       Get.dialog(
@@ -133,7 +138,7 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
-    if (!(formKey.currentState!.validate() ?? false)) {
+    if (!formKey.currentState!.validate()) {
       return;
     }
     isLoading.value = true;

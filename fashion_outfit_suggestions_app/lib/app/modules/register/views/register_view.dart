@@ -105,14 +105,6 @@ class RegisterView extends GetView<RegisterController> {
                     isLoading: controller.isLoading.value,
                   ),
                 ),
-                const SizedBox(height: 32),
-                const OrDivider(),
-                const SizedBox(height: 32),
-                SocialButton(
-                  text: 'Sign up with Google',
-                  svgAssetPath: AppVectors.google,
-                  onPressed: () {},
-                ),
                 const SizedBox(height: 48),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
