@@ -81,7 +81,7 @@ class AppPages {
       binding: NotificationBinding(),
     ),
     GetPage(
-      name: Routes.WARDROBE,
+      name: Routes.wardrobe,
       page: () => const WardrobeView(),
       binding: WardrobeBinding(),
     ),

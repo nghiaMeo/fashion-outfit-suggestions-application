@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../routes/app_routes.dart';
 import '../../message/views/message_view.dart';
 import '../../profile/views/profile_view.dart';
+import '../../wardrobe/views/wardrobe_view.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -19,7 +20,7 @@ class HomeView extends GetView<HomeController> {
     final List<Widget> pages = [
       const HomeFeedView(),
       const SearchesView(),
-      const Center(child: Text('Dry Cleaning View')),
+      const WardrobeView(),
       const MessageView(),
       const ProfileView(),
     ];

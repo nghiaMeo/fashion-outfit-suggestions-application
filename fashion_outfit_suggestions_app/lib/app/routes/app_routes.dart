@@ -10,5 +10,5 @@ abstract class Routes {
   static const setting = '/setting';
   static const forgotPassword = '/forgot-password';
   static const notification = '/notification';
-  static const WARDROBE = '/wardrobe';
+  static const wardrobe = '/wardrobe';
 }

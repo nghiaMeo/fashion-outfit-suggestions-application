@@ -1,4 +1,5 @@
 import 'package:fashion_outfit_suggestions_app/app/modules/profile/controllers/profile_controller.dart';
+import 'package:fashion_outfit_suggestions_app/app/modules/wardrobe/controllers/wardrobe_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,5 +13,6 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ProfileController>(() => ProfileController());
     Get.lazyPut<MessageController>(() => MessageController());
     Get.lazyPut<SearchController>(() => SearchController());
+    Get.lazyPut<WardrobeController>(() => WardrobeController());
   }
 }
