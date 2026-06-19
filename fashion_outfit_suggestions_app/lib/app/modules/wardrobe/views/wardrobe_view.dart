@@ -25,14 +25,20 @@ class WardrobeView extends GetView<WardrobeController> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_box_outlined, color: Colors.white, size: 26),
+            icon: const Icon(
+              Icons.add_box_outlined,
+              color: Colors.white,
+              size: 26,
+            ),
             onPressed: () => _showAddItemSheet(context),
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Colors.white));
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          );
         }
 
         if (controller.items.isEmpty) {
@@ -54,17 +60,16 @@ class WardrobeView extends GetView<WardrobeController> {
             itemBuilder: (context, index) {
               final item = controller.items[index];
               return GestureDetector(
-                onTap: () {
-                  // TODO: Mở chi tiết item
-                },
+                onTap: () {},
                 child: Container(
                   color: const Color(0xFF1C1C1E),
                   child: item.imageUrl != null
                       ? Image.network(
-                    item.imageUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _buildItemPlaceholder(item.type),
-                  )
+                          item.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _buildItemPlaceholder(item.type),
+                        )
                       : _buildItemPlaceholder(item.type),
                 ),
               );
@@ -80,28 +85,42 @@ class WardrobeView extends GetView<WardrobeController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.dry_cleaning_outlined, size: 80, color: Color(0xFF3A3A3C)),
+          const Icon(
+            Icons.dry_cleaning_outlined,
+            size: 80,
+            color: Color(0xFF3A3A3C),
+          ),
           const SizedBox(height: 16),
           Text(
-            'Tủ đồ của bạn đang trống',
-            style: AppFonts.base(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            'Your wardrobe is empty',
+            style: AppFonts.base(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Thêm quần áo đầu tiên vào tủ đồ',
+            'Add the first piece of clothing to your wardrobe',
             style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 14),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0095F6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
             onPressed: () => _showAddItemSheet(Get.context!),
             child: Text(
-              'Thêm quần áo',
-              style: AppFonts.base(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              'Add more clothes',
+              style: AppFonts.base(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -117,7 +136,10 @@ class WardrobeView extends GetView<WardrobeController> {
         children: [
           const Icon(Icons.checkroom, color: Color(0xFF3A3A3C), size: 32),
           const SizedBox(height: 4),
-          Text(type, style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 10)),
+          Text(
+            type,
+            style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 10),
+          ),
         ],
       ),
     );

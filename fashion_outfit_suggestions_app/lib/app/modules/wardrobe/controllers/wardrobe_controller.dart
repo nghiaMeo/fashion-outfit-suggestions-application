@@ -26,26 +26,26 @@ class WardrobeController extends GetxController {
   final selectedOccasion = ''.obs;
 
   final types = [
-    'Áo',
-    'Quần',
-    'Váy',
-    'Giày',
-    'Túi',
-    'Phụ kiện',
-    'Áo khoác',
-    'Khác',
+    'Shirt',
+    'Pants',
+    'Skirt',
+    'Shoes',
+    'Bag',
+    'Accessories',
+    'Jacket',
+    'Other',
   ];
   final colors = [
-    'Đen',
-    'Trắng',
-    'Xám',
-    'Đỏ',
-    'Xanh dương',
-    'Xanh lá',
-    'Vàng',
-    'Hồng',
-    'Nâu',
-    'Be',
+    'Black',
+    'White',
+    'Gray',
+    'Red',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Pink',
+    'Brown',
+    'Beige',
   ];
   final seasons = ['Spring', 'Summer', 'Autumn', 'Winter', 'All Season'];
   final occasions = ['Casual', 'Formal', 'Sport', 'Party', 'Work', 'Beach'];
@@ -93,8 +93,8 @@ class WardrobeController extends GetxController {
         selectedColor.value.isEmpty ||
         selectedImage.value == null) {
       Get.snackbar(
-        'Thiếu thông tin',
-        'Vui lòng điền tên, loại, màu sắc và chọn ảnh',
+        'Missing information',
+        'Please fill in name, type, color and select image',
         snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFF262626),
         colorText: Colors.white,
@@ -141,8 +141,8 @@ class WardrobeController extends GetxController {
       Get.back();
 
       Get.snackbar(
-        'Thành công',
-        'Đã thêm "${newItem.name}" vào tủ đồ',
+        'Success',
+        'Added "${newItem.name}" to the wardrobe',
         snackPosition: SnackPosition.TOP,
         backgroundColor: AppColors.primary,
         colorText: Colors.white,
@@ -151,7 +151,7 @@ class WardrobeController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Lỗi',
+        'Error',
         e.toString().replaceAll('Exception: ', ''),
         snackPosition: SnackPosition.TOP,
         backgroundColor: AppColors.error,
