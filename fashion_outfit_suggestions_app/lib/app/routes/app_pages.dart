@@ -20,6 +20,8 @@ import '../modules/setting/bindings/setting_binding.dart';
 import '../modules/setting/views/setting_view.dart';
 import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
+import '../modules/wardrobe/bindings/wardrobe_binding.dart';
+import '../modules/wardrobe/views/wardrobe_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -77,6 +79,11 @@ class AppPages {
       name: Routes.notification,
       page: () => const NotificationView(),
       binding: NotificationBinding(),
+    ),
+    GetPage(
+      name: Routes.WARDROBE,
+      page: () => const WardrobeView(),
+      binding: WardrobeBinding(),
     ),
   ];
 }
