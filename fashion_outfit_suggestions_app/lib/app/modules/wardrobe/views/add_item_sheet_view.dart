@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/app_fonts.dart';
 import '../controllers/wardrobe_controller.dart';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart' show XFile;
 
 class AddItemSheet extends GetView<WardrobeController> {
   const AddItemSheet({super.key});
@@ -138,7 +141,9 @@ class AddItemSheet extends GetView<WardrobeController> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.file(image, fit: BoxFit.cover),
+                      kIsWeb
+                          ? Image.network(image.path, fit: BoxFit.cover)
+                          : Image.file(File(image.path), fit: BoxFit.cover),
                       Positioned(
                         bottom: 10,
                         right: 10,

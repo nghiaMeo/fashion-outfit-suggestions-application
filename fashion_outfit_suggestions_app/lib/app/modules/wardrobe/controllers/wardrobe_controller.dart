@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
@@ -13,8 +14,8 @@ class WardrobeController extends GetxController {
   final items = <ItemResponse>[].obs;
   final isLoading = false.obs;
 
+  final selectedImage = Rxn<XFile>();
   final isAdding = false.obs;
-  final selectedImage = Rxn<File>();
 
   final nameController = TextEditingController();
   final brandController = TextEditingController();
@@ -83,7 +84,7 @@ class WardrobeController extends GetxController {
       imageQuality: 80,
     );
     if (picked != null) {
-      selectedImage.value = File(picked.path);
+      selectedImage.value = picked;
     }
   }
 
@@ -122,10 +123,15 @@ class WardrobeController extends GetxController {
           dataJson,
           contentType: DioMediaType('application', 'json'),
         ),
-        'file': await MultipartFile.fromFile(
-          selectedImage.value!.path,
-          filename: 'item_image.jpg',
-        ),
+        'file': kIsWeb
+            ? MultipartFile.fromBytes(
+                await selectedImage.value!.readAsBytes(),
+                filename: selectedImage.value!.name,
+              )
+            : MultipartFile.fromFile(
+                selectedImage.value!.path,
+                filename: selectedImage.value!.name,
+              ),
       });
 
       final newItem = await _dioClient.getResult<ItemResponse>(
