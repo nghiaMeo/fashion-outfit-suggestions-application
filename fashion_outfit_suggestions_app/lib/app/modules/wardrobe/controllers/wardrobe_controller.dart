@@ -181,6 +181,100 @@ class WardrobeController extends GetxController {
     selectedOccasion.value = '';
   }
 
+  Future<void> deleteItem(String id) async {
+    isLoading.value = true;
+    try {
+      await _dioClient.getResult<String>(
+        _dioClient.dio.delete('/api/items/delete-item/$id'),
+        (json) => json as String,
+      );
+      items.removeWhere((item) => item.id == id);
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Item removed from wardrobe',
+        backgroundColor: const Color(0xFF262626),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void prepareEditForm(ItemResponse item) {
+    nameController.text = item.name;
+    brandController.text = item.brand ?? '';
+    tagsController.text = item.tags ?? '';
+    selectedType.value = item.type;
+    selectedColor.value = item.color;
+    selectedSeason.value = item.season ?? '';
+    selectedOccasion.value = item.occasion ?? '';
+  }
+
+  Future<void> updateItem(String id, String? existingImageUrl) async {
+    if (nameController.text.trim().isEmpty ||
+        selectedType.value.isEmpty ||
+        selectedColor.value.isEmpty) {
+      Get.snackbar(
+        'Missing information',
+        'Please fill in the name, item type, and color',
+        backgroundColor: const Color(0xFF262626),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    isAdding.value = true;
+    try {
+      final updatedItem = await _dioClient.getResult<ItemResponse>(
+        _dioClient.dio.put(
+          '/api/items/$id',
+          data: {
+            "name": nameController.text.trim(),
+            "type": selectedType.value,
+            "color": selectedColor.value,
+            "season": selectedSeason.value,
+            "brand": brandController.text.trim(),
+            "occasion": selectedOccasion.value,
+            "imageUrl": existingImageUrl,
+            "tags": tagsController.text.trim(),
+          },
+        ),
+        (json) => ItemResponse.fromJson(json! as Map<String, dynamic>),
+      );
+
+      final index = items.indexWhere((item) => item.id == id);
+      if (index != -1) {
+        items[index] = updatedItem;
+      }
+      _resetForm();
+      Get.back();
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Item information updated',
+        backgroundColor: AppColors.primary,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    } finally {
+      isAdding.value = false;
+    }
+  }
+
   @override
   void onClose() {
     nameController.dispose();
