@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../core/theme/app_fonts.dart';
 import '../controllers/wardrobe_controller.dart';
 import 'add_item_sheet_view.dart';
+import 'item_detail_sheet_view.dart';
 
 class WardrobeView extends GetView<WardrobeController> {
   const WardrobeView({super.key});
@@ -60,7 +61,13 @@ class WardrobeView extends GetView<WardrobeController> {
             itemBuilder: (context, index) {
               final item = controller.items[index];
               return GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => ItemDetailSheet(item: item),
+                  );
+                },
                 child: Container(
                   color: const Color(0xFF1C1C1E),
                   child: item.imageUrl != null

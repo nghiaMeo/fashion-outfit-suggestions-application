@@ -7,6 +7,7 @@ import 'edit_item_sheet_view.dart';
 
 class ItemDetailSheet extends GetView<WardrobeController> {
   final ItemResponse item;
+
   const ItemDetailSheet({super.key, required this.item});
 
   @override
@@ -34,7 +35,11 @@ class ItemDetailSheet extends GetView<WardrobeController> {
                         color: const Color(0xFF262626),
                         child: item.imageUrl != null
                             ? Image.network(item.imageUrl!, fit: BoxFit.cover)
-                            : const Icon(Icons.checkroom, size: 80, color: Colors.grey),
+                            : const Icon(
+                                Icons.checkroom,
+                                size: 80,
+                                color: Colors.grey,
+                              ),
                       ),
                     ),
                   ),
@@ -48,14 +53,14 @@ class ItemDetailSheet extends GetView<WardrobeController> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Loại đồ', item.type),
-                  _buildDetailRow('Màu sắc', item.color),
+                  _buildDetailRow('Item type', item.type),
+                  _buildDetailRow('Color', item.color),
                   if (item.brand != null && item.brand!.isNotEmpty)
-                    _buildDetailRow('Thương hiệu', item.brand!),
+                    _buildDetailRow('Brand', item.brand!),
                   if (item.season != null && item.season!.isNotEmpty)
-                    _buildDetailRow('Mùa', item.season!),
+                    _buildDetailRow('Season', item.season!),
                   if (item.occasion != null && item.occasion!.isNotEmpty)
-                    _buildDetailRow('Dịp', item.occasion!),
+                    _buildDetailRow('Occasion', item.occasion!),
                   if (item.tags != null && item.tags!.isNotEmpty)
                     _buildDetailRow('Tags', item.tags!),
                 ],
@@ -81,7 +86,7 @@ class ItemDetailSheet extends GetView<WardrobeController> {
             onPressed: () => Get.back(),
           ),
           Text(
-            'Chi tiết món đồ',
+            'Item details',
             style: AppFonts.base(
               color: Colors.white,
               fontSize: 16,
@@ -107,7 +112,10 @@ class ItemDetailSheet extends GetView<WardrobeController> {
             width: 100,
             child: Text(
               label,
-              style: AppFonts.base(color: const Color(0xFF8E8E93), fontSize: 14),
+              style: AppFonts.base(
+                color: const Color(0xFF8E8E93),
+                fontSize: 14,
+              ),
             ),
           ),
           Expanded(
@@ -134,9 +142,9 @@ class ItemDetailSheet extends GetView<WardrobeController> {
           children: [
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.white),
-              title: Text('Chỉnh sửa', style: AppFonts.base(color: Colors.white)),
+              title: Text('Edit', style: AppFonts.base(color: Colors.white)),
               onTap: () {
-                Get.back(); // Đóng options sheet
+                Get.back();
                 controller.prepareEditForm(item);
                 showModalBottomSheet(
                   context: context,
@@ -147,9 +155,9 @@ class ItemDetailSheet extends GetView<WardrobeController> {
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text('Xóa', style: AppFonts.base(color: Colors.red)),
+              title: Text('Delete', style: AppFonts.base(color: Colors.red)),
               onTap: () {
-                Get.back(); // Đóng options sheet
+                Get.back();
                 _confirmDelete(context);
               },
             ),
@@ -165,24 +173,27 @@ class ItemDetailSheet extends GetView<WardrobeController> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF262626),
         title: Text(
-          'Xóa món đồ',
-          style: AppFonts.base(color: Colors.white, fontWeight: FontWeight.bold),
+          'Delete item',
+          style: AppFonts.base(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
-          'Bạn có chắc chắn muốn xóa món đồ này khỏi tủ đồ không?',
+          'Are you sure you want to remove this item from your wardrobe?',
           style: AppFonts.base(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('Hủy', style: AppFonts.base(color: Colors.white)),
+            child: Text('Cancel', style: AppFonts.base(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
-              Get.back(); // Đóng dialog
+              Get.back();
               controller.deleteItem(item.id);
             },
-            child: Text('Xóa', style: AppFonts.base(color: Colors.red)),
+            child: Text('Delete', style: AppFonts.base(color: Colors.red)),
           ),
         ],
       ),
