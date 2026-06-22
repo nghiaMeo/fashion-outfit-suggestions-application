@@ -7,6 +7,7 @@ import '../controllers/wardrobe_controller.dart';
 
 class EditItemSheet extends GetView<WardrobeController> {
   final ItemResponse item;
+
   const EditItemSheet({super.key, required this.item});
 
   @override
@@ -36,70 +37,87 @@ class EditItemSheet extends GetView<WardrobeController> {
                         child: SizedBox(
                           height: 160,
                           width: 160,
-                          child: Image.network(item.imageUrl!, fit: BoxFit.cover),
+                          child: Image.network(
+                            item.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
                   const SizedBox(height: 24),
-                  _buildLabel('Tên món đồ', isRequired: true),
+                  _buildLabel('Item Name', isRequired: true),
                   TextField(
                     controller: controller.nameController,
                     style: AppFonts.base(color: Colors.white),
-                    decoration: _getInputDecoration('Ví dụ: Áo phông đen'),
+                    decoration: _getInputDecoration('Example: Black T-shirt'),
                   ),
                   const SizedBox(height: 16),
-                  _buildLabel('Loại đồ', isRequired: true),
-                  Obx(() => _buildDropdown(
-                    value: controller.selectedType.value.isEmpty
-                        ? null
-                        : controller.selectedType.value,
-                    items: controller.types,
-                    hint: 'Chọn loại đồ',
-                    onChanged: (val) => controller.selectedType.value = val ?? '',
-                  )),
+                  _buildLabel('Item Type', isRequired: true),
+                  Obx(
+                    () => _buildDropdown(
+                      value: controller.selectedType.value.isEmpty
+                          ? null
+                          : controller.selectedType.value,
+                      items: controller.types,
+                      hint: 'Choose the type of item',
+                      onChanged: (val) =>
+                          controller.selectedType.value = val ?? '',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _buildLabel('Màu sắc', isRequired: true),
-                  Obx(() => _buildDropdown(
-                    value: controller.selectedColor.value.isEmpty
-                        ? null
-                        : controller.selectedColor.value,
-                    items: controller.colors,
-                    hint: 'Chọn màu sắc',
-                    onChanged: (val) => controller.selectedColor.value = val ?? '',
-                  )),
+                  _buildLabel('Color', isRequired: true),
+                  Obx(
+                    () => _buildDropdown(
+                      value: controller.selectedColor.value.isEmpty
+                          ? null
+                          : controller.selectedColor.value,
+                      items: controller.colors,
+                      hint: 'Choose a color',
+                      onChanged: (val) =>
+                          controller.selectedColor.value = val ?? '',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _buildLabel('Mùa'),
-                  Obx(() => _buildDropdown(
-                    value: controller.selectedSeason.value.isEmpty
-                        ? null
-                        : controller.selectedSeason.value,
-                    items: controller.seasons,
-                    hint: 'Chọn mùa thích hợp',
-                    onChanged: (val) => controller.selectedSeason.value = val ?? '',
-                  )),
+                  _buildLabel('Season'),
+                  Obx(
+                    () => _buildDropdown(
+                      value: controller.selectedSeason.value.isEmpty
+                          ? null
+                          : controller.selectedSeason.value,
+                      items: controller.seasons,
+                      hint: 'Choose the appropriate season',
+                      onChanged: (val) =>
+                          controller.selectedSeason.value = val ?? '',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _buildLabel('Dịp thích hợp'),
-                  Obx(() => _buildDropdown(
-                    value: controller.selectedOccasion.value.isEmpty
-                        ? null
-                        : controller.selectedOccasion.value,
-                    items: controller.occasions,
-                    hint: 'Chọn dịp',
-                    onChanged: (val) => controller.selectedOccasion.value = val ?? '',
-                  )),
+                  _buildLabel('Suitable occasion'),
+                  Obx(
+                    () => _buildDropdown(
+                      value: controller.selectedOccasion.value.isEmpty
+                          ? null
+                          : controller.selectedOccasion.value,
+                      items: controller.occasions,
+                      hint: 'Choose the occasion',
+                      onChanged: (val) =>
+                          controller.selectedOccasion.value = val ?? '',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _buildLabel('Thương hiệu'),
+                  _buildLabel('Brand'),
                   TextField(
                     controller: controller.brandController,
                     style: AppFonts.base(color: Colors.white),
-                    decoration: _getInputDecoration('Ví dụ: Zara, Nike...'),
+                    decoration: _getInputDecoration('Example: Zara, Nike...'),
                   ),
                   const SizedBox(height: 16),
                   _buildLabel('Tags'),
                   TextField(
                     controller: controller.tagsController,
                     style: AppFonts.base(color: Colors.white),
-                    decoration: _getInputDecoration('Ví dụ: casual, active (phân cách bằng dấu phẩy)'),
+                    decoration: _getInputDecoration(
+                      'Example: casual, active (separated by commas)',
+                    ),
                   ),
                 ],
               ),
@@ -122,40 +140,42 @@ class EditItemSheet extends GetView<WardrobeController> {
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              'Hủy',
+              'Cancel',
               style: AppFonts.base(color: Colors.white, fontSize: 16),
             ),
           ),
           Text(
-            'Chỉnh sửa',
+            'Edit',
             style: AppFonts.base(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Obx(() => TextButton(
-            onPressed: controller.isAdding.value
-                ? null
-                : () => controller.updateItem(item.id, item.imageUrl),
-            child: controller.isAdding.value
-                ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primary,
-              ),
-            )
-                : Text(
-              'Lưu',
-              style: AppFonts.base(
-                color: AppColors.primary,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+          Obx(
+            () => TextButton(
+              onPressed: controller.isAdding.value
+                  ? null
+                  : () => controller.updateItem(item.id, item.imageUrl),
+              child: controller.isAdding.value
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : Text(
+                      'Save',
+                      style: AppFonts.base(
+                        color: AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -219,10 +239,7 @@ class EditItemSheet extends GetView<WardrobeController> {
           isExpanded: true,
           style: AppFonts.base(color: Colors.white, fontSize: 14),
           items: items
-              .map((e) => DropdownMenuItem(
-            value: e,
-            child: Text(e),
-          ))
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
               .toList(),
           onChanged: onChanged,
         ),
