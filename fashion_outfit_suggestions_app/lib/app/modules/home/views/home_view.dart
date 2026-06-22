@@ -65,7 +65,7 @@ class HomeFeedView extends StatelessWidget {
               size: 26,
               color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () => Get.toNamed(Routes.outfit),
           ),
           IconButton(
             icon: const Icon(
