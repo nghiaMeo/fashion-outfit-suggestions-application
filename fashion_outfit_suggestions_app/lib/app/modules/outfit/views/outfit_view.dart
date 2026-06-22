@@ -104,41 +104,42 @@ class OutfitView extends GetView<OutfitController> {
         itemCount: controller.items.length,
         itemBuilder: (context, index) {
           final item = controller.items[index];
-          final selected = controller.isSelected(item);
-
-          return GestureDetector(
-            onTap: () => controller.toggleSelectItem(item),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Container(
-                  color: const Color(0xFF1C1C1E),
-                  child: item.imageUrl != null
-                      ? Image.network(item.imageUrl!, fit: BoxFit.cover)
-                      : const Icon(Icons.checkroom, color: Colors.grey),
-                ),
-                if (selected)
-                  Container(color: Colors.black.withValues(alpha: 0.4)),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected ? AppColors.primary : Colors.black26,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(
-                      Icons.check,
-                      color: selected ? Colors.black : Colors.transparent,
-                      size: 14,
+          return Obx(() {
+            final selected = controller.isSelected(item);
+            return GestureDetector(
+              onTap: () => controller.toggleSelectItem(item),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: const Color(0xFF1C1C1E),
+                    child: item.imageUrl != null
+                        ? Image.network(item.imageUrl!, fit: BoxFit.cover)
+                        : const Icon(Icons.checkroom, color: Colors.grey),
+                  ),
+                  if (selected)
+                    Container(color: Colors.black.withValues(alpha: 0.4)),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: selected ? AppColors.primary : Colors.black26,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.check,
+                        color: selected ? Colors.black : Colors.transparent,
+                        size: 14,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          });
         },
       );
     });
