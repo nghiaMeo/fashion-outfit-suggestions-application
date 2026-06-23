@@ -1,3 +1,4 @@
+import 'package:fashion_outfit_suggestions_app/core/models/outfit_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +20,8 @@ class ProfileController extends GetxController {
   final showSuggestion = false.obs;
   final bioLength = 0.obs;
   final displayNameLength = 0.obs;
+  final outfits = <OutfitResponse>[].obs;
+  final isOutfitsLoading = false.obs;
 
   final displayNameController = TextEditingController();
   final bioController = TextEditingController();
@@ -35,6 +38,29 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProfile();
+    fetchMyOutfits();
+  }
+
+  Future<void> fetchMyOutfits() async {
+    if (targetUserId != null) return;
+    isOutfitsLoading.value = true;
+
+    try {
+      final response = await _dioClient.getResult<List<OutfitResponse>>(
+        _dioClient.dio.get('/api/outifts/all-outfit'),
+        (json) {
+          final list = json as List;
+          return list
+              .map((e) => OutfitResponse.fromJson(e as Map<String, dynamic>))
+              .toList();
+        },
+      );
+      outfits.assignAll(response);
+    } catch (e) {
+      //
+    } finally {
+      isOutfitsLoading.value = false;
+    }
   }
 
   Future<void> fetchProfile() async {
@@ -49,6 +75,7 @@ class ProfileController extends GetxController {
         (json) => UserProfileResponse.fromJson(json as Map<String, dynamic>),
       );
       profile.value = response;
+      fetchMyOutfits();
     } catch (e) {
       _showErrorDialog(e.toString());
     } finally {
@@ -238,10 +265,7 @@ class ProfileController extends GetxController {
       final bytes = await image.readAsBytes();
 
       final formData = dio_pkg.FormData.fromMap({
-        'file': dio_pkg.MultipartFile.fromBytes(
-          bytes,
-          filename: image.name,
-        ),
+        'file': dio_pkg.MultipartFile.fromBytes(bytes, filename: image.name),
       });
 
       final String uploadedUrl = await _dioClient.getResult<String>(
@@ -250,7 +274,7 @@ class ProfileController extends GetxController {
           data: formData,
           options: dio_pkg.Options(contentType: 'multipart/form-data'),
         ),
-            (json) => json as String,
+        (json) => json as String,
       );
 
       avatarUrlController.text = uploadedUrl;
@@ -259,7 +283,6 @@ class ProfileController extends GetxController {
       }
 
       Get.snackbar(
-
         'Success',
         'Profile picture updated successfully!',
         snackPosition: SnackPosition.TOP,

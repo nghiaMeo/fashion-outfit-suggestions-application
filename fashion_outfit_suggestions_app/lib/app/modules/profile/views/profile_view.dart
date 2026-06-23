@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/profile_type.dart';
+import '../../../../core/models/outfit_response.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../routes/app_routes.dart';
 import '../../setting/views/setting_view.dart';
@@ -419,7 +420,7 @@ class ProfileView extends GetView<ProfileController> {
             Icon(Icons.lock_outline, color: Colors.white54, size: 50),
             SizedBox(height: 12),
             Text(
-              'Account is private',
+              'Private account',
               style: TextStyle(
                 color: Colors.white70,
                 fontWeight: FontWeight.bold,
@@ -428,7 +429,7 @@ class ProfileView extends GetView<ProfileController> {
             ),
             SizedBox(height: 4),
             Text(
-              'Only followers can see your outfit',
+              'Only followers can view the mix',
               style: TextStyle(color: Colors.white30, fontSize: 13),
             ),
           ],
@@ -441,7 +442,7 @@ class ProfileView extends GetView<ProfileController> {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: Text(
-            'Outfits',
+            'The Outfit',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -449,32 +450,205 @@ class ProfileView extends GetView<ProfileController> {
             ),
           ),
         ),
-        // TODO: Đổ danh sách outfit thực tế của user từ API vào GridView này
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1,
-          ),
-          itemCount: profile.outfitCount > 0 ? profile.outfitCount : 0,
-          itemBuilder: (context, index) {
+        Obx(() {
+          if (controller.isOutfitsLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
+          }
+
+          if (controller.outfits.isEmpty) {
             return Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white10),
-              ),
-              child: const Center(
-                child: Icon(Icons.checkroom, color: Colors.white30),
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  const Icon(Icons.checkroom, color: Colors.white24, size: 48),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No combination has been created yet',
+                    style: AppFonts.base(color: Colors.white54, fontSize: 14),
+                  ),
+                ],
               ),
             );
-          },
-        ),
+          }
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1,
+            ),
+            itemCount: controller.outfits.length,
+            itemBuilder: (context, index) {
+              final outfit = controller.outfits[index];
+              final coverImage = outfit.items.isNotEmpty
+                  ? outfit.items.first.imageUrl
+                  : null;
+
+              return GestureDetector(
+                onTap: () => _showOutfitDetail(context, outfit),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: coverImage != null
+                        ? Image.network(coverImage, fit: BoxFit.cover)
+                        : const Center(
+                            child: Icon(Icons.checkroom, color: Colors.white30),
+                          ),
+                  ),
+                ),
+              );
+            },
+          );
+        }),
       ],
+    );
+  }
+
+  void _showOutfitDetail(BuildContext context, OutfitResponse outfit) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1C1C1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Color(0xFF262626))),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Get.back(),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    outfit.name,
+                    style: AppFonts.base(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (outfit.items.isNotEmpty)
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: PageView.builder(
+                            itemCount: outfit.items.length,
+                            itemBuilder: (context, idx) {
+                              final item = outfit.items[idx];
+                              return Container(
+                                color: const Color(0xFF262626),
+                                child: item.imageUrl != null
+                                    ? Image.network(
+                                        item.imageUrl!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const Icon(
+                                        Icons.checkroom,
+                                        color: Colors.grey,
+                                        size: 80,
+                                      ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    if (outfit.occasion != null && outfit.occasion!.isNotEmpty)
+                      Text(
+                        'Suitable occasion: #${outfit.occasion}',
+                        style: AppFonts.base(
+                          color: const Color(0xFF0095F6),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    if (outfit.description != null &&
+                        outfit.description!.isNotEmpty)
+                      Text(
+                        outfit.description!,
+                        style: AppFonts.base(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Items combined:',
+                      style: AppFonts.base(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 80,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: outfit.items.length,
+                        itemBuilder: (context, idx) {
+                          final item = outfit.items[idx];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                width: 80,
+                                color: const Color(0xFF262626),
+                                child: item.imageUrl != null
+                                    ? Image.network(
+                                        item.imageUrl!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const Icon(
+                                        Icons.checkroom,
+                                        color: Colors.grey,
+                                      ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
