@@ -51,6 +51,8 @@ public class OutfitServiceImpl implements OutfitService {
                 .name(outfitRequest.getName())
                 .occasion(outfitRequest.getOccasion())
                 .userId(currentUser.getId())
+                .description(outfitRequest.getDescription())
+                .isPublic(outfitRequest.isPublic())
                 .items(items)
                 .build();
 
@@ -168,18 +170,22 @@ public class OutfitServiceImpl implements OutfitService {
 
     @Override
     public List<OutfitResponse> getHomeFeed() {
-        List<UUID> friendIds = Collections.emptyList();
+        List<UUID> friendIds = new java.util.ArrayList<>();
         try {
-            friendIds = friendshipService.getFriendIds();
+            friendIds = new java.util.ArrayList<>(friendshipService.getFriendIds());
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        if (friendIds.isEmpty()) {
-            return Collections.emptyList();
-        }
 
-        List<Outfit> outfits = outfitRepository
-                .findByUserIdInAndIsPublicTrueAndIsDeletedFalseOrderByCreatedAtDesc(friendIds);
+        var currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        friendIds.add(currentUser.getId());
+
+        List<Outfit> outfits;
+        if (friendIds.size() <= 1) {
+            outfits = outfitRepository.findByIsPublicTrueAndIsDeletedFalseOrderByCreatedAtDesc();
+        } else {
+            outfits = outfitRepository.findByUserIdInAndIsPublicTrueAndIsDeletedFalseOrderByCreatedAtDesc(friendIds);
+        }
         return mapToOutfitResponses(outfits);
     }
 

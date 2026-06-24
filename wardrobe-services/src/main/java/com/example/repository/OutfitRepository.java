@@ -28,4 +28,6 @@ public interface OutfitRepository extends JpaRepository<Outfit, UUID> {
     );
 
     List<Outfit> findByUserIdInAndIsPublicTrueAndIsDeletedFalseOrderByCreatedAtDesc(List<UUID> userIds);
+    List<Outfit> findByIsPublicTrueAndIsDeletedFalseOrderByCreatedAtDesc();
+
 }

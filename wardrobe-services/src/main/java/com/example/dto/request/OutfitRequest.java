@@ -1,5 +1,6 @@
 package com.example.dto.request;
 
+import com.example.entity.Outfit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,10 @@ public class OutfitRequest {
     private String occasion;
 
     private String description;
+    private boolean isPublic = true;
+
+    @NotEmpty(message = "must have one item in outfit")
+    private List<UUID> items;
 
     @NotEmpty(message = "must have one item in outfit")
     private List<UUID> itemIds;
