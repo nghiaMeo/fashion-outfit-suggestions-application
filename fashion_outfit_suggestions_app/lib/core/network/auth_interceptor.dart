@@ -23,34 +23,36 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
-      return handler.next(err);
-    }
-
     final path = err.requestOptions.path;
+
+    // Không refresh token cho các endpoint auth
     if (path.contains('/api/auth/login') ||
         path.contains('/api/auth/register') ||
         path.contains('/api/auth/refresh-token')) {
       return handler.next(err);
     }
 
-    final refresh = tokenStorage.refreshToken;
-    if (refresh == null || refresh.isEmpty) {
-      await tokenStorage.clearSession();
-      return handler.next(err);
+    // Khi gặp 401 → thử refresh token
+    if (err.response?.statusCode == 401) {
+      final refresh = tokenStorage.refreshToken;
+      if (refresh == null || refresh.isEmpty) {
+        await tokenStorage.clearSession();
+        return handler.next(err);
+      }
+
+      try {
+        final newAccessToken = await _refreshToken(refresh);
+        // Gắn token mới và retry request
+        err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+        final response = await dio.fetch(err.requestOptions);
+        return handler.resolve(response);
+      } catch (_) {
+        await tokenStorage.clearSession();
+        return handler.next(err);
+      }
     }
 
-    try {
-      final newAccessToken = await _refreshToken(refresh);
-
-      err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-      final options = err.requestOptions;
-      final response = await dio.fetch(options);
-      return handler.resolve(response);
-    } catch (_) {
-      await tokenStorage.clearSession();
-      return handler.next(err);
-    }
+    return handler.next(err);
   }
 
   Future<String> _refreshToken(String refreshToken) async {

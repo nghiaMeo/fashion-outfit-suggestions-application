@@ -28,6 +28,16 @@ class OutfitController extends GetxController {
     fetchMyItems();
   }
 
+  void resetForNewOutfit() {
+    selectedItems.clear();
+    nameController.clear();
+    descriptionController.clear();
+    selectedOccasion.value = 'Casual';
+    isPublic.value = true;
+    pageIndex.value = 0;
+    fetchMyItems();
+  }
+
   Future<void> fetchMyItems() async {
     isLoading.value = true;
     try {
@@ -42,7 +52,8 @@ class OutfitController extends GetxController {
       );
       items.assignAll(response);
     } catch (e) {
-      Get.snackbar('Error', 'Unable to retrieve data cabinet');
+      debugPrint('[OutfitController] fetchMyItems error: $e');
+      Get.snackbar('Error', 'Unable to retrieve data: $e');
     } finally {
       isLoading.value = false;
     }

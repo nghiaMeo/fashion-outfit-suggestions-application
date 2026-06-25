@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fashion_outfit_suggestions_app/core/models/conversation_response.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/socket_service.dart';
@@ -158,7 +159,6 @@ class ChatDetailController extends GetxController {
     final text = textController.text.trim();
     if (text.isEmpty) return;
 
-    // Nếu chưa từng nhắn tin với nhau trước đó, tạo cuộc trò chuyện mới
     if (rxConversationId.value == null) {
       isSending.value = true;
       debugPrint('>>> Creating conversation with friendId: $friendId');
@@ -203,7 +203,6 @@ class ChatDetailController extends GetxController {
         (json) => MessageResponse.fromJson(json as Map<String, dynamic>),
       );
 
-      // Kiểm tra trùng lặp trước khi thêm để bảo đảm tính an toàn mạng
       final alreadyExists = messages.any((m) => m.id == response.id);
       if (!alreadyExists) {
         messages.add(response);
@@ -263,7 +262,7 @@ class ChatDetailController extends GetxController {
 
   @override
   void onClose() {
-    _markAsReadInMessageList(); // Đánh dấu đã đọc lần cuối khi thoát chat
+    _markAsReadInMessageList();
     if (rxConversationId.value != null) {
       _socketService.leaveRoom(rxConversationId.value!);
     }

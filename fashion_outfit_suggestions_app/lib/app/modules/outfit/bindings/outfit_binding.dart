@@ -7,6 +7,7 @@ class OutfitBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<OutfitController>(
       () => OutfitController(),
+      fenix: true,
     );
   }
 }

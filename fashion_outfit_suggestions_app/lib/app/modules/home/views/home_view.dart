@@ -1,3 +1,4 @@
+import 'package:fashion_outfit_suggestions_app/app/modules/outfit/controllers/outfit_controller.dart';
 import 'package:fashion_outfit_suggestions_app/app/modules/searches/views/searches_view.dart';
 import 'package:flutter/material.dart';
 
@@ -67,7 +68,9 @@ class HomeFeedView extends GetView<HomeController> {
               size: 26,
               color: Colors.white,
             ),
-            onPressed: () => Get.toNamed(Routes.outfit),
+            onPressed: () {
+              Get.toNamed(Routes.outfit);
+            },
           ),
           IconButton(
             icon: const Icon(

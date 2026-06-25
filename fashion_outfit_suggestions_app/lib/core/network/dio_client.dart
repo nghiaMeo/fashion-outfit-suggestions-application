@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/api_exception.dart';
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
@@ -20,6 +22,10 @@ class DioClient extends GetxService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Accept-Encoding': 'identity',
+        },
+        responseDecoder: (responseBytes, requestOptions, responseBody) {
+          return utf8.decode(responseBytes, allowMalformed: true);
         },
       ),
     );
