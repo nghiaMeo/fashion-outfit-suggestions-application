@@ -129,7 +129,6 @@ public class OutfitServiceImpl implements OutfitService {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
         }
-
         outfit.setName(outfitRequest.getName());
         outfit.setOccasion(outfitRequest.getOccasion());
         outfit.setDescription(outfitRequest.getDescription());
