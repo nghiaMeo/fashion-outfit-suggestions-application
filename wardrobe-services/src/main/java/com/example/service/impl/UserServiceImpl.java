@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
         return userIds.stream()
                 .map(id -> {
                     try {
-                        return getUserProfile(id);
+                        return getBasicProfile(id);
                     } catch (Exception e) {
                         System.err.println("Error in UserServiceImpl.getUsersProfiles for " + id + ":");
                         e.printStackTrace();
@@ -163,6 +163,24 @@ public class UserServiceImpl implements UserService {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /**
+     * Lấy thông tin cơ bản của user mà không cần SecurityContext.
+     * Dùng trong batch context (cache, messaging) để tránh NullPointerException.
+     */
+    private UserProfileResponse getBasicProfile(UUID userId) {
+        var targetUser = userRepository.findById(userId).orElse(null);
+        if (targetUser == null) return null;
+
+        return UserProfileResponse.builder()
+                .id(targetUser.getId())
+                .username(targetUser.getUsername())
+                .displayName(targetUser.getDisplayName())
+                .avatarUrl(targetUser.getAvatarUrl())
+                .bio(targetUser.getBio())
+                .isPrivateProfile(targetUser.isPrivateProfile())
+                .build();
     }
 
     @Override

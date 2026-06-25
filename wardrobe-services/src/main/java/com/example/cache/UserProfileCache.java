@@ -65,8 +65,10 @@ public class UserProfileCache {
         }
 
         try {
-            var profile = userService.getUserProfile(userId);
-            if (profile != null) {
+            // Thử lấy qua getUsersProfiles (không cần SecurityContext)
+            var profiles = userService.getUsersProfiles(java.util.List.of(userId));
+            if (profiles != null && !profiles.isEmpty()) {
+                var profile = profiles.get(0);
                 if (cache != null) {
                     cache.put(userId, profile);
                 }

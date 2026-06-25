@@ -169,9 +169,9 @@ public class OutfitServiceImpl implements OutfitService {
 
     @Override
     public List<OutfitResponse> getHomeFeed() {
-        List<UUID> friendIds = new java.util.ArrayList<>();
+        List<UUID> friendIds = new ArrayList<>();
         try {
-            friendIds = new java.util.ArrayList<>(friendshipService.getFriendIds());
+            friendIds = new ArrayList<>(friendshipService.getFriendIds());
         } catch (Exception e) {
             log.error(e.getMessage());
         }
