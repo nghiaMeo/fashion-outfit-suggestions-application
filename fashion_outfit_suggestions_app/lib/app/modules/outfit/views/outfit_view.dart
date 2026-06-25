@@ -204,6 +204,21 @@ class OutfitView extends GetView<OutfitController> {
             ),
           ),
           const SizedBox(height: 20),
+          _buildLabel('Display mode'),
+          Obx(
+            () => SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                controller.isPublic.value
+                    ? 'Post public(everyone can see it)'
+                    : 'Private(Only you can see)',
+                style: AppFonts.base(color: Colors.white70, fontSize: 14),
+              ),
+              value: controller.isPublic.value,
+              activeThumbColor: AppColors.primary,
+              onChanged: (val) => controller.isPublic.value = val,
+            ),
+          ),
         ],
       ),
     );

@@ -96,6 +96,7 @@ class OutfitController extends GetxController {
         'occasion': selectedOccasion.value,
         'description': descriptionController.text.trim(),
         'itemIds': itemIds,
+        'isPublic': isPublic.value,
       };
 
       await _dioClient.getResult<OutfitResponse>(
