@@ -21,7 +21,7 @@ public class SocketIOConfig {
     @Bean("notificationSocketIOServer")
     public SocketIOServer notificationSocketIOServer(){
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
-        config.setHostname("localhost");
+        config.setHostname("0.0.0.0");
         config.setPort(9003);
         return new SocketIOServer(config);
     }

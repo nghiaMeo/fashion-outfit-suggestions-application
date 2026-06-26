@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -61,6 +62,25 @@ public class SocketIOHandler {
         server.addEventListener("leave_room", String.class, (client, conversationId, ackSender) -> {
             client.leaveRoom(conversationId);
             log.info("Member: {} leave the conversation: {} ", client.getSessionId(), conversationId);
+        });
+        server.addEventListener("typing", Map.class, (client, data, ackSender) -> {
+            var conversationId = (String) data.get("conversationId");
+            var userId = client.get("userId");
+            if (conversationId != null && userId != null) {
+                server.getRoomOperations(conversationId).sendEvent("typing", Map.of(
+                        "userId", userId.toString(),
+                        "conversationId", conversationId));
+            }
+        });
+        server.addEventListener("stop_typing", Map.class, (client, data, ackSender) -> {
+            var conversationId = (String) data.get("conversationId");
+            var userId = client.get("userId");
+            if (conversationId != null && userId != null) {
+                server.getRoomOperations(conversationId).sendEvent("stop_typing", Map.of(
+                        "conversationId", conversationId,
+                        "userId", userId.toString()
+                ));
+            }
         });
 
         server.addDisconnectListener(client -> {

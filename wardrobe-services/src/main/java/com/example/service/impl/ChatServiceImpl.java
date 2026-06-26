@@ -123,7 +123,7 @@ public class ChatServiceImpl implements ChatService {
         var member = conversationMemberRepository.findByConversationIdAndUserId(conversation.getId(), currentUser.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
-        // In microservice architecture, sharedOutfitId is accepted statelessly without DB hit to wardrobe-service.
+        // In microservice architecture, sharedOutfitId is accepted stateless without DB hit to wardrobe-service.
         var message = Message.builder()
                 .conversation(conversation)
                 .senderId(currentUser.getId())
@@ -143,7 +143,13 @@ public class ChatServiceImpl implements ChatService {
         conversationMemberRepository.save(member);
 
         var response = mapToMessageResponse(message);
-        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message", response);
+        for (var m : conversation.getMembers()) {
+            var memberRoom = m.getUserId().toString();
+            socketIOServer.getRoomOperations(memberRoom).sendEvent("new_message", response);
+            for (var client : socketIOServer.getRoomOperations(memberRoom).getClients()) {
+                client.joinRoom(conversation.getId().toString());
+            }
+        }
 
         conversation.getMembers().stream()
                 .filter(m -> !m.getUserId().equals(currentUser.getId()))
