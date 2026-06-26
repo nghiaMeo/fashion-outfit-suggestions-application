@@ -25,14 +25,12 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final path = err.requestOptions.path;
 
-    // Không refresh token cho các endpoint auth
     if (path.contains('/api/auth/login') ||
         path.contains('/api/auth/register') ||
         path.contains('/api/auth/refresh-token')) {
       return handler.next(err);
     }
 
-    // Khi gặp 401 → thử refresh token
     if (err.response?.statusCode == 401) {
       final refresh = tokenStorage.refreshToken;
       if (refresh == null || refresh.isEmpty) {
@@ -42,7 +40,6 @@ class AuthInterceptor extends Interceptor {
 
       try {
         final newAccessToken = await _refreshToken(refresh);
-        // Gắn token mới và retry request
         err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
         final response = await dio.fetch(err.requestOptions);
         return handler.resolve(response);

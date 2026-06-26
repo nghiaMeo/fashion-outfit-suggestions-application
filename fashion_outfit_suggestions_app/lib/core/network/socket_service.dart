@@ -9,11 +9,10 @@ class SocketService extends GetxService {
 
   final isConnected = false.obs;
 
-  // Danh sách các callback lắng nghe sự kiện tin nhắn mới
   final List<void Function(Map<String, dynamic> data)> _messageListeners = [];
+  final List<void Function(Map<String, dynamic> data)> _typingListeners = [];
 
   Future<SocketService> init() async {
-    // Tự động kết nối nếu người dùng đã đăng nhập sẵn
     if (_tokenStorage.hasSession) {
       connect();
     }
@@ -21,7 +20,6 @@ class SocketService extends GetxService {
   }
 
   void connect() {
-    // Nếu đã kết nối rồi thì không kết nối lại
     if (_socket != null && _socket!.connected) return;
 
     final token = _tokenStorage.accessToken;
@@ -29,12 +27,28 @@ class SocketService extends GetxService {
 
     final url = EnvConfig.socialSocketUrl;
 
+    _socket!.on('typing', (data) {
+      if (data is Map<String, dynamic>) {
+        for (var listener in _typingListeners) {
+          listener({...data, 'isTyping': true});
+        }
+      }
+    });
+
+    _socket!.on('stop_typing', (data) {
+      if (data is Map<String, dynamic>) {
+        for (var listeners in _typingListeners) {
+          listeners({...data, 'isTyping': false});
+        }
+      }
+    });
+
     _socket = io.io(
       url,
       io.OptionBuilder()
-          .setTransports(['websocket']) // Chỉ dùng websocket protocol
+          .setTransports(['websocket'])
           .disableAutoConnect()
-          .setQuery({'token': token}) // Truyền token xác thực ở handshake query
+          .setQuery({'token': token})
           .build(),
     );
 
@@ -46,7 +60,6 @@ class SocketService extends GetxService {
       isConnected.value = false;
     });
 
-    // Lắng nghe sự kiện new_message từ backend phát đi
     _socket!.on('new_message', (data) {
       if (data is Map<String, dynamic>) {
         for (var listener in _messageListeners) {
@@ -67,26 +80,22 @@ class SocketService extends GetxService {
     }
   }
 
-  // Phương thức tham gia phòng chat mới (phòng chat tương ứng với conversationId)
   void joinRoom(String conversationId) {
     if (_socket != null && _socket!.connected) {
       _socket!.emit('join_room', conversationId);
     }
   }
 
-  // Phương thức rời khỏi phòng chat
   void leaveRoom(String conversationId) {
     if (_socket != null && _socket!.connected) {
       _socket!.emit('leave_room', conversationId);
     }
   }
 
-  // Đăng ký nhận tin nhắn mới
   void addMessageListener(void Function(Map<String, dynamic> data) listener) {
     _messageListeners.add(listener);
   }
 
-  // Huỷ đăng ký nhận tin nhắn mới
   void removeMessageListener(
     void Function(Map<String, dynamic> data) listener,
   ) {
