@@ -101,4 +101,21 @@ class SocketService extends GetxService {
   ) {
     _messageListeners.remove(listener);
   }
+
+  void addTypingListener(void Function(Map<String, dynamic> data) listener) {
+    _typingListeners.add(listener);
+  }
+
+  void removeTypingListener(void Function(Map<String, dynamic> data) listener) {
+    _typingListeners.remove(listener);
+  }
+
+  void sendTypingStatus(String conversationId, bool isTyping) {
+    if (_socket != null && _socket!.connected) {
+      _socket!.emit(
+        isTyping ? 'typing' : 'stop_typing',
+        {'conversationId': conversationId},
+      );
+    }
+  }
 }

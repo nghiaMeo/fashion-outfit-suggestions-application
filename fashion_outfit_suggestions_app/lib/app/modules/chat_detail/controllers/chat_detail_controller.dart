@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'dart:async';
 import 'package:fashion_outfit_suggestions_app/core/models/conversation_response.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/dio_client.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/socket_service.dart';
@@ -11,11 +11,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dialog_alert.dart';
 import '../../message/controllers/message_controller.dart';
 
+
 class ChatDetailController extends GetxController {
+
   final String friendId;
   final String friendName;
   final String friendAvatar;
 
+  final rxFriendIsTyping = false.obs;
+  Timer? _typingTimer;
+  DateTime? _lastTypingEmitTime;
   final rxConversationId = RxnString();
   final messages = <MessageResponse>[].obs;
   final isLoading = false.obs;
@@ -48,6 +53,7 @@ class ChatDetailController extends GetxController {
     // Đảm bảo kết nối Socket và lắng nghe sự kiện tin nhắn mới
     _socketService.connect();
     _socketService.addMessageListener(_onNewMessageReceived);
+    _socketService.addTypingListener(_onTypingStatusReceived);
 
     if (rxConversationId.value != null) {
       _socketService.joinRoom(
@@ -60,13 +66,17 @@ class ChatDetailController extends GetxController {
     ever(rxConversationId, (_) => _markAsReadInMessageList());
   }
 
-  // Lắng nghe sự kiện tin nhắn mới từ Socket.IO
+
+
   void _onNewMessageReceived(Map<String, dynamic> data) {
     try {
       final message = MessageResponse.fromJson(data);
-      // Kiểm tra xem tin nhắn có thuộc về cuộc trò chuyện hiện tại không
-      if (message.conversationId == rxConversationId.value) {
-        // Tránh trùng lặp tin nhắn (khi ta gửi đi, REST phản hồi đã add trước đó)
+      if (message.conversationId == rxConversationId.value ||
+          (rxConversationId.value == null && message.senderId == friendId)) {
+        if (rxConversationId.value == null) {
+          rxConversationId.value = message.conversationId;
+          _socketService.joinRoom(message.conversationId!);
+        }
         final alreadyExists = messages.any((m) => m.id == message.id);
         if (!alreadyExists) {
           messages.add(message);
@@ -74,7 +84,7 @@ class ChatDetailController extends GetxController {
         }
       }
     } catch (e) {
-      // Bỏ qua lỗi parse nếu có
+      // Bỏ qua lỗi parse
     }
   }
 
@@ -260,6 +270,8 @@ class ChatDetailController extends GetxController {
     }
   }
 
+
+
   @override
   void onClose() {
     _markAsReadInMessageList();
@@ -269,6 +281,8 @@ class ChatDetailController extends GetxController {
     _socketService.removeMessageListener(_onNewMessageReceived);
     textController.dispose();
     scrollController.dispose();
+    _socketService.removeTypingListener(_onTypingStatusReceived);
+    _typingTimer?.cancel();
     super.onClose();
   }
 }
