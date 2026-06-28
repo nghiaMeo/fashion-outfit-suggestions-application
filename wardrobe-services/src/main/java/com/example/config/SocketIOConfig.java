@@ -13,8 +13,9 @@ public class SocketIOConfig {
     @Bean("socialSocketIOServer")
     public SocketIOServer socketIOServer(){
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
-        config.setHostname("localhost");
+        config.setHostname("0.0.0.0");
         config.setPort(9002);
+        config.setOrigin("*");
         return new SocketIOServer(config);
     }
 
@@ -23,6 +24,7 @@ public class SocketIOConfig {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname("0.0.0.0");
         config.setPort(9003);
+        config.setOrigin("*");
         return new SocketIOServer(config);
     }
 
