@@ -143,6 +143,9 @@ public class ChatServiceImpl implements ChatService {
         conversationMemberRepository.save(member);
 
         var response = mapToMessageResponse(message);
+
+        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message", response);
+
         for (var m : conversation.getMembers()) {
             var memberRoom = m.getUserId().toString();
             socketIOServer.getRoomOperations(memberRoom).sendEvent("new_message", response);
