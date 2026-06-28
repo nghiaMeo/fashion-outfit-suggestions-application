@@ -64,7 +64,10 @@ class ChatDetailView extends GetView<ChatDetailController> {
                           child: avatarUrl.isEmpty
                               ? Text(
                                   name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                  style: const TextStyle(color: Colors.white, fontSize: 32),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                  ),
                                 )
                               : null,
                         ),
@@ -141,6 +144,36 @@ class ChatDetailView extends GetView<ChatDetailController> {
               );
             }),
           ),
+          Obx(() {
+            if (controller.rxFriendIsTyping.value) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 8,
+                      backgroundImage: avatarUrl.isNotEmpty
+                          ? NetworkImage(avatarUrl)
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$name Drafting a message...',
+                      style: const TextStyle(
+                        color: Color(0xFF8E8E93),
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
           _buildInputBar(controller),
         ],
       ),
@@ -230,9 +263,7 @@ class ChatDetailView extends GetView<ChatDetailController> {
               child: TextField(
                 controller: controller.textController,
                 style: AppFonts.base(color: Colors.white, fontSize: 15),
-                onChanged: (text) {
-                  controller.isTyping.value = text.trim().isNotEmpty;
-                },
+                onChanged: controller.onTextChanged,
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: AppFonts.base(

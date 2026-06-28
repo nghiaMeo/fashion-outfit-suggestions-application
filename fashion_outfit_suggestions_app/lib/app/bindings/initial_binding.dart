@@ -10,9 +10,8 @@ class InitialBinding extends Bindings {
   void dependencies() {
     Get.put(TokenStorage(GetStorage()), permanent: true);
     Get.putAsync<DioClient>(() async => DioClient().init(), permanent: true);
-    Get.putAsync<SocketService>(
-      () async => SocketService().init(),
-      permanent: true,
-    );
+    final socketService = SocketService();
+    socketService.init();
+    Get.put(socketService, permanent: true);
   }
 }

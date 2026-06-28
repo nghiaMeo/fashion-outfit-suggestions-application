@@ -1,5 +1,6 @@
 import 'package:fashion_outfit_suggestions_app/config/env_config.dart';
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -27,22 +28,7 @@ class SocketService extends GetxService {
 
     final url = EnvConfig.socialSocketUrl;
 
-    _socket!.on('typing', (data) {
-      if (data is Map<String, dynamic>) {
-        for (var listener in _typingListeners) {
-          listener({...data, 'isTyping': true});
-        }
-      }
-    });
-
-    _socket!.on('stop_typing', (data) {
-      if (data is Map<String, dynamic>) {
-        for (var listeners in _typingListeners) {
-          listeners({...data, 'isTyping': false});
-        }
-      }
-    });
-
+    // 1. Khởi tạo đối tượng Socket trước
     _socket = io.io(
       url,
       io.OptionBuilder()
@@ -54,16 +40,48 @@ class SocketService extends GetxService {
 
     _socket!.onConnect((_) {
       isConnected.value = true;
+      debugPrint(
+        '>>> SOCKET CONNECTED SUCCESSFULLY!',
+      ); // In log khi kết nối thành công
     });
 
     _socket!.onDisconnect((_) {
       isConnected.value = false;
+      debugPrint('>>> SOCKET DISCONNECTED!'); // In log khi ngắt kết nối
+    });
+
+    // Bổ sung lắng nghe lỗi kết nối
+    _socket!.onConnectError((data) {
+      debugPrint('>>> SOCKET CONNECT ERROR: $data');
+    });
+
+    _socket!.onError((data) {
+      debugPrint('>>> SOCKET ERROR: $data');
     });
 
     _socket!.on('new_message', (data) {
-      if (data is Map<String, dynamic>) {
+      if (data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
         for (var listener in _messageListeners) {
-          listener(data);
+          listener(mapData);
+        }
+      }
+    });
+
+    _socket!.on('typing', (data) {
+      if (data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
+        for (var listener in _typingListeners) {
+          listener({...mapData, 'isTyping': true});
+        }
+      }
+    });
+
+    _socket!.on('stop_typing', (data) {
+      if (data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
+        for (var listeners in _typingListeners) {
+          listeners({...mapData, 'isTyping': false});
         }
       }
     });
@@ -112,10 +130,9 @@ class SocketService extends GetxService {
 
   void sendTypingStatus(String conversationId, bool isTyping) {
     if (_socket != null && _socket!.connected) {
-      _socket!.emit(
-        isTyping ? 'typing' : 'stop_typing',
-        {'conversationId': conversationId},
-      );
+      _socket!.emit(isTyping ? 'typing' : 'stop_typing', {
+        'conversationId': conversationId,
+      });
     }
   }
 }

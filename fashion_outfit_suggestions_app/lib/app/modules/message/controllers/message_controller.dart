@@ -88,9 +88,16 @@ class MessageController extends GetxController {
         },
       );
       response.sort((a, b) {
+        if (a.lastMessageAt == null && b.lastMessageAt == null) return 0;
         if (a.lastMessageAt == null) return 1;
         if (b.lastMessageAt == null) return -1;
-        return b.lastMessageAt!.compareTo(a.lastMessageAt!);
+        try {
+          final dateA = DateTime.parse(a.lastMessageAt!);
+          final dateB = DateTime.parse(b.lastMessageAt!);
+          return dateB.compareTo(dateA);
+        } catch (_) {
+          return 0;
+        }
       });
       conversations.assignAll(response);
     } catch (e) {

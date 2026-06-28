@@ -11,9 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dialog_alert.dart';
 import '../../message/controllers/message_controller.dart';
 
-
 class ChatDetailController extends GetxController {
-
   final String friendId;
   final String friendName;
   final String friendAvatar;
@@ -66,11 +64,62 @@ class ChatDetailController extends GetxController {
     ever(rxConversationId, (_) => _markAsReadInMessageList());
   }
 
+  void _onTypingStatusReceived(Map<String, dynamic> data) {
+    try {
+      final conversationId = data['conversationId'];
+      final userId = data['userId'];
+      final isFriendTyping = data['isTyping'] as bool;
 
+      if (conversationId == rxConversationId.value && userId == friendId) {
+        rxFriendIsTyping.value = isFriendTyping;
+      }
+    } catch (_) {}
+  }
+
+  void onTextChanged(String text) {
+    final hasText = text.trim().isNotEmpty;
+    isTyping.value = hasText;
+
+    if (rxConversationId.value == null) return;
+
+    if (hasText) {
+      // Chỉ gửi sự kiện 'typing' lên socket tối đa 2 giây 1 lần
+      if (_lastTypingEmitTime == null ||
+          DateTime.now().difference(_lastTypingEmitTime!) >
+              const Duration(seconds: 2)) {
+        _lastTypingEmitTime = DateTime.now();
+        _socketService.sendTypingStatus(rxConversationId.value!, true);
+      }
+
+      // Tự động tắt trạng thái typing sau 3 giây nếu người dùng dừng gõ
+      _typingTimer?.cancel();
+      _typingTimer = Timer(const Duration(seconds: 3), () {
+        _socketService.sendTypingStatus(rxConversationId.value!, false);
+        _lastTypingEmitTime = null;
+      });
+    } else {
+      // Khi xóa sạch văn bản, lập tức phát tin dừng gõ
+      _typingTimer?.cancel();
+      _socketService.sendTypingStatus(rxConversationId.value!, false);
+      _lastTypingEmitTime = null;
+    }
+  }
 
   void _onNewMessageReceived(Map<String, dynamic> data) {
+    debugPrint('>>> [SOCKET] NHẬN TIN NHẮN THÔ: $data');
     try {
       final message = MessageResponse.fromJson(data);
+
+      debugPrint(
+        '>>> [SOCKET] ID cuộc trò chuyện từ Tin nhắn: ${message.conversationId}',
+      );
+      debugPrint(
+        '>>> [SOCKET] ID cuộc trò chuyện hiện tại của bạn: ${rxConversationId.value}',
+      );
+      debugPrint(
+        '>>> [SOCKET] ID người gửi: ${message.senderId} | ID bạn bè (friendId): $friendId',
+      );
+
       if (message.conversationId == rxConversationId.value ||
           (rxConversationId.value == null && message.senderId == friendId)) {
         if (rxConversationId.value == null) {
@@ -81,10 +130,20 @@ class ChatDetailController extends GetxController {
         if (!alreadyExists) {
           messages.add(message);
           scrollBottom();
+          debugPrint(
+            '>>> [SOCKET] Đã thêm thành công tin nhắn vào danh sách hiển thị!',
+          );
+        } else {
+          debugPrint('>>> [SOCKET] Tin nhắn đã tồn tại trước đó.');
         }
+      } else {
+        debugPrint(
+          '>>> [SOCKET] Bỏ qua vì không khớp ID cuộc trò chuyện hiện tại.',
+        );
       }
-    } catch (e) {
-      // Bỏ qua lỗi parse
+    } catch (e, stack) {
+      debugPrint('>>> [SOCKET] LỖI KHI XỬ LÝ TIN NHẮN MỚI: $e');
+      debugPrint('$stack');
     }
   }
 
@@ -269,8 +328,6 @@ class ChatDetailController extends GetxController {
       }
     }
   }
-
-
 
   @override
   void onClose() {

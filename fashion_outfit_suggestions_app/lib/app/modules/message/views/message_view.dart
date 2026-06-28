@@ -91,9 +91,10 @@ class MessageView extends GetView<MessageController> {
                         final friend = results[index];
                         return GestureDetector(
                           onTap: () {
-                            final existingConv = controller.conversations.firstWhereOrNull(
-                              (c) => c.friendId == friend.friendId,
-                            );
+                            final existingConv = controller.conversations
+                                .firstWhereOrNull(
+                                  (c) => c.friendId == friend.friendId,
+                                );
 
                             Get.to(
                               () => ChatDetailView(
@@ -193,50 +194,45 @@ class MessageView extends GetView<MessageController> {
   Widget _buildNotesFriends(BuildContext context) {
     return SizedBox(
       height: 125,
-      child: Obx(() {
-        if (controller.isFriendsLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.friends.isEmpty) {
-          return Center(
-            child: Text(
-              'No friends active',
-              style: AppFonts.base(color: Colors.grey, fontSize: 12),
-            ),
+      child: controller.isFriendsLoading.value
+          ? const Center(child: CircularProgressIndicator())
+          : controller.friends.isEmpty
+          ? Center(
+        child: Text(
+          'No friends active',
+          style: AppFonts.base(color: Colors.grey, fontSize: 12),
+        ),
+      )
+          : ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: controller.friends.length,
+        itemBuilder: (context, index) {
+          final friend = controller.friends[index];
+          return _buildNoteItem(
+            avatarUrl: friend.avatarUrl ?? '',
+            name: friend.username,
+            onTap: () {
+              final existingConv =
+              controller.conversations.firstWhereOrNull(
+                    (c) => c.friendId == friend.friendId,
+              );
+              Get.to(
+                ChatDetailView(
+                  friendId: friend.friendId,
+                  name: friend.fullName,
+                  username: friend.username,
+                  avatarUrl: friend.avatarUrl ?? '',
+                  conversationId: existingConv?.conversationId,
+                ),
+                transition: Transition.rightToLeft,
+              );
+            },
           );
-        }
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          itemCount: controller.friends.length,
-          itemBuilder: (context, index) {
-            final friend = controller.friends[index];
-            return _buildNoteItem(
-              avatarUrl: friend.avatarUrl ?? '',
-              name: friend.username,
-              onTap: () {
-                final existingConv = controller.conversations.firstWhereOrNull(
-                  (c) => c.friendId == friend.friendId,
-                );
-                Get.to(
-                  ChatDetailView(
-                    friendId: friend.friendId,
-                    name: friend.fullName,
-                    username: friend.username,
-                    avatarUrl: friend.avatarUrl ?? '',
-                    conversationId: existingConv?.conversationId,
-                  ),
-                  transition: Transition.rightToLeft,
-                );
-              },
-            );
-          },
-        );
-      }),
+        },
+      ),
     );
   }
-
   Widget _buildNoteItem({
     required String avatarUrl,
     required String name,
@@ -244,7 +240,8 @@ class MessageView extends GetView<MessageController> {
     String? songName,
     VoidCallback? onTap,
   }) {
-    final bool hasNote = (noteText != null && noteText.isNotEmpty) ||
+    final bool hasNote =
+        (noteText != null && noteText.isNotEmpty) ||
         (songName != null && songName.isNotEmpty);
     final bool hasMusic = songName != null && songName.isNotEmpty;
     return GestureDetector(
@@ -268,14 +265,28 @@ class MessageView extends GetView<MessageController> {
                     ),
                     child: CircleAvatar(
                       radius: 34,
-                      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                      backgroundImage: avatarUrl.isNotEmpty
+                          ? NetworkImage(avatarUrl)
+                          : null,
                       backgroundColor: Colors.grey.shade800,
+                      child: avatarUrl.isEmpty
+                          ? Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              style: AppFonts.base(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   Positioned(
                     top: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       constraints: const BoxConstraints(maxWidth: 85),
                       decoration: BoxDecoration(
                         color: const Color(0xFF262626),
@@ -285,7 +296,11 @@ class MessageView extends GetView<MessageController> {
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.music_note, color: Colors.white, size: 10),
+                                const Icon(
+                                  Icons.music_note,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
                                 const SizedBox(height: 2),
                                 Expanded(
                                   child: Text(
@@ -325,8 +340,19 @@ class MessageView extends GetView<MessageController> {
                   ),
                   child: CircleAvatar(
                     radius: 34,
-                    backgroundImage: NetworkImage(avatarUrl),
+                    backgroundImage: avatarUrl.isNotEmpty
+                        ? NetworkImage(avatarUrl)
+                        : null,
                     backgroundColor: Colors.grey.shade800,
+                    child: avatarUrl.isEmpty
+                        ? Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : '?',
+                            style: AppFonts.base(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -348,67 +374,63 @@ class MessageView extends GetView<MessageController> {
   }
 
   Widget _buildChatList() {
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 40),
-            child: CircularProgressIndicator(color: Colors.white),
-          ),
-        );
-      }
-
-      if (controller.conversations.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40),
-            child: Text(
-              'No conversations',
-              style: AppFonts.base(
-                color: const Color(0xFF8E8E93),
-                fontSize: 16,
-              ),
-            ),
-          ),
-        );
-      }
-
-
-
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: controller.conversations.length,
-        itemBuilder: (BuildContext context, int index) {
-          final conv = controller.conversations[index];
-          final timeStr = _formatMessageTime(conv.lastMessageAt);
-          final avatar = conv.friendAvatar ?? '';
-          final name = conv.friendName ?? 'Unknown';
-
-          return GestureDetector(
-            onTap: () {
-              Get.to(
-                () => ChatDetailView(
-                  friendId: conv.friendId ?? '',
-                  name: name,
-                  username: name,
-                  avatarUrl: avatar,
-                  conversationId: conv.conversationId,
-                ),
-                transition: Transition.rightToLeft,
-              );
-            },
-            child: _buildChatItemRow(
-              avatarUrl: avatar,
-              name: name,
-              lastMessage: conv.lastMessage ?? 'Start a conversation',
-              time: timeStr ?? '',
-              unreadCount: conv.unreadCount ?? 0,
-            ),
-          );
-        },
+    if (controller.isLoading.value) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40),
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
       );
-    });
+    }
+
+    if (controller.conversations.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Text(
+            'No conversations',
+            style: AppFonts.base(
+              color: const Color(0xFF8E8E93),
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: controller.conversations.length,
+      itemBuilder: (BuildContext context, int index) {
+        final conv = controller.conversations[index];
+        final timeStr = _formatMessageTime(conv.lastMessageAt);
+        final avatar = conv.friendAvatar ?? '';
+        final name = conv.friendName ?? 'Unknown';
+
+        return GestureDetector(
+          onTap: () {
+            Get.to(
+                  () => ChatDetailView(
+                friendId: conv.friendId ?? '',
+                name: name,
+                username: name,
+                avatarUrl: avatar,
+                conversationId: conv.conversationId,
+              ),
+              transition: Transition.rightToLeft,
+            );
+          },
+          child: _buildChatItemRow(
+            avatarUrl: avatar,
+            name: name,
+            lastMessage: conv.lastMessage ?? 'Start a conversation',
+            time: timeStr ?? '',
+            unreadCount: conv.unreadCount ?? 0,
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildChatItemRow({
