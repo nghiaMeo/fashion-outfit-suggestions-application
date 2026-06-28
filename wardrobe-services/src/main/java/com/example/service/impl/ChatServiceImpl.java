@@ -21,6 +21,7 @@ import com.example.repository.MessageRepository;
 import com.example.repository.UserRepository;
 import com.example.service.ChatService;
 import com.example.service.NotificationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +46,8 @@ public class ChatServiceImpl implements ChatService {
     private final NotificationService notificationService;
     private final UserProfileCache userProfileCache;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper; // <--- KHAI BÁO THÊM
+
 
     public ChatServiceImpl(
             ConversationMemberRepository conversationMemberRepository,
@@ -52,7 +55,7 @@ public class ChatServiceImpl implements ChatService {
             @Qualifier("socialSocketIOServer") SocketIOServer socketIOServer,
             ChatConversationRepository chatConversationRepository,
             NotificationService notificationService,
-            UserProfileCache userProfileCache, UserRepository userRepository) {
+            UserProfileCache userProfileCache, UserRepository userRepository, ObjectMapper objectMapper) {
         this.conversationMemberRepository = conversationMemberRepository;
         this.messageRepository = messageRepository;
         this.socketIOServer = socketIOServer;
@@ -60,6 +63,7 @@ public class ChatServiceImpl implements ChatService {
         this.notificationService = notificationService;
         this.userProfileCache = userProfileCache;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     private User getCurrentUser() {
@@ -144,14 +148,18 @@ public class ChatServiceImpl implements ChatService {
 
         var response = mapToMessageResponse(message);
 
-        socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message", response);
-
-        for (var m : conversation.getMembers()) {
-            var memberRoom = m.getUserId().toString();
-            socketIOServer.getRoomOperations(memberRoom).sendEvent("new_message", response);
-            for (var client : socketIOServer.getRoomOperations(memberRoom).getClients()) {
-                client.joinRoom(conversation.getId().toString());
+        try {
+            var messageMap = objectMapper.convertValue(response, Map.class);
+            socketIOServer.getRoomOperations(conversation.getId().toString()).sendEvent("new_message", messageMap);
+            for (var m : conversation.getMembers()) {
+                var memberRoom = m.getUserId().toString();
+                socketIOServer.getRoomOperations(memberRoom).sendEvent("new_message", messageMap);
+                for (var client : socketIOServer.getRoomOperations(memberRoom).getClients()) {
+                    client.joinRoom(conversation.getId().toString());
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         conversation.getMembers().stream()
