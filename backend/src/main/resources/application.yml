@@ -5,27 +5,7 @@ spring:
     active: ${SPRING_PROFILE:dev}
   config:
     import: optional:file:.env[.properties]
-
-  # ==================== SERVER CONFIG ====================
-server:
-  port: ${PORT:8080}
-  servlet:
-    context-path: /api
-  tomcat:
-    threads:
-      max: 200
-      min-spare: 10
-    max-connections: 8192
-    accept-count: 100
-
-  # ==================== MULTIPART UPLOAD ====================
-  servlet:
-    multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
-
-  # ==================== DATASOURCE (PostgreSQL) ====================
-spring:
+    # ==================== DATASOURCE (PostgreSQL) ====================
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/fashion_db}
     username: ${DB_USERNAME:postgres}
@@ -115,6 +95,22 @@ spring:
       indent-output: ${INDENT_OUTPUT:false}
     deserialization:
       fail-on-unknown-properties: false
+
+  # ==================== SERVER CONFIG ====================
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+    # ==================== MULTIPART UPLOAD ====================
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    max-connections: 8192
+    accept-count: 100
 
 # ==================== LOGGING ====================
 logging:

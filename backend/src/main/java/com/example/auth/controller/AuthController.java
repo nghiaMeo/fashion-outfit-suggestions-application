@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  * Authentication Controller
@@ -58,12 +57,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(
             @RequestHeader("Authorization") String refreshToken) {
         log.info("Refresh token request");
-        
+
         // Extract token from "Bearer <token>" format
-        String token = refreshToken.startsWith("Bearer ") 
-                ? refreshToken.substring(7) 
+        String token = refreshToken.startsWith("Bearer ")
+                ? refreshToken.substring(7)
                 : refreshToken;
-        
+
         AuthResponse response = authService.refreshToken(token);
         return ResponseEntity
                 .ok(ApiResponse.success("Token refreshed successfully", response));
