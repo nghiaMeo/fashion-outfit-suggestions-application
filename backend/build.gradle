@@ -37,7 +37,7 @@ dependencies {
 
     // Database
     implementation 'org.postgresql:postgresql'
-    
+
     // Flyway for DB migrations
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'

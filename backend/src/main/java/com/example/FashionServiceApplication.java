@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Main Application Entry Point - Unified Monolithic Service
- * 
+ *
  * Modules:
  * - Auth Module (User authentication & authorization)
  * - Wardrobe Module (Item & Outfit management)
