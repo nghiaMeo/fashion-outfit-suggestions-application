@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    root: DEBUG
+    com.example: DEBUG
+    org.springframework: DEBUG
