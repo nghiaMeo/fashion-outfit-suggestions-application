@@ -59,7 +59,7 @@ public class SecurityConfig {
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                             ErrorResponse errorResponse = new ErrorResponse();
                             errorResponse.setCode(401);
-                            errorResponse.setMessage("Unauthenticated — Bạn cần phải đăng nhập trước khi thực hiện thao tác này");
+                            errorResponse.setMessage("Unauthenticated");
                             ObjectMapper mapper = new ObjectMapper();
                             mapper.registerModule(new JavaTimeModule());
                             response.getWriter().write(mapper.writeValueAsString(errorResponse));
