@@ -1,124 +1,64 @@
 package com.example.common.exception;
 
-import com.example.common.dto.ApiResponse;
+import com.example.common.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Global Exception Handler for all REST endpoints
- * Catches and handles exceptions uniformly across the application
- */
-@Slf4j
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle custom AppException
-     */
-    @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex, WebRequest request) {
-        ErrorCode errorCode = ex.getErrorCode();
-        log.warn("AppException: {} - {}", errorCode.getErrorCode(), ex.getMessage());
-
-        ApiResponse<?> response = ApiResponse.error(
-                errorCode.getCode(),
-                ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage()
-        );
-
-        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ErrorResponse> handlingRuntimeException(Exception exception) {
+        log.error("Exception: ", exception);
+        ErrorResponse apiResponse = new ErrorResponse();
+        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getHttpStatus()).body(apiResponse);
     }
 
-    /**
-     * Handle authentication exception
-     */
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse<?>> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
-        ErrorCode errorCode = ex.getErrorCode();
-        log.warn("AuthenticationException: {} - {}", errorCode.getErrorCode(), ex.getMessage());
-
-        ApiResponse<?> response = ApiResponse.error(
-                errorCode.getCode(),
-                ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage()
-        );
-
-        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    @ExceptionHandler(value = AppException.class)
+    ResponseEntity<ErrorResponse> handlingAppException(AppException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        ErrorResponse apiResponse = new ErrorResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 
-    /**
-     * Handle resource not found exception
-     */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        ErrorCode errorCode = ex.getErrorCode();
-        log.warn("ResourceNotFoundException: {} - {}", errorCode.getErrorCode(), ex.getMessage());
-
-        ApiResponse<?> response = ApiResponse.error(
-                errorCode.getCode(),
-                ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage()
-        );
-
-        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ErrorResponse> handlingValidation(MethodArgumentNotValidException exception) {
+        String message = exception.getFieldError() != null
+                ? exception.getFieldError().getDefaultMessage()
+                : "Validation failed";
+        ErrorResponse apiResponse = ErrorResponse.builder()
+                .code(ErrorCode.INVALID_KEY.getCode())
+                .message(message)
+                .build();
+        return ResponseEntity.status(ErrorCode.INVALID_KEY.getHttpStatus()).body(apiResponse);
     }
 
-    /**
-     * Handle validation exception (@Valid failed)
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
-        log.warn("MethodArgumentNotValidException: Validation failed");
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        ApiResponse<?> response = ApiResponse.error(
-                ErrorCode.VALIDATION_FAILED.getCode(),
-                "Validation failed",
-                errors
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(value = NoHandlerFoundException.class)
+    ResponseEntity<ErrorResponse> handlingNoHandlerFoundException(NoHandlerFoundException exception) {
+        log.warn("No handler found: {}", exception.getMessage());
+        return createErrorResponse(ErrorCode.ENDPOINT_NOT_FOUND);
     }
 
-    /**
-     * Handle generic exceptions
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex, WebRequest request) {
-        log.error("Unexpected exception occurred", ex);
-
-        ApiResponse<?> response = ApiResponse.error(
-                ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
-                "An unexpected error occurred: " + ex.getMessage()
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ErrorResponse> handlingMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+        log.warn("Method not supported: {}", exception.getMessage());
+        return createErrorResponse(ErrorCode.METHOD_NOT_ALLOWED);
     }
 
-    /**
-     * Handle IllegalArgumentException
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        log.warn("IllegalArgumentException: {}", ex.getMessage());
-
-        ApiResponse<?> response = ApiResponse.error(
-                ErrorCode.INVALID_INPUT.getCode(),
-                ex.getMessage() != null ? ex.getMessage() : ErrorCode.INVALID_INPUT.getMessage()
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ErrorResponse> createErrorResponse(ErrorCode errorCode) {
+        ErrorResponse apiResponse = new ErrorResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 }

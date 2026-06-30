@@ -1,64 +1,50 @@
 package com.example.common.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-/**
- * Centralized Error Code Enum
- * All API errors must use one of these codes for consistency
- */
 @Getter
-@AllArgsConstructor
 public enum ErrorCode {
-    // Authentication & Authorization
-    INVALID_CREDENTIALS(401, "ERR_INVALID_CREDENTIALS", "Email or password is incorrect", HttpStatus.UNAUTHORIZED),
-    TOKEN_EXPIRED(401, "ERR_TOKEN_EXPIRED", "Access token has expired", HttpStatus.UNAUTHORIZED),
-    TOKEN_INVALID(401, "ERR_TOKEN_INVALID", "Invalid or malformed token", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(403, "ERR_UNAUTHORIZED", "Unauthorized access", HttpStatus.FORBIDDEN),
-    
-    // User
-    USER_NOT_FOUND(404, "ERR_USER_NOT_FOUND", "User not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXISTS(409, "ERR_USER_ALREADY_EXISTS", "User with this email already exists", HttpStatus.CONFLICT),
-    USER_INACTIVE(400, "ERR_USER_INACTIVE", "User account is inactive", HttpStatus.BAD_REQUEST),
-    
-    // Validation
-    INVALID_INPUT(400, "ERR_INVALID_INPUT", "Invalid input provided", HttpStatus.BAD_REQUEST),
-    VALIDATION_FAILED(400, "ERR_VALIDATION_FAILED", "Validation failed", HttpStatus.BAD_REQUEST),
-    MISSING_REQUIRED_FIELD(400, "ERR_MISSING_REQUIRED_FIELD", "Required field is missing", HttpStatus.BAD_REQUEST),
-    
-    // Wardrobe
-    ITEM_NOT_FOUND(404, "ERR_ITEM_NOT_FOUND", "Item not found", HttpStatus.NOT_FOUND),
-    OUTFIT_NOT_FOUND(404, "ERR_OUTFIT_NOT_FOUND", "Outfit not found", HttpStatus.NOT_FOUND),
-    INVALID_ITEM_TYPE(400, "ERR_INVALID_ITEM_TYPE", "Invalid item type", HttpStatus.BAD_REQUEST),
-    DUPLICATE_ITEM(409, "ERR_DUPLICATE_ITEM", "This item already exists", HttpStatus.CONFLICT),
-    
-    // Social
-    FRIENDSHIP_NOT_FOUND(404, "ERR_FRIENDSHIP_NOT_FOUND", "Friendship request not found", HttpStatus.NOT_FOUND),
-    ALREADY_FRIENDS(409, "ERR_ALREADY_FRIENDS", "Already friends with this user", HttpStatus.CONFLICT),
-    FRIENDSHIP_PENDING(409, "ERR_FRIENDSHIP_PENDING", "Friendship request already pending", HttpStatus.CONFLICT),
-    CANNOT_FRIEND_SELF(400, "ERR_CANNOT_FRIEND_SELF", "Cannot send friend request to yourself", HttpStatus.BAD_REQUEST),
-    
-    // Chat & Messaging
-    MESSAGE_NOT_FOUND(404, "ERR_MESSAGE_NOT_FOUND", "Message not found", HttpStatus.NOT_FOUND),
-    CONVERSATION_NOT_FOUND(404, "ERR_CONVERSATION_NOT_FOUND", "Conversation not found", HttpStatus.NOT_FOUND),
-    
-    // File Upload
-    FILE_UPLOAD_FAILED(400, "ERR_FILE_UPLOAD_FAILED", "File upload failed", HttpStatus.BAD_REQUEST),
-    INVALID_FILE_TYPE(400, "ERR_INVALID_FILE_TYPE", "Invalid file type", HttpStatus.BAD_REQUEST),
-    FILE_SIZE_EXCEEDED(400, "ERR_FILE_SIZE_EXCEEDED", "File size exceeds maximum allowed", HttpStatus.BAD_REQUEST),
-    
-    // Notification
-    NOTIFICATION_NOT_FOUND(404, "ERR_NOTIFICATION_NOT_FOUND", "Notification not found", HttpStatus.NOT_FOUND),
-    
-    // System
-    INTERNAL_SERVER_ERROR(500, "ERR_INTERNAL_SERVER_ERROR", "An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR),
-    DATABASE_ERROR(500, "ERR_DATABASE_ERROR", "Database operation failed", HttpStatus.INTERNAL_SERVER_ERROR),
-    EXTERNAL_API_ERROR(502, "ERR_EXTERNAL_API_ERROR", "External API request failed", HttpStatus.BAD_GATEWAY),
-    SERVICE_UNAVAILABLE(503, "ERR_SERVICE_UNAVAILABLE", "Service is temporarily unavailable", HttpStatus.SERVICE_UNAVAILABLE);
+    UNCATEGORIZED_EXCEPTION(500, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_KEY(400, "Invalid request field", HttpStatus.BAD_REQUEST),
+    USER_EXISTED(400, "User already existed", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(400, "Email already existed", HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTED(400, "Username already existed", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(404, "User is not found", HttpStatus.NOT_FOUND),
+    CONVERSATION_NOT_FOUND(404, "Conversation is not found", HttpStatus.NOT_FOUND),
+    NOTIFICATION_NOT_FOUND(404, "Notification is not found", HttpStatus.NOT_FOUND),
+    UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    CANNOT_FRIEND_SELF(400, "Cannot send friend request to yourself", HttpStatus.BAD_REQUEST),
+    FRIEND_REQUEST_ALREADY_SENT(400, "Friend request already sent", HttpStatus.BAD_REQUEST),
+    FRIEND_REQUEST_NOT_FOUND(400, "Friend request not found", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(403, "You do not have permission", HttpStatus.FORBIDDEN),
+    OUTFIT_NOT_FOUND(404, "Outfit is not found", HttpStatus.NOT_FOUND),
+    OUTFIT_PRIVATE(401, "Outfit is private", HttpStatus.UNAUTHORIZED),
+    ITEM_NOT_FOUND(404, "Item is not found", HttpStatus.NOT_FOUND),
+    ENDPOINT_NOT_FOUND(404, "Endpoint not found", HttpStatus.NOT_FOUND),
+    METHOD_NOT_ALLOWED(405, "HTTP method not allowed", HttpStatus.METHOD_NOT_ALLOWED),
+    UNSUPPORTED_MEDIA_TYPE(415, "Unsupported media type", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
+    MALFORMED_REQUEST_BODY(400, "Malformed request body", HttpStatus.BAD_REQUEST),
+    MISSING_REQUEST_PARAMETER(400, "Missing required request parameter", HttpStatus.BAD_REQUEST),
+    TYPE_MISMATCH(400, "Argument type mismatch", HttpStatus.BAD_REQUEST),
+    INVALID_CREDENTIALS(401, "Invalid email or password", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_EXPIRED(401, "Refresh token has expired", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_NOT_FOUND(404, "Refresh token is not found", HttpStatus.NOT_FOUND),
+    OAUTH2_INVALID_TOKEN(401, "Invalid OAuth2 token", HttpStatus.UNAUTHORIZED),
+    WRONG_PASSWORD(400, "Old password is incorrect", HttpStatus.BAD_REQUEST),
+    OTP_EXPIRED(400, "OTP has expired or does not exist", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(400, "OTP is incorrect", HttpStatus.BAD_REQUEST),
+    OTP_RATE_LIMITED(429, "Please wait 1 minute before requesting a new OTP", HttpStatus.TOO_MANY_REQUESTS),
+    RATE_LIMITED(429, "Too many requests, please try again later", HttpStatus.TOO_MANY_REQUESTS),
+    ACCOUNT_LOCKED(423, "Account is temporarily locked due to too many failed login attempts", HttpStatus.LOCKED);
 
     private final int code;
-    private final String errorCode;
     private final String message;
     private final HttpStatus httpStatus;
+
+    ErrorCode(int code, String message, HttpStatus httpStatus) {
+        this.code = code;
+        this.message = message;
+        this.httpStatus = httpStatus;
+    }
 }

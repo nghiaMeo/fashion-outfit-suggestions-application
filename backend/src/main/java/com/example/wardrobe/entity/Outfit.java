@@ -1,77 +1,69 @@
 package com.example.wardrobe.entity;
 
-import com.example.common.dto.BaseEntity;
-import com.example.auth.entity.User;
-import lombok.*;
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Outfit Entity
- * Represents a combination of wardrobe items that form an outfit
- */
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 @Entity
-@Table(name = "outfits", indexes = {
-    @Index(name = "idx_user_id", columnList = "user_id"),
-    @Index(name = "idx_occasion", columnList = "occasion")
-})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Outfit extends BaseEntity {
+public class Outfit {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
-    @Column(name = "occasion")
     private String occasion;
 
-    @Column(name = "season")
-    private String season;
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean DEFAULT false")
+    private boolean isFavorite = false;
 
-    @Column(name = "preview_image_url")
-    private String previewImageUrl;
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean DEFAULT false")
+    private boolean isAiGenerated = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "double precision DEFAULT 0.0")
+    private double score = 0.0;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean DEFAULT false")
+    private boolean isDailySuggestion = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean DEFAULT true")
+    private boolean isPublic = true;
+
+    private String suitableWeather;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean DEFAULT false")
+    private boolean isDeleted = false;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "outfit_items",
-        joinColumns = @JoinColumn(name = "outfit_id"),
-        inverseJoinColumns = @JoinColumn(name = "item_id")
+            name = "outfit_items",
+            joinColumns = @JoinColumn(name = "outfit_id"),
+            inverseJoinColumns = @JoinColumn(name = "item_id")
     )
+    private List<Item> items;
+
     @Builder.Default
-    private Set<WardrobeItem> items = new HashSet<>();
-
-    @Column(name = "rating")
-    private Double rating;
-
-    @Column(name = "is_favorite", nullable = false)
-    private boolean favorite;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        favorite = false;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private Instant createdAt = Instant.now();
 }
