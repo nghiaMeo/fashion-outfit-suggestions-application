@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/social/outfits")
+@RequestMapping("/social/outfits")
 @RequiredArgsConstructor
 public class OutfitLikeController {
     private final OutfitLikeService outfitLikeService;

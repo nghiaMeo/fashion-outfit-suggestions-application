@@ -1,6 +1,7 @@
 package com.example.common.security;
 
 import com.example.auth.service.JwtService;
+import com.example.common.security.StompUserPrincipal;
 import com.example.user.entity.User;
 import com.example.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     String email = jwtService.extractEmail(token);
                     User user = userRepository.findByEmail(email).orElse(null);
                     if (user != null && jwtService.isTokenValid(token, user)) {
+                        var stompPrincipal = new StompUserPrincipal(user.getId(), user);
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                user, null,
+                                stompPrincipal, null,
                                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                         );
                         accessor.setUser(auth);

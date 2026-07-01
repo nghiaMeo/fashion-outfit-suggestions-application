@@ -33,16 +33,26 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/register",
-            "/api/auth/login",
-            "/api/auth/oauth2/**",
-            "/api/outfits/public/**",
-            "/api/auth/forgot-password",
-            "/api/auth/reset-password",
-            "/api/chat/debug",
+            // Auth endpoints (no /api prefix - Spring Security 6 matches AFTER context-path is stripped)
+            "/auth/register",
+            "/auth/login",
+            "/auth/oauth2/**",
+            "/auth/forgot-password",
+            "/auth/reset-password",
+            "/auth/refresh-token",
+            // Public content
+            "/outfits/public/**",
+            // WebSocket endpoints
+            "/ws/**",
+            "/ws-native/**",
+            // Spring error page
+            "/error",
+            // API docs
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            // Actuator health check (optional)
+            "/actuator/health"
     };
 
     @Bean

@@ -101,16 +101,16 @@ server:
     accept-count: 100
 
 # ==================== LOGGING ====================
-logging:
-  level:
-    root: ${LOG_LEVEL:INFO}
-    com.example: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+#logging:
+#  level:
+#    root: ${LOG_LEVEL:INFO}
+#    com.example: DEBUG
+#    org.springframework.security: DEBUG
+#    org.springframework.web: DEBUG
+#    org.hibernate.SQL: DEBUG
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+#    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 # ==================== JWT CONFIG ====================
 jwt:

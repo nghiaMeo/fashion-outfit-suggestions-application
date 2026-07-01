@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
@@ -35,7 +35,7 @@ public class NotificationController {
     public ApiResponse<String> markAsRead(@PathVariable UUID notificationId) {
         notificationService.markAsRead(notificationId);
         return ApiResponse.<String>builder()
-                .result("Đã đánh dấu thông báo là đã đọc")
+                .result("all marked notification as read")
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class NotificationController {
     public ApiResponse<String> markAllAsRead() {
         notificationService.markAllAsRead();
         return ApiResponse.<String>builder()
-                .result("Đã đánh dấu tất cả thông báo là đã đọc")
+                .result("All marked message as read")
                 .build();
     }
 
