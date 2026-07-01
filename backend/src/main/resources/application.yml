@@ -59,18 +59,6 @@ spring:
       - outfit_feed
       - search_results
 
-  # ==================== MESSAGE BROKER (RabbitMQ) ====================
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASS:guest}
-    virtual-host: /
-    listener:
-      simple:
-        concurrency: 10
-        max-concurrency: 20
-
   # ==================== MAIL CONFIG ====================
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}

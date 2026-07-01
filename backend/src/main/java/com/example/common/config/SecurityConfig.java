@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 
 @Configuration
