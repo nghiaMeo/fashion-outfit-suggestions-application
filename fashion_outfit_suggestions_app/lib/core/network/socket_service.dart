@@ -1,17 +1,24 @@
+import 'dart:convert';
+
 import 'package:fashion_outfit_suggestions_app/config/env_config.dart';
 import 'package:fashion_outfit_suggestions_app/core/storage/token_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketService extends GetxService {
   final TokenStorage _tokenStorage = Get.find<TokenStorage>();
-  io.Socket? _socket;
+  StompClient? _stompClient;
 
   final isConnected = false.obs;
 
   final List<void Function(Map<String, dynamic> data)> _messageListeners = [];
   final List<void Function(Map<String, dynamic> data)> _typingListeners = [];
+
+  final Set<String> _joinedRooms = {};
+  final Map<String, StompUnsubscribe> _messageSubscriptions = {};
+  final Map<String, StompUnsubscribe> _typingSubscriptions = {};
+  StompUnsubscribe? _userMessageSubscription;
 
   Future<SocketService> init() async {
     if (_tokenStorage.hasSession) {
@@ -21,93 +28,125 @@ class SocketService extends GetxService {
   }
 
   void connect() {
-    if (_socket != null && _socket!.connected) return;
+    if (_stompClient?.connected == true) return;
 
     final token = _tokenStorage.accessToken;
     if (token == null || token.isEmpty) return;
 
-    final url = EnvConfig.socialSocketUrl;
-
-    // 1. Khởi tạo đối tượng Socket trước
-    _socket = io.io(
-      url,
-      io.OptionBuilder()
-          .setTransports(['websocket'])
-          .disableAutoConnect()
-          .setQuery({'token': token})
-          .build(),
+    _stompClient?.deactivate();
+    _stompClient = StompClient(
+      config: StompConfig(
+        url: EnvConfig.webSocketUrl,
+        onConnect: _onStompConnect,
+        onDisconnect: (_) {
+          isConnected.value = false;
+          debugPrint('>>> STOMP DISCONNECTED');
+        },
+        onWebSocketError: (error) {
+          debugPrint('>>> WEBSOCKET ERROR: $error');
+        },
+        onStompError: (frame) {
+          debugPrint('>>> STOMP ERROR: ${frame.body}');
+        },
+        stompConnectHeaders: {'Authorization': 'Bearer $token'},
+        webSocketConnectHeaders: {'Authorization': 'Bearer $token'},
+        reconnectDelay: const Duration(seconds: 3),
+      ),
     );
 
-    _socket!.onConnect((_) {
-      isConnected.value = true;
-      debugPrint(
-        '>>> SOCKET CONNECTED SUCCESSFULLY!',
-      ); // In log khi kết nối thành công
-    });
-
-    _socket!.onDisconnect((_) {
-      isConnected.value = false;
-      debugPrint('>>> SOCKET DISCONNECTED!'); // In log khi ngắt kết nối
-    });
-
-    // Bổ sung lắng nghe lỗi kết nối
-    _socket!.onConnectError((data) {
-      debugPrint('>>> SOCKET CONNECT ERROR: $data');
-    });
-
-    _socket!.onError((data) {
-      debugPrint('>>> SOCKET ERROR: $data');
-    });
-
-    _socket!.on('new_message', (data) {
-      if (data is Map) {
-        final mapData = Map<String, dynamic>.from(data);
-        for (var listener in _messageListeners) {
-          listener(mapData);
-        }
-      }
-    });
-
-    _socket!.on('typing', (data) {
-      if (data is Map) {
-        final mapData = Map<String, dynamic>.from(data);
-        for (var listener in _typingListeners) {
-          listener({...mapData, 'isTyping': true});
-        }
-      }
-    });
-
-    _socket!.on('stop_typing', (data) {
-      if (data is Map) {
-        final mapData = Map<String, dynamic>.from(data);
-        for (var listeners in _typingListeners) {
-          listeners({...mapData, 'isTyping': false});
-        }
-      }
-    });
-
-    _socket!.connect();
+    _stompClient!.activate();
   }
 
-  void disconnect() {
-    if (_socket != null) {
-      _socket!.disconnect();
-      _socket!.close();
-      _socket = null;
-      isConnected.value = false;
+  void _onStompConnect(StompFrame frame) {
+    isConnected.value = true;
+    debugPrint('>>> STOMP CONNECTED SUCCESSFULLY');
+
+    _userMessageSubscription?.call();
+    _userMessageSubscription = _stompClient!.subscribe(
+      destination: '/user/queue/messages',
+      callback: _handleMessageFrame,
+    );
+
+    for (final conversationId in _joinedRooms) {
+      _subscribeToConversation(conversationId);
     }
   }
 
+  void _handleMessageFrame(StompFrame frame) {
+    final body = frame.body;
+    if (body == null || body.isEmpty) return;
+
+    try {
+      final data = Map<String, dynamic>.from(jsonDecode(body) as Map);
+      for (final listener in _messageListeners) {
+        listener(data);
+      }
+    } catch (e) {
+      debugPrint('>>> STOMP MESSAGE PARSE ERROR: $e');
+    }
+  }
+
+  void _handleTypingFrame(StompFrame frame) {
+    final body = frame.body;
+    if (body == null || body.isEmpty) return;
+
+    try {
+      final data = Map<String, dynamic>.from(jsonDecode(body) as Map);
+      final isTyping = data['isTyping'] ?? data['typing'] ?? true;
+      for (final listener in _typingListeners) {
+        listener({...data, 'isTyping': isTyping});
+      }
+    } catch (e) {
+      debugPrint('>>> STOMP TYPING PARSE ERROR: $e');
+    }
+  }
+
+  void disconnect() {
+    _userMessageSubscription?.call();
+    _userMessageSubscription = null;
+
+    for (final unsubscribe in _messageSubscriptions.values) {
+      unsubscribe();
+    }
+    for (final unsubscribe in _typingSubscriptions.values) {
+      unsubscribe();
+    }
+    _messageSubscriptions.clear();
+    _typingSubscriptions.clear();
+
+    _stompClient?.deactivate();
+    _stompClient = null;
+    isConnected.value = false;
+  }
+
   void joinRoom(String conversationId) {
-    if (_socket != null && _socket!.connected) {
-      _socket!.emit('join_room', conversationId);
+    _joinedRooms.add(conversationId);
+    if (_stompClient?.connected == true) {
+      _subscribeToConversation(conversationId);
     }
   }
 
   void leaveRoom(String conversationId) {
-    if (_socket != null && _socket!.connected) {
-      _socket!.emit('leave_room', conversationId);
-    }
+    _joinedRooms.remove(conversationId);
+    _messageSubscriptions.remove(conversationId)?.call();
+    _typingSubscriptions.remove(conversationId)?.call();
+  }
+
+  void _subscribeToConversation(String conversationId) {
+    if (_stompClient?.connected != true) return;
+
+    _messageSubscriptions.remove(conversationId)?.call();
+    _typingSubscriptions.remove(conversationId)?.call();
+
+    _messageSubscriptions[conversationId] = _stompClient!.subscribe(
+      destination: '/topic/conversations.$conversationId',
+      callback: _handleMessageFrame,
+    );
+
+    _typingSubscriptions[conversationId] = _stompClient!.subscribe(
+      destination: '/topic/conversations.$conversationId.typing',
+      callback: _handleTypingFrame,
+    );
   }
 
   void addMessageListener(void Function(Map<String, dynamic> data) listener) {
@@ -129,10 +168,14 @@ class SocketService extends GetxService {
   }
 
   void sendTypingStatus(String conversationId, bool isTyping) {
-    if (_socket != null && _socket!.connected) {
-      _socket!.emit(isTyping ? 'typing' : 'stop_typing', {
+    if (_stompClient?.connected != true) return;
+
+    _stompClient!.send(
+      destination: '/app/chat.typing',
+      body: jsonEncode({
         'conversationId': conversationId,
-      });
-    }
+        'typing': isTyping,
+      }),
+    );
   }
 }

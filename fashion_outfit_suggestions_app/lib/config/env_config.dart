@@ -14,8 +14,10 @@ class EnvConfig {
     return 'http://localhost:8080';
   }
 
-  static String get socialSocketUrl {
+  static String get webSocketUrl {
     final uri = Uri.parse(apiBaseUrl);
-    return 'http://${uri.host}:9002';
+    final scheme = uri.scheme == 'https' ? 'wss' : 'ws';
+    final port = uri.hasPort ? uri.port : (uri.scheme == 'https' ? 443 : 80);
+    return '$scheme://${uri.host}:$port/api/ws-native';
   }
 }
