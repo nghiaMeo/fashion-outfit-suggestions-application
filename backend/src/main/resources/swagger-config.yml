@@ -1,0 +1,45 @@
+# Swagger/SpringDoc OpenAPI Configuration
+
+springdoc:
+  # API Documentation Path
+  api-docs:
+    path: /api-docs
+    enabled: true
+  
+  # Swagger UI Configuration
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    
+    # UI Settings
+    operationsSorter: method          # Sort operations by HTTP method
+    tagsSorter: alpha                 # Sort tags alphabetically
+    tryItOutEnabled: true             # Enable "Try it out" button
+    deepLinking: true                 # Enable deep linking
+    showExtensions: true              # Show extensions
+    
+    # Syntax Highlighting
+    syntaxHighlight:
+      activate: true
+      theme: monokai                  # Options: monokai, atom, tomorrow, idea
+    
+    # Display Options
+    displayOperationId: false
+    displayRequestDuration: true
+    filter: true
+    showCommonExtensions: true
+  
+  # Actuator Endpoints in Swagger
+  show-actuator: true
+  
+  # Use Fully Qualified Names
+  use-fqn: true
+  
+  # Groups Configuration (for multiple APIs)
+  groups:
+    enabled: false
+
+# Logging for Swagger
+logging:
+  level:
+    springdoc: INFO

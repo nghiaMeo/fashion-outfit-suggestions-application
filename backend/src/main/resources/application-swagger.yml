@@ -1,0 +1,17 @@
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    deepLinking: true
+    showExtensions: true
+    syntaxHighlight:
+      activate: true
+      theme: monokai
+  show-actuator: true
+  use-fqn: true
