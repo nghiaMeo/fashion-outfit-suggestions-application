@@ -19,10 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-/**
- * Authentication Controller
- * Handles user authentication, registration, OAuth2, and token management
- */
+
 @Slf4j
 @RestController
 @RequestMapping("/auth")

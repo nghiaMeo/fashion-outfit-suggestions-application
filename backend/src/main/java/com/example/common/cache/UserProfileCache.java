@@ -67,7 +67,7 @@ public class UserProfileCache {
         try {
             var profiles = userService.getUsersProfiles(List.of(userId));
             if (profiles != null && !profiles.isEmpty()) {
-                var profile = profiles.get(0);
+                var profile = profiles.getFirst();
                 if (cache != null) {
                     cache.put(userId, profile);
                 }

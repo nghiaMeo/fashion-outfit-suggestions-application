@@ -1,6 +1,6 @@
 # Fashion Outfit Suggestions - Backend Service
 
-## 🎯 Project Overview
+## Project Overview
 
 A Spring Boot microservice backend for a fashion outfit suggestion application. Users can:
 - Build and manage their digital wardrobe
@@ -12,7 +12,7 @@ A Spring Boot microservice backend for a fashion outfit suggestion application. 
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Java 21+
@@ -38,11 +38,11 @@ docker-compose up -d
 ./gradlew bootRun
 ```
 
-📖 **For detailed setup:** See [SETUP.md](../SETUP.md)
+ **For detailed setup:** See [SETUP.md](../SETUP.md)
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/main/java/com/example/
@@ -90,7 +90,7 @@ src/main/java/com/example/
 
 ---
 
-## 🔑 Key Features
+##  Key Features
 
 ### Authentication & Security
 - ✅ JWT-based authentication
@@ -129,7 +129,7 @@ src/main/java/com/example/
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 | Component | Technology | Version |
 |-----------|-----------|----------|
@@ -149,7 +149,7 @@ src/main/java/com/example/
 
 ---
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Authentication
 ```
@@ -228,7 +228,7 @@ POST   /api/users/avatar            Upload avatar
 
 ---
 
-## 🔐 Security
+##  Security
 
 ### JWT Configuration
 - **Algorithm:** HS512
@@ -246,7 +246,7 @@ POST   /api/users/avatar            Upload avatar
 
 ---
 
-## 🗄️ Database Schema
+## ️ Database Schema
 
 ### Main Tables
 - `users` - User accounts with OAuth2 support
@@ -260,11 +260,11 @@ POST   /api/users/avatar            Upload avatar
 - `refresh_tokens` - Token management
 - `password_reset_otp` - OTP for password reset
 
-📊 **See Flyway migrations:** `src/main/resources/db/migration/`
+ **See Flyway migrations:** `src/main/resources/db/migration/`
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all tests
@@ -279,7 +279,7 @@ POST   /api/users/avatar            Upload avatar
 
 ---
 
-## 📦 Building & Deployment
+##  Building & Deployment
 
 ### Build JAR
 ```bash
@@ -301,7 +301,7 @@ java -jar fashion-outfit-service-1.0.0.jar \
 
 ---
 
-## 🔧 Configuration Files
+##  Configuration Files
 
 | File | Purpose |
 |------|----------|
@@ -314,7 +314,7 @@ java -jar fashion-outfit-service-1.0.0.jar \
 
 ---
 
-## 📝 Environment Variables
+##  Environment Variables
 
 See `.env.example` for all available variables:
 
@@ -339,7 +339,7 @@ MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -367,12 +367,12 @@ MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
-- 📖 [Setup Guide](../SETUP.md)
-- 📋 [API Collection](api_collection.md)
-- 🏗️ [System Architecture](he_thong_va_luong_du_lieu.md)
-- 🔄 [Database Schema](src/main/resources/db/migration/V1__initial_schema.sql)
+-  [Setup Guide](../SETUP.md)
+-  [API Collection](api_collection.md)
+-  [System Architecture](he_thong_va_luong_du_lieu.md)
+-  [Database Schema](src/main/resources/db/migration/V1__initial_schema.sql)
 
 ---
 
@@ -385,16 +385,16 @@ MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License.
 
 ---
 
-## 📞 Support
+##  Support
 
 For issues and questions:
-- 📧 Email: support@example.com
+- 📧 Email: nghia181032@gmail.com
 - 🐛 GitHub Issues: [Create Issue](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/discussions)
 

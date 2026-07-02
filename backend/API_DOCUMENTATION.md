@@ -16,7 +16,7 @@ URL: https://your-domain.com/api/swagger-ui.html
 
 ---
 
-## 🔐 Authentication in Swagger
+## Authentication in Swagger
 
 1. **Register/Login** first to get JWT token
 2. Click **"Authorize"** button at top-right
@@ -29,7 +29,7 @@ URL: https://your-domain.com/api/swagger-ui.html
 
 ---
 
-## 📚 API Endpoint Categories
+## API Endpoint Categories
 
 ### 1. Authentication (Public)
 ```
@@ -162,7 +162,7 @@ POST   /api/users/avatar            - Upload avatar
 
 ---
 
-## 🔍 Response Format
+##  Response Format
 
 All endpoints return consistent JSON format:
 
@@ -211,7 +211,7 @@ In `OpenApiConfig.java`:
 
 ---
 
-## 📱 Mobile / External Client Integration
+## Mobile / External Client Integration
 
 ### Get OpenAPI JSON
 ```bash
@@ -229,7 +229,7 @@ npx @openapitools/openapi-generator-cli generate \
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Swagger not showing
 ```bash
@@ -256,7 +256,7 @@ echo $SPRING_PROFILE  # Should be dev (not prod)
 
 ---
 
-## 📚 Resources
+## Resources
 
 - [SpringDoc OpenAPI Official Docs](https://springdoc.org/)
 - [OpenAPI 3.0 Specification](https://swagger.io/specification/)
