@@ -1,6 +1,6 @@
 # Fashion Outfit Suggestions - Backend Service
 
-## 🎯 Project Overview
+## Project Overview
 
 A Spring Boot microservice backend for a fashion outfit suggestion application. Users can:
 - Build and manage their digital wardrobe
@@ -12,7 +12,7 @@ A Spring Boot microservice backend for a fashion outfit suggestion application. 
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - **Java 21+** ([Download](https://www.oracle.com/java/technologies/downloads/#java21))
@@ -39,13 +39,13 @@ docker-compose up -d
 ./gradlew bootRun
 ```
 
-✅ **Application running at:** `http://localhost:8080/api`  
-📖 **For detailed setup:** See [SETUP.md](../SETUP.md)  
-📚 **API Documentation:** `http://localhost:8080/api/swagger-ui.html`
+**Application running at:** `http://localhost:8080/api`  
+**For detailed setup:** See [SETUP.md](../SETUP.md)   
+**API Documentation:** `http://localhost:8080/api/swagger-ui.html`
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/main/java/com/example/
@@ -101,9 +101,9 @@ src/main/resources/
 
 ---
 
-## 🔑 Key Features
+## Key Features
 
-### 🔐 Authentication & Security
+###  Authentication & Security
 - ✅ **JWT-based authentication** (HS512, 24hr expiry)
 - ✅ **OAuth2 Google login** (auto account creation)
 - ✅ **Password reset with OTP** (email-based)
@@ -112,7 +112,7 @@ src/main/resources/
 - ✅ **Secure password hashing** (BCrypt 10 rounds)
 - ✅ **CORS enabled** for web/mobile clients
 
-### 👕 Wardrobe Management
+###  Wardrobe Management
 - ✅ **Add/Edit/Delete** wardrobe items
 - ✅ **Soft delete** with trash recovery
 - ✅ **Item categorization** (Top, Bottom, Dress, Shoes, etc.)
@@ -121,7 +121,7 @@ src/main/resources/
 - ✅ **Wardrobe statistics** (total items, by type, etc.)
 - ✅ **Condition tracking** (New, Like New, Good, Fair, Poor)
 
-### 🎭 Outfit Creation & Management
+###  Outfit Creation & Management
 - ✅ **Combine items** into outfits
 - ✅ **Rate and favorite** outfits
 - ✅ **Privacy settings** (public/private)
@@ -130,14 +130,14 @@ src/main/resources/
 - ✅ **Home feed** with personalized recommendations
 - ✅ **Outfit search** and filtering
 
-### 👥 Social Features
+###  Social Features
 - ✅ **Friend management** (requests, accept/decline, remove)
 - ✅ **Real-time chat** (WebSocket)
 - ✅ **Outfit sharing** in messages
 - ✅ **Friend profiles** & statistics
 - ✅ **Pending friend requests** tracking
 
-### 🔔 Notifications
+###  Notifications
 - ✅ **Real-time notifications** (WebSocket)
 - ✅ **Firebase push notifications** (mobile)
 - ✅ **Mark as read/unread**
@@ -146,7 +146,7 @@ src/main/resources/
 
 ---
 
-## 🛠 Technology Stack
+##  Technology Stack
 
 | Layer | Technology | Version | Purpose |
 |-------|-----------|---------|----------|
@@ -168,25 +168,25 @@ src/main/resources/
 
 ---
 
-## 📚 API Documentation
+##  API Documentation
 
-### 🌐 Access Swagger UI
+###  Access Swagger UI
 ```
 Local:      http://localhost:8080/api/swagger-ui.html
 JSON:       http://localhost:8080/api/v3/api-docs
 YAML:       http://localhost:8080/api/v3/api-docs.yaml
 ```
 
-### 🔐 Authentication in Swagger
+###  Authentication in Swagger
 1. Login to get JWT token
 2. Click **"Authorize"** button (top-right)
 3. Enter: `Bearer <your-jwt-token>`
 4. Click **"Authorize"** to apply to all requests
 
-### 📋 API Endpoints Summary
+###  API Endpoints Summary
 
 ```
-🔐 Authentication (7 endpoints)
+ Authentication (7 endpoints)
   POST   /api/auth/register
   POST   /api/auth/login
   POST   /api/auth/oauth2/google
@@ -195,7 +195,7 @@ YAML:       http://localhost:8080/api/v3/api-docs.yaml
   POST   /api/auth/forgot-password
   POST   /api/auth/reset-password
 
-👕 Wardrobe Items (9 endpoints)
+ Wardrobe Items (9 endpoints)
   GET    /api/items/all-items
   GET    /api/items/search-items
   GET    /api/items/statistics
@@ -206,7 +206,7 @@ YAML:       http://localhost:8080/api/v3/api-docs.yaml
   POST   /api/items/restore/{id}
   DELETE /api/items/hard-delete/{id}
 
-🎭 Outfits (10 endpoints)
+ Outfits (10 endpoints)
   GET    /api/outfits/all-outfit
   GET    /api/outfits/{id}
   GET    /api/outfits/public/{id}
@@ -219,7 +219,7 @@ YAML:       http://localhost:8080/api/v3/api-docs.yaml
   PATCH  /api/outfits/{id}/visibility
   POST   /api/outfits/{id}/like
 
-👥 Social - Friends (6 endpoints)
+ Social - Friends (6 endpoints)
   GET    /api/friends/list
   GET    /api/friends/pending
   POST   /api/friends/request/{id}
@@ -227,31 +227,31 @@ YAML:       http://localhost:8080/api/v3/api-docs.yaml
   DELETE /api/friends/decline/{id}
   DELETE /api/friends/{id}
 
-💬 Social - Chat (4 endpoints)
+ Social - Chat (4 endpoints)
   GET    /api/chat/conversations
   GET    /api/chat/{conversationId}/messages
   POST   /api/chat/send
   POST   /api/chat/create/{friendId}
 
-🔔 Notifications (5 endpoints)
+ Notifications (5 endpoints)
   GET    /api/notifications
   GET    /api/notifications/unread
   POST   /api/notifications/{id}/read
   POST   /api/notifications/read-all
   DELETE /api/notifications/{id}
 
-👤 User Profile (4 endpoints)
+ User Profile (4 endpoints)
   GET    /api/users/{id}
   GET    /api/users/me
   PUT    /api/users/me
   POST   /api/users/avatar
 ```
 
-📄 **Full details:** See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+ **Full details:** See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
 
 ---
 
-## 🔐 Security Configuration
+##  Security Configuration
 
 ### JWT Configuration
 ```yaml
@@ -290,7 +290,7 @@ POST   /api/auth/reset-password
 
 ---
 
-## 🗄️ Database Schema
+##  Database Schema
 
 ### Core Tables (15 total)
 
@@ -317,11 +317,11 @@ POST   /api/auth/reset-password
 
 **Indexes:** 30+ indexes for optimal query performance
 
-📊 **View full schema:** `src/main/resources/db/migration/V1__initial_schema.sql`
+ **View full schema:** `src/main/resources/db/migration/V1__initial_schema.sql`
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all tests
@@ -340,7 +340,7 @@ POST   /api/auth/reset-password
 
 ---
 
-## 📦 Building & Deployment
+##  Building & Deployment
 
 ### Build JAR
 ```bash
@@ -382,7 +382,7 @@ docker-compose down
 
 ---
 
-## 🔧 Configuration Files
+##  Configuration Files
 
 | File | Environment | Purpose |
 |------|-------------|----------|
@@ -396,7 +396,7 @@ docker-compose down
 
 ---
 
-## 📝 Environment Variables
+##  Environment Variables
 
 See `.env.example` for complete list:
 
@@ -430,8 +430,7 @@ MAIL_PASSWORD=app-password
 
 ---
 
-## 🐛 Troubleshooting
-
+##  Troubleshooting
 ### Database Connection Failed
 ```bash
 # Check PostgreSQL is running
@@ -493,18 +492,18 @@ java -version  # Should be 21+
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
-- 📖 **[Setup Guide](../SETUP.md)** - Detailed installation & setup
-- 📄 **[API Documentation](API_DOCUMENTATION.md)** - Complete API guide
-- 📋 **[API Collection](api_collection.md)** - Postman collection
-- 🏗️ **[System Architecture](he_thong_va_luong_du_lieu.md)** - System design
-- 🔄 **[Database Schema](src/main/resources/db/migration/V1__initial_schema.sql)** - SQL schema
-- 🌐 **[Swagger UI](http://localhost:8080/api/swagger-ui.html)** - Interactive docs (when running)
+-  **[Setup Guide](../SETUP.md)** - Detailed installation & setup
+-  **[API Documentation](API_DOCUMENTATION.md)** - Complete API guide
+-  **[API Collection](api_collection.md)** - Postman collection
+-  **[System Architecture](he_thong_va_luong_du_lieu.md)** - System design
+-  **[Database Schema](src/main/resources/db/migration/V1__initial_schema.sql)** - SQL schema
+-  **[Swagger UI](http://localhost:8080/api/swagger-ui.html)** - Interactive docs (when running)
 
 ---
 
-## 👥 Contributing
+##  Contributing
 
 1. **Create feature branch:**
    ```bash
@@ -525,24 +524,24 @@ java -version  # Should be 21+
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the **MIT License** - see LICENSE file for details.
 
 ---
 
-## 📞 Support & Contact
+##  Support & Contact
 
 For issues, questions, or suggestions:
 
-- 🐛 **Report Issue:** [GitHub Issues](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/issues)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/discussions)
-- 📧 **Email:** support@example.com
-- 🌐 **Repository:** [GitHub](https://github.com/nghiaMeo/fashion-outfit-suggestions-application)
+-  **Report Issue:** [GitHub Issues](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/issues)
+-  **Discussions:** [GitHub Discussions](https://github.com/nghiaMeo/fashion-outfit-suggestions-application/discussions)
+-  **Email:** support@example.com
+-  **Repository:** [GitHub](https://github.com/nghiaMeo/fashion-outfit-suggestions-application)
 
 ---
 
-## 🎯 Quick Links
+##  Quick Links
 
 | Link | URL |
 |------|-----|
@@ -555,7 +554,7 @@ For issues, questions, or suggestions:
 
 ---
 
-## 📊 Project Statistics
+##  Project Statistics
 
 - **Total Endpoints:** 45+
 - **Database Tables:** 15
@@ -569,5 +568,5 @@ For issues, questions, or suggestions:
 
 **Last Updated:** 2026-07-02  
 **Version:** 1.0.0  
-**Status:** ✅ Production Ready  
+**Status:**  Production Ready  
 **Maintainer:** [nghiaMeo](https://github.com/nghiaMeo)
