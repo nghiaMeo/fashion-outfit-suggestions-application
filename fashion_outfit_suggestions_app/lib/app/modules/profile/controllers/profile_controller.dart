@@ -47,7 +47,7 @@ class ProfileController extends GetxController {
 
     try {
       final response = await _dioClient.getResult<List<OutfitResponse>>(
-        _dioClient.dio.get('/api/outifts/all-outfit'),
+        _dioClient.dio.get('/api/outfits/all-outfit'),
         (json) {
           final list = json as List;
           return list
@@ -222,7 +222,7 @@ class ProfileController extends GetxController {
   }
 
   Future<bool> updateProfile() async {
-    if (displayNameController.text.isEmpty || bioController.text.isEmpty) {
+    if (displayNameController.text.isEmpty) {
       _showErrorDialog('Please fill in all fields');
       return false;
     }
