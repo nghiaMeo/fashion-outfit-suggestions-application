@@ -48,7 +48,6 @@ dependencies {
 
     // Cache
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
 
     // Cloud & External APIs
     implementation 'com.cloudinary:cloudinary-http44:1.39.0'

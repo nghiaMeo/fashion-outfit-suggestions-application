@@ -6,6 +6,7 @@ import com.example.common.security.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -33,26 +35,19 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            // Auth endpoints (no /api prefix - Spring Security 6 matches AFTER context-path is stripped)
             "/auth/register",
             "/auth/login",
             "/auth/oauth2/**",
             "/auth/forgot-password",
             "/auth/reset-password",
             "/auth/refresh-token",
-            // Public content
             "/outfits/public/**",
-            // WebSocket endpoints
             "/ws/**",
             "/ws-native/**",
-            // Spring error page
             "/error",
-            // API docs
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html",
-            // Actuator health check (optional)
-            "/actuator/health"
+            "/swagger-ui.html"
     };
 
     @Bean
@@ -85,7 +80,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

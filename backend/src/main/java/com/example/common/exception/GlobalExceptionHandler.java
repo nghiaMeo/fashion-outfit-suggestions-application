@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 @RestControllerAdvice
@@ -41,6 +42,12 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .build();
         return ResponseEntity.status(ErrorCode.INVALID_KEY.getHttpStatus()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = NoResourceFoundException.class)
+    ResponseEntity<ErrorResponse> handlingNoResourceFoundException(NoResourceFoundException exception) {
+        log.warn("No resource found: {}", exception.getMessage());
+        return createErrorResponse(ErrorCode.ENDPOINT_NOT_FOUND);
     }
 
     @ExceptionHandler(value = NoHandlerFoundException.class)

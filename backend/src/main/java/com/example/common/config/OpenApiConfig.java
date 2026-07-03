@@ -10,10 +10,6 @@ import io.swagger.v3.oas.models.Components;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Swagger/OpenAPI Configuration
- * Provides API documentation accessible at: http://localhost:8080/api/swagger-ui.html
- */
 @Configuration
 public class OpenApiConfig {
 
@@ -23,22 +19,13 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Fashion Outfit Suggestions API")
                         .version("1.0.0")
-                        .description("""n
+                        .description("""
                                 Complete API documentation for Fashion Outfit Suggestions Application.
-                                
-                                ## Key Features:
-                                - 👤 User authentication (JWT + OAuth2 Google)
-                                - 👕 Wardrobe management (items, outfits)
-                                - 👥 Social features (friends, chat)
-                                - 🔔 Real-time notifications
-                                - 📸 Image uploads via Cloudinary
-                                - 📱 Firebase push notifications
-                                
-                                ## Authentication:
-                                All protected endpoints require JWT token in Authorization header:
-                                ```
-                                Authorization: Bearer <your-jwt-token>
-                                ```
+
+                                Key features: JWT authentication, wardrobe management, social features,
+                                real-time notifications, Cloudinary uploads, and Firebase push notifications.
+
+                                Protected endpoints require: Authorization: Bearer <your-jwt-token>
                                 """)
                         .contact(new Contact()
                                 .name("Fashion Outfit Team")

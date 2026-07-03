@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,7 +113,14 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(decodeSecretKey(secretKey));
+    }
+
+    private byte[] decodeSecretKey(String secret) {
+        try {
+            return Decoders.BASE64.decode(secret);
+        } catch (IllegalArgumentException ex) {
+            return secret.getBytes(StandardCharsets.UTF_8);
+        }
     }
 }

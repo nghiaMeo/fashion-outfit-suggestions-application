@@ -16,6 +16,7 @@ import com.example.common.exception.AppException;
 import com.example.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
@@ -32,6 +33,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private final UserPreferenceRepository userPreferenceRepository;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+
+    @Value("${oauth2.google.client-id:}")
+    private String googleClientId;
 
     private final RestClient restClient = RestClient.create();
 
@@ -57,10 +61,22 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     @SuppressWarnings("unchecked")
     private Map<String, Object> verifyGoogleToken(String idToken) {
         try {
-            return restClient.get()
+            Map<String, Object> googleUser = restClient.get()
                     .uri("https://oauth2.googleapis.com/tokeninfo?id_token={token}", idToken)
                     .retrieve()
                     .body(Map.class);
+            if (googleUser == null) {
+                throw new AppException(ErrorCode.OAUTH2_INVALID_TOKEN);
+            }
+            if (googleClientId != null && !googleClientId.isBlank()) {
+                var audience = (String) googleUser.get("aud");
+                if (!googleClientId.equals(audience)) {
+                    throw new AppException(ErrorCode.OAUTH2_INVALID_TOKEN);
+                }
+            }
+            return googleUser;
+        } catch (AppException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Google token verification failed: {}", e.getMessage());
             throw new AppException(ErrorCode.OAUTH2_INVALID_TOKEN);

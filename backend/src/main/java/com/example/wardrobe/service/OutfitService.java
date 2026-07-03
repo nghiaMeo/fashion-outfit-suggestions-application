@@ -12,6 +12,7 @@ public interface OutfitService {
     OutfitResponse toggleFavorite(UUID id);
     OutfitResponse toggleVisibility(UUID id);
     OutfitResponse getOutfitById(UUID id);
+    OutfitResponse getPublicOutfit(UUID id);
     void deleteOutfit(UUID id);
     OutfitResponse updateOutfit(UUID id, OutfitRequest outfitRequest);
     List<OutfitResponse> searchOutfits(String name, String occasion, Boolean isFavorite);

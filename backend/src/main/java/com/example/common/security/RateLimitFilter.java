@@ -27,10 +27,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final StringRedisTemplate redisTemplate;
 
     private static final Map<String, Integer> RATE_LIMITS = Map.of(
-            "/api/auth/login", 10,
-            "/api/auth/register", 5,
-            "/api/auth/forgot-password", 3,
-            "/api/auth/reset-password", 5
+            "/auth/login", 10,
+            "/auth/register", 5,
+            "/auth/forgot-password", 3,
+            "/auth/reset-password", 5,
+            "/auth/refresh-token", 20,
+            "/auth/oauth2/google", 10
     );
 
     private static final Duration RATE_LIMIT_WINDOW = Duration.ofSeconds(60);
@@ -42,7 +44,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        var path = request.getRequestURI();
+        var path = normalizePath(request);
         var maxRequests = RATE_LIMITS.get(path);
 
         if (maxRequests == null) {
@@ -65,6 +67,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String normalizePath(HttpServletRequest request) {
+        var path = request.getRequestURI();
+        var contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath)) {
+            path = path.substring(contextPath.length());
+        }
+        return path;
     }
 
     private String getClientIp(HttpServletRequest request) {

@@ -49,7 +49,7 @@ public class OutfitController {
     @GetMapping("/public/{id}")
     public ApiResponse<OutfitResponse> getPublicOutfit(@PathVariable UUID id) {
         return ApiResponse.<OutfitResponse>builder()
-                .result(outfitService.getOutfitById(id))
+                .result(outfitService.getPublicOutfit(id))
                 .build();
     }
 

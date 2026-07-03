@@ -17,6 +17,7 @@ import com.example.wardrobe.service.OutfitLikeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,9 @@ public class OutfitServiceImpl implements OutfitService {
     private final ItemRepository itemRepository;
     private final FriendshipService friendshipService;
     private final OutfitLikeService outfitLikeService;
+
+    @Value("${app.base-url:http://localhost:8080/api}")
+    private String appBaseUrl;
 
     @Override
     @Transactional
@@ -106,6 +110,15 @@ public class OutfitServiceImpl implements OutfitService {
             }
         }
 
+        return mapToOutfitResponseWithLike(outfit);
+    }
+
+    @Override
+    public OutfitResponse getPublicOutfit(UUID id) {
+        var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
+        if (outfit.isDeleted() || !outfit.isPublic()) {
+            throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
+        }
         return mapToOutfitResponseWithLike(outfit);
     }
 
@@ -219,7 +232,7 @@ public class OutfitServiceImpl implements OutfitService {
 
     private OutfitResponse mapToOutfitResponse(Outfit outfit) {
         var shareLink = outfit.isPublic() && !outfit.isDeleted()
-                ? "http://localhost:8080/api/outfits/public/" + outfit.getId()
+                ? appBaseUrl + "/outfits/public/" + outfit.getId()
                 : null;
         return OutfitResponse.builder()
                 .id(outfit.getId())

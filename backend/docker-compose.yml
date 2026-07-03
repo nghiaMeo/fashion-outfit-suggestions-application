@@ -10,10 +10,13 @@ services:
     env_file:
       - .env
     environment:
+      SPRING_PROFILE: prod
       DB_URL: jdbc:postgresql://postgres:5432/wardrobe_fashion_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       PORT: 8080
+    volumes:
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json
     depends_on:
       - postgres
       - redis

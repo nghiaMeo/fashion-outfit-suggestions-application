@@ -8,9 +8,9 @@ spring:
 
   # ==================== DATASOURCE (PostgreSQL) ====================
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/fashion_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/wardrobe_fashion_db}
+    username: ${DB_USERNAME:nghiadev}
+    password: ${DB_PASSWORD:nghia}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -55,10 +55,16 @@ spring:
     redis:
       time-to-live: 3600000  # 1 hour default TTL
     cache-names:
-      - user_profile
+      - userProfiles
       - friendship_list
       - outfit_feed
       - search_results
+
+  # ==================== MULTIPART UPLOAD ====================
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   # ==================== MAIL CONFIG ====================
   mail:
@@ -90,10 +96,6 @@ server:
   port: ${PORT:8080}
   servlet:
     context-path: /api
-    # ==================== MULTIPART UPLOAD ====================
-    multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
   tomcat:
     threads:
       max: 200
@@ -105,10 +107,7 @@ server:
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
-    com.example: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.example: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -119,7 +118,7 @@ logging:
 
 # ==================== JWT CONFIG ====================
 jwt:
-  secret-key: ${JWT_SECRET_KEY:your-secret-key-change-in-production}
+  secret-key: ${JWT_SECRET_KEY:your-super-secret-key-change-in-production-min-32-characters}
   access-token-expiration: 86400000    # 24 hours (ms)
   refresh-token-expiration: 604800000  # 7 days (ms)
 
@@ -139,3 +138,7 @@ firebase:
   project-id: ${FIREBASE_PROJECT_ID:}
   private-key: ${FIREBASE_PRIVATE_KEY:}
   client-email: ${FIREBASE_CLIENT_EMAIL:}
+
+# ==================== APP CONFIG ====================
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080/api}

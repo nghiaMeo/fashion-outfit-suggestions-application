@@ -5,6 +5,7 @@ import com.example.notification.dto.request.NotificationRequest;
 import com.example.notification.dto.response.NotificationResponse;
 import com.example.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class NotificationController {
     }
 
     @PostMapping("/send")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> sendNotification(@RequestBody NotificationRequest request) {
         notificationService.sendNotification(
                 request.getRecipientId(),
