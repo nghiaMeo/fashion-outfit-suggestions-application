@@ -1,5 +1,7 @@
 package com.example.wardrobe.service.impl;
 
+import com.example.user.repository.UserRepository;
+import com.example.user.service.UserService;
 import com.example.wardrobe.dto.request.OutfitRequest;
 import com.example.wardrobe.dto.response.ItemResponse;
 import com.example.wardrobe.dto.response.OutfitLikeStatusResponse;
@@ -33,6 +35,7 @@ public class OutfitServiceImpl implements OutfitService {
     private final ItemRepository itemRepository;
     private final FriendshipService friendshipService;
     private final OutfitLikeService outfitLikeService;
+    private final UserRepository userRepository;
 
     @Value("${app.base-url:http://localhost:8080/api}")
     private String appBaseUrl;
@@ -234,6 +237,8 @@ public class OutfitServiceImpl implements OutfitService {
         var shareLink = outfit.isPublic() && !outfit.isDeleted()
                 ? appBaseUrl + "/outfits/public/" + outfit.getId()
                 : null;
+
+        var user = userRepository.findById(outfit.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return OutfitResponse.builder()
                 .id(outfit.getId())
                 .name(outfit.getName())
@@ -245,8 +250,8 @@ public class OutfitServiceImpl implements OutfitService {
                 .items(outfit.getItems().stream().map(this::mapToItemResponse).toList())
                 .likeCount(0L)
                 .isLiked(false)
-                .ownerName("Owner")
-                .ownerAvatar(null)
+                .ownerName(user.getUsername())
+                .ownerAvatar(user.getAvatarUrl())
                 .createdAt(outfit.getCreatedAt())
                 .build();
     }

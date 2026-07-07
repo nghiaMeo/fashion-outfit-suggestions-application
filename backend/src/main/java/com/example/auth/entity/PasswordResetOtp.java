@@ -30,5 +30,5 @@ public class PasswordResetOtp {
     private Instant createdAt = Instant.now();
 
     @TimeToLive
-    private Long expirySeconds; // 180 seconds = 3 minutes
+    private Long expirySeconds;
 }
