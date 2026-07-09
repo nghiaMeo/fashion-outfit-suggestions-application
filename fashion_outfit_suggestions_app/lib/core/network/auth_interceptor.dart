@@ -32,7 +32,6 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final path = err.requestOptions.path;
 
-    // Bỏ qua auth endpoints để tránh vòng lặp vô tận
     if (path.contains('/auth/login') ||
         path.contains('/auth/register') ||
         path.contains('/auth/refresh-token')) {

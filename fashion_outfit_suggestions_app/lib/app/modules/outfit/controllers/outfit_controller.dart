@@ -1,3 +1,4 @@
+import 'package:fashion_outfit_suggestions_app/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/models/item_response.dart';
@@ -116,6 +117,9 @@ class OutfitController extends GetxController {
       );
 
       Get.back();
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().fetchHomeFeed();
+      }
       Get.snackbar(
         'Success',
         'New outfit saved',

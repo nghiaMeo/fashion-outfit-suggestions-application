@@ -72,16 +72,38 @@ class HomeFeedView extends GetView<HomeController> {
               Get.toNamed(Routes.outfit);
             },
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.favorite_border,
-              size: 26,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Get.toNamed(Routes.notification);
-            },
-          ),
+          Obx(() {
+            final hasUnread = controller.unreadNotificationsCount.value > 0;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.favorite_border,
+                    size: 26,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    controller.unreadNotificationsCount.value = 0;
+                    Get.toNamed(Routes.notification);
+                  },
+                ),
+                if (hasUnread)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
         ],
       ),
       body: Obx(() {

@@ -19,6 +19,8 @@ class SocketService extends GetxService {
   final Map<String, StompUnsubscribe> _messageSubscriptions = {};
   final Map<String, StompUnsubscribe> _typingSubscriptions = {};
   StompUnsubscribe? _userMessageSubscription;
+  final List<void Function(Map<String, dynamic> data)> _notificationListeners = [];
+  StompUnsubscribe? _userNotificationSubscription;
 
   Future<SocketService> init() async {
     if (_tokenStorage.hasSession) {
@@ -61,14 +63,28 @@ class SocketService extends GetxService {
     isConnected.value = true;
     debugPrint('>>> STOMP CONNECTED SUCCESSFULLY');
 
-    _userMessageSubscription?.call();
-    _userMessageSubscription = _stompClient!.subscribe(
-      destination: '/user/queue/messages',
-      callback: _handleMessageFrame,
+    _userNotificationSubscription?.call();
+    _userNotificationSubscription  = _stompClient!.subscribe(
+      destination: '/user/queue/notifications',
+      callback: _handleNotificationFrame,
     );
 
     for (final conversationId in _joinedRooms) {
       _subscribeToConversation(conversationId);
+    }
+  }
+
+  void _handleNotificationFrame(StompFrame frame){
+    final body = frame.body;
+    if (body == null || body.isEmpty) return;
+
+    try {
+      final data = Map<String, dynamic>.from(jsonDecode(body) as Map);
+      for (final listener in _notificationListeners) {
+        listener(data);
+      }
+    } catch (e) {
+      debugPrint('>>> STOMP MESSAGE PARSE ERROR: $e');
     }
   }
 
@@ -103,6 +119,7 @@ class SocketService extends GetxService {
 
   void disconnect() {
     _userMessageSubscription?.call();
+    _userNotificationSubscription?.call();
     _userMessageSubscription = null;
 
     for (final unsubscribe in _messageSubscriptions.values) {
@@ -147,6 +164,13 @@ class SocketService extends GetxService {
       destination: '/topic/conversations.$conversationId.typing',
       callback: _handleTypingFrame,
     );
+  }
+
+  void addNotificationListener(void Function(Map<String, dynamic> data) listener) {
+    _notificationListeners.add(listener);
+  }
+  void removeNotificationListener(void Function(Map<String, dynamic> data) listener) {
+    _notificationListeners.remove(listener);
   }
 
   void addMessageListener(void Function(Map<String, dynamic> data) listener) {
