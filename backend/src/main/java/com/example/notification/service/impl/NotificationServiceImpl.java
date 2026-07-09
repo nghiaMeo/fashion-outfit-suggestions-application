@@ -57,8 +57,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public List<NotificationResponse> getMyNotifications() {
         var currentUser = getCurrentUser();
-        var notifications = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(currentUser.getId());
-        
+        var notifications = notificationRepository
+                .findByRecipientIdAndTypeNotOrderByCreatedAtDesc(currentUser.getId(), NotificationType.NEW_MESSAGE);
+
         return notifications.stream().map(this::mapToResponse).toList();
     }
 
@@ -79,14 +80,15 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAllAsRead() {
         var currentUser = getCurrentUser();
-        var notifications = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(currentUser.getId());
-        
+        var notifications = notificationRepository
+                .findByRecipientIdAndTypeNotOrderByCreatedAtDesc(currentUser.getId(), NotificationType.NEW_MESSAGE);
+
         for (Notification notification : notifications) {
             if (!notification.isRead()) {
                 notification.setRead(true);
             }
         }
-        
+
         notificationRepository.saveAll(notifications);
     }
 
@@ -94,7 +96,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public long getUnreadCount() {
         var currentUser = getCurrentUser();
-        return notificationRepository.countByRecipientIdAndIsReadFalse(currentUser.getId());
+        return notificationRepository.countByRecipientIdAndIsReadFalseAndTypeNot(currentUser.getId(), NotificationType.NEW_MESSAGE);
     }
 
     @Override
@@ -107,7 +109,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .content(content)
                 .build();
 
-        var savedNotification  = notificationRepository.save(notification);
+        var savedNotification = notificationRepository.save(notification);
 
         try {
             messagingTemplate.convertAndSendToUser(recipientId.toString(), "/queue/notifications", mapToResponse(savedNotification));
