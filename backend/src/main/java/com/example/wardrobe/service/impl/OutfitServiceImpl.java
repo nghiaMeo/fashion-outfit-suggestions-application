@@ -69,6 +69,7 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OutfitResponse> getAllOutfits() {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
@@ -94,6 +95,7 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OutfitResponse getOutfitById(UUID id) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID currentUserId = null;
@@ -117,6 +119,7 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OutfitResponse getPublicOutfit(UUID id) {
         var outfit = outfitRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.OUTFIT_NOT_FOUND));
         if (outfit.isDeleted() || !outfit.isPublic()) {
@@ -155,6 +158,7 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OutfitResponse> searchOutfits(String name, String occasion, Boolean isFavorite) {
         var currentUser = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
@@ -184,6 +188,7 @@ public class OutfitServiceImpl implements OutfitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OutfitResponse> getHomeFeed() {
         List<UUID> friendIds = new ArrayList<>();
         try {
