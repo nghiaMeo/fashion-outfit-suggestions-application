@@ -4,8 +4,12 @@ import com.example.wardrobe.entity.OutfitComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface OutfitCommentRepository extends JpaRepository<OutfitComment, UUID> {
+    List<OutfitComment> findByOutfitIdOrderByCreatedAtDesc(UUID outfitId);
+
+    long countByOutfitId(UUID outfitId);
 }

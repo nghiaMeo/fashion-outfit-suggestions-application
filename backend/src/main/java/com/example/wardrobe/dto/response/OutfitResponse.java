@@ -26,5 +26,6 @@ public class OutfitResponse {
     private boolean isLiked;
     private String ownerName;
     private String ownerAvatar;
+    private long commentCount;
     private Instant createdAt;
 }
