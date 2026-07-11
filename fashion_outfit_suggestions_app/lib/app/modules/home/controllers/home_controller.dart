@@ -1,10 +1,12 @@
 import 'package:fashion_outfit_suggestions_app/core/network/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/models/conversation_response.dart';
 import '../../../../core/models/outfit_comment_response.dart';
 import '../../../../core/models/outfit_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../views/comments_sheet.dart';
+import '../views/share_to_message_sheet.dart';
 
 class HomeController extends GetxController {
   final DioClient _dioClient = Get.find<DioClient>();
@@ -19,6 +21,11 @@ class HomeController extends GetxController {
   final isCommentsLoading = false.obs;
   final isPostingComment = false.obs;
   final commentController = TextEditingController();
+
+  final conversations = <ConversationResponse>[].obs;
+  final isConversationsLoading = false.obs;
+
+  final sentConversationIds = <String>{}.obs;
 
   @override
   void onInit() {
@@ -38,6 +45,48 @@ class HomeController extends GetxController {
     currentIndex.value = index;
     if (index == 0) {
       fetchHomeFeed();
+    }
+  }
+
+  Future<void> shareOutfitToConversation(
+    String conversationId,
+    String outfitId,
+  ) async {
+    try {
+      await _dioClient.dio.post(
+        '/api/chat/send',
+        data: {
+          'conversationId': conversationId,
+          'content': 'Shared an outfit',
+          'type': 'OUTFIT_SHARE',
+          'sharedOutfitId': outfitId,
+        },
+      );
+      sentConversationIds.add(conversationId);
+    } catch (e) {
+      Get.snackbar('Error', 'Cannot share: $e');
+    }
+  }
+
+  Future<void> fetchConversations() async {
+    isConversationsLoading.value = true;
+    try {
+      final result = await _dioClient.getResult<List<ConversationResponse>>(
+        _dioClient.dio.get('/api/chat/conversations'),
+        (json) {
+          final list = json as List;
+          return list
+              .map(
+                (e) => ConversationResponse.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
+        },
+      );
+      conversations.assignAll(result);
+    } catch (e) {
+      debugPrint('fetchConversations error: $e');
+    } finally {
+      isConversationsLoading.value = false;
     }
   }
 
@@ -75,7 +124,7 @@ class HomeController extends GetxController {
           '/api/outfits/$outfitId/comments',
           data: {'content': text},
         ),
-            (json) => OutfitCommentResponse.fromJson(json as Map<String, dynamic>),
+        (json) => OutfitCommentResponse.fromJson(json as Map<String, dynamic>),
       );
 
       comments.insert(0, newComment);
@@ -181,6 +230,18 @@ class HomeController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Unable to save post: ${e.toString()}');
     }
+  }
+
+  void showShareToMessageSheet(OutfitResponse outfit) {
+    sentConversationIds.clear();
+    conversations.clear();
+    fetchConversations();
+
+    Get.bottomSheet(
+      ShareToMessageSheet(outfit: outfit),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 
   @override
