@@ -12,6 +12,7 @@ import com.example.user.entity.User;
 import com.example.common.exception.AppException;
 import com.example.common.exception.ErrorCode;
 import com.example.wardrobe.repository.ItemRepository;
+import com.example.wardrobe.repository.OutfitCommentRepository;
 import com.example.wardrobe.repository.OutfitRepository;
 import com.example.wardrobe.service.OutfitService;
 import com.example.social.service.FriendshipService;
@@ -36,6 +37,7 @@ public class OutfitServiceImpl implements OutfitService {
     private final FriendshipService friendshipService;
     private final OutfitLikeService outfitLikeService;
     private final UserRepository userRepository;
+    private final OutfitCommentRepository outfitCommentRepository;
 
     @Value("${app.base-url:http://localhost:8080/api}")
     private String appBaseUrl;
@@ -257,6 +259,7 @@ public class OutfitServiceImpl implements OutfitService {
                 .isLiked(false)
                 .ownerName(user.getUsername())
                 .ownerAvatar(user.getAvatarUrl())
+                .commentCount(outfitCommentRepository.countByOutfitId(outfit.getId()))
                 .createdAt(outfit.getCreatedAt())
                 .build();
     }
