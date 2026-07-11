@@ -14,6 +14,7 @@ class OutfitResponse {
   final bool isLiked;
   final String? ownerName;
   final String? ownerAvatar;
+  final int commentCount;
   final DateTime createdAt;
 
   OutfitResponse({
@@ -31,6 +32,7 @@ class OutfitResponse {
     this.ownerName,
     this.ownerAvatar,
     required this.createdAt,
+    required this.commentCount,
   });
 
   factory OutfitResponse.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class OutfitResponse {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
+      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
     );
   }
 }

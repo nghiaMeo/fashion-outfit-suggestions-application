@@ -258,7 +258,54 @@ class HomeFeedView extends GetView<HomeController> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.chat_bubble_outline,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () => controller.showCommentsSheet(outfit),
+                ),
+                Text(
+                  '${outfit.commentCount}',
+                  style: AppFonts.base(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                IconButton(
+                  icon: const Icon(
+                    Icons.repeat,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    // Xử lý logic Repost bài viết nếu muốn
+                  },
+                ),
+                Text(
+                  '0',
+                  style: AppFonts.base(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+
+                IconButton(
+                  icon: const Icon(
+                    Icons.send_outlined,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () => controller.showShareToMessageSheet(outfit), // Sẽ viết ở Bước 2.4
+                ),
+
                 const Spacer(),
+
                 IconButton(
                   icon: Icon(
                     outfit.isFavorite ? Icons.bookmark : Icons.bookmark_border,
