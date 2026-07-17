@@ -19,9 +19,9 @@ public class OutfitCommentResponse {
     private UUID outfitId;
     private UUID userId;
     private String username;
-    private String comment;
     private String userAvatar;
     private String content;
+    private UUID parentId;
     private long likeCount;
     private boolean isLiked;
     private List<OutfitCommentResponse> replies;

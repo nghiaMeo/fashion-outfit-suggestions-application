@@ -9,6 +9,8 @@ import com.example.user.repository.UserRepository;
 import com.example.wardrobe.dto.request.OutfitCommentRequest;
 import com.example.wardrobe.dto.response.OutfitCommentResponse;
 import com.example.wardrobe.entity.OutfitComment;
+import com.example.wardrobe.entity.OutfitCommentLike;
+import com.example.wardrobe.repository.OutfitCommentLikeRepository;
 import com.example.wardrobe.repository.OutfitCommentRepository;
 import com.example.wardrobe.repository.OutfitRepository;
 import com.example.wardrobe.service.OutfitCommentService;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +34,7 @@ public class OutfitCommentServiceImpl implements OutfitCommentService {
     private final OutfitRepository outfitRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final OutfitCommentLikeRepository outfitCommentLikeRepository;
 
     private User getCurrentUser() {
         return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -50,6 +54,7 @@ public class OutfitCommentServiceImpl implements OutfitCommentService {
                 .outfitId(outfitId)
                 .userId(currentUser.getId())
                 .content(request.getContent())
+                .parentId(request.getParentId())
                 .build();
         var savedComment = outfitCommentRepository.save(comment);
 
@@ -76,6 +81,10 @@ public class OutfitCommentServiceImpl implements OutfitCommentService {
                 .username(currentUser.getUsername())
                 .userAvatar(currentUser.getAvatarUrl())
                 .content(savedComment.getContent())
+                .parentId(savedComment.getParentId())
+                .likeCount(0)
+                .isLiked(false)
+                .replies(Collections.emptyList())
                 .createdAt(savedComment.getCreatedAt())
                 .build();
     }
@@ -90,23 +99,65 @@ public class OutfitCommentServiceImpl implements OutfitCommentService {
         if (Outfit.isDeleted()) {
             throw new AppException(ErrorCode.OUTFIT_NOT_FOUND);
         }
-        var comments = outfitCommentRepository.findByOutfitIdOrderByCreatedAtDesc(outfitId);
-        return comments.stream().map(
-                comment -> {
-                    var userComment = userRepository.findById(comment.getUserId()).orElse(null);
-                    var username = userComment != null ? userComment.getUsername() : "Unknown";
-                    var userAvatar = userComment != null ? userComment.getAvatarUrl() : null;
-                    return OutfitCommentResponse.builder()
-                            .id(comment.getId())
-                            .outfitId(comment.getOutfitId())
-                            .userId(comment.getUserId())
-                            .username(username)
-                            .userAvatar(userAvatar)
-                            .content(comment.getContent())
-                            .createdAt(comment.getCreatedAt())
-                            .build();
-                }
+
+        var currentUser = getCurrentUser();
+        var rootComments = outfitCommentRepository.findByOutfitIdAndParentIdIsNullOrderByCreatedAtDesc(outfitId);
+
+        return rootComments.stream().map(
+                comment -> mapToResponse(comment, currentUser)
         ).toList();
+    }
+
+    private OutfitCommentResponse mapToResponse(OutfitComment comment, User currentUser) {
+        var userComment = userRepository.findById(comment.getUserId()).orElse(null);
+
+        var username = userComment != null ? userComment.getUsername() : "Unknown";
+
+        var userAvatar = userComment != null ? userComment.getAvatarUrl() : null;
+
+        long likeCount = outfitCommentLikeRepository.countByCommentId(comment.getId());
+
+        boolean isLiked = outfitCommentLikeRepository.existsByCommentIdAndUserId(comment.getId(), currentUser.getId());
+
+        var replyEntities = outfitCommentRepository.findByParentIdOrderByCreatedAtAsc(comment.getId());
+
+        var replies = replyEntities.stream().map(
+                reply -> mapToResponse(reply, currentUser)
+        ).toList();
+
+        return OutfitCommentResponse.builder()
+                .id(comment.getId())
+                .outfitId(comment.getOutfitId())
+                .userId(comment.getUserId())
+                .username(username)
+                .userAvatar(userAvatar)
+                .content(comment.getContent())
+                .parentId(comment.getParentId())
+                .createdAt(comment.getCreatedAt())
+                .likeCount(likeCount)
+                .isLiked(isLiked)
+                .replies(replies)
+                .build();
+    }
+
+    @Override
+    public void toggleLikeComment(UUID commentId) {
+        var currentUser = getCurrentUser();
+        var comment = outfitCommentRepository.findById(commentId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        var existingLike = outfitCommentLikeRepository.findByCommentIdAndUserId(commentId, currentUser.getId());
+
+        if (existingLike.isPresent()) {
+            outfitCommentLikeRepository.delete(existingLike.get());
+        } else {
+            var like = OutfitCommentLike.builder()
+                    .commentId(commentId)
+                    .userId(currentUser.getId())
+                    .build();
+
+            outfitCommentLikeRepository.save(like);
+        }
     }
 
 }

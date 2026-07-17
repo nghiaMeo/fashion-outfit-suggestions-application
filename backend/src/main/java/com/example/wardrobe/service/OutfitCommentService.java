@@ -10,4 +10,7 @@ public interface OutfitCommentService {
     OutfitCommentResponse addComment(UUID outfitId, OutfitCommentRequest request);
 
     List<OutfitCommentResponse> getComments(UUID outfitId);
+
+    void toggleLikeComment(UUID commentId);
+
 }

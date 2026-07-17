@@ -31,4 +31,12 @@ public class OutfitCommentController {
                 .build();
     }
 
+    @PostMapping("/comments/{commentId}/like")
+    public ApiResponse<String> toggleLikeComment(@PathVariable UUID commentId) {
+        outfitCommentService.toggleLikeComment(commentId);
+        return ApiResponse.<String>builder()
+                .result("Toggled like status for comment")
+                .build();
+    }
+
 }
