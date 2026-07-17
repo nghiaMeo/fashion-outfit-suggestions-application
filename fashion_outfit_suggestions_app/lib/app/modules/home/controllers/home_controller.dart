@@ -1,3 +1,4 @@
+import 'package:fashion_outfit_suggestions_app/core/network/api_endpoints.dart';
 import 'package:fashion_outfit_suggestions_app/core/network/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -58,7 +59,7 @@ class HomeController extends GetxController {
   ) async {
     try {
       await _dioClient.dio.post(
-        '/api/chat/send',
+        ApiEndpoints.sendMessage,
         data: {
           'conversationId': conversationId,
           'content': 'Shared an outfit',
@@ -76,7 +77,7 @@ class HomeController extends GetxController {
     isConversationsLoading.value = true;
     try {
       final result = await _dioClient.getResult<List<ConversationResponse>>(
-        _dioClient.dio.get('/api/chat/conversations'),
+        _dioClient.dio.get(ApiEndpoints.conversations),
         (json) {
           final list = json as List;
           return list
@@ -98,7 +99,7 @@ class HomeController extends GetxController {
     isCommentsLoading.value = true;
     try {
       final result = await _dioClient.getResult<List<OutfitCommentResponse>>(
-        _dioClient.dio.get('/api/outfits/$outfitId/comments'),
+        _dioClient.dio.get(ApiEndpoints.comments(outfitId)),
         (json) {
           final list = json as List;
           return list
@@ -127,7 +128,7 @@ class HomeController extends GetxController {
 
       final newComment = await _dioClient.getResult<OutfitCommentResponse>(
         _dioClient.dio.post(
-          '/api/outfits/$outfitId/comments',
+          ApiEndpoints.comments(outfitId),
           data: {'content': text, 'parentId': parentId},
         ),
         (json) => OutfitCommentResponse.fromJson(json as Map<String, dynamic>),
@@ -174,7 +175,7 @@ class HomeController extends GetxController {
 
   Future<void> toggleLikeComment(String commentId) async {
     try {
-      await _dioClient.dio.post('/api/outfits/comments/$commentId/like');
+      await _dioClient.dio.post(ApiEndpoints.toggleLikeComment(commentId));
 
       for (int i = 0; i < comments.length; i++) {
         if (comments[i].id == commentId) {
@@ -224,7 +225,7 @@ class HomeController extends GetxController {
   Future<void> fetchUnreadNotificationCount() async {
     try {
       final count = await _dioClient.getResult<int>(
-        _dioClient.dio.get('/api/notifications/unread-count'),
+        _dioClient.dio.get(ApiEndpoints.unreadNotificationCount),
         (json) => json as int,
       );
       unreadNotificationsCount.value = count;
@@ -235,7 +236,7 @@ class HomeController extends GetxController {
     isFeedLoading.value = true;
     try {
       final response = await _dioClient.getResult<List<OutfitResponse>>(
-        _dioClient.dio.get('/api/outfits/home-feed'),
+        _dioClient.dio.get(ApiEndpoints.homeFeed),
         (json) {
           final list = json as List;
           return list
@@ -254,7 +255,7 @@ class HomeController extends GetxController {
   Future<void> toggleLikeOutfit(String outfitId) async {
     try {
       final updated = await _dioClient.getResult<OutfitResponse>(
-        _dioClient.dio.post('/api/outfits/$outfitId/like'),
+        _dioClient.dio.post(ApiEndpoints.toggleLikeOutfit(outfitId)),
         (json) => OutfitResponse.fromJson(json! as Map<String, dynamic>),
       );
 
@@ -270,7 +271,7 @@ class HomeController extends GetxController {
   Future<void> toggleFavoriteOutfit(String outfitId) async {
     try {
       final updated = await _dioClient.getResult<OutfitResponse>(
-        _dioClient.dio.patch('/api/outfits/$outfitId/favorite'),
+        _dioClient.dio.patch(ApiEndpoints.toggleFavoriteOutfit(outfitId)),
         (json) => OutfitResponse.fromJson(json! as Map<String, dynamic>),
       );
 
