@@ -25,6 +25,10 @@ class HomeController extends GetxController {
   final conversations = <ConversationResponse>[].obs;
   final isConversationsLoading = false.obs;
 
+  final replyToCommentId = RxnString();
+  final replyToUsername = RxnString();
+  final commentFocusNode = FocusNode();
+
   final sentConversationIds = <String>{}.obs;
 
   @override
@@ -119,42 +123,89 @@ class HomeController extends GetxController {
 
     isPostingComment.value = true;
     try {
+      final parentId = replyToCommentId.value;
+
       final newComment = await _dioClient.getResult<OutfitCommentResponse>(
         _dioClient.dio.post(
           '/api/outfits/$outfitId/comments',
-          data: {'content': text},
+          data: {'content': text, 'parentId': parentId},
         ),
         (json) => OutfitCommentResponse.fromJson(json as Map<String, dynamic>),
       );
 
-      comments.insert(0, newComment);
+      if (parentId == null) {
+        comments.insert(0, newComment);
+      } else {
+        final parentIndex = comments.indexWhere((c) => c.id == parentId);
+        if (parentIndex != -1) {
+          final parent = comments[parentIndex];
+          final updatedReplies = List<OutfitCommentResponse>.from(
+            parent.replies,
+          )..add(newComment);
+          comments[parentIndex] = parent.copyWith(replies: updatedReplies);
+        }
+      }
+
       commentController.clear();
+      cancelReply();
 
       final index = feedOutfits.indexWhere((o) => o.id == outfitId);
       if (index != -1) {
         final old = feedOutfits[index];
-        feedOutfits[index] = OutfitResponse(
-          id: old.id,
-          name: old.name,
-          occasion: old.occasion,
-          description: old.description,
-          isFavorite: old.isFavorite,
-          isAiGenerated: old.isAiGenerated,
-          isPublic: old.isPublic,
-          shareLink: old.shareLink,
-          items: old.items,
-          likeCount: old.likeCount,
-          isLiked: old.isLiked,
-          ownerName: old.ownerName,
-          ownerAvatar: old.ownerAvatar,
-          createdAt: old.createdAt,
-          commentCount: old.commentCount + 1,
-        );
+        feedOutfits[index] = old.copyWith(commentCount: old.commentCount + 1);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Cannot push comment: $e');
+      Get.snackbar('Lỗi', 'Không thể đăng bình luận: $e');
     } finally {
       isPostingComment.value = false;
+    }
+  }
+
+  void enterReplyMode(OutfitCommentResponse comment) {
+    replyToCommentId.value = comment.id;
+    replyToUsername.value = comment.username;
+    commentFocusNode.requestFocus();
+  }
+
+  void cancelReply() {
+    replyToCommentId.value = null;
+    replyToUsername.value = null;
+  }
+
+  Future<void> toggleLikeComment(String commentId) async {
+    try {
+      await _dioClient.dio.post('/api/outfits/comments/$commentId/like');
+
+      for (int i = 0; i < comments.length; i++) {
+        if (comments[i].id == commentId) {
+          final c = comments[i];
+          comments[i] = c.copyWith(
+            isLiked: !c.isLiked,
+            likeCount: c.isLiked ? c.likeCount - 1 : c.likeCount + 1,
+          );
+          break;
+        }
+        final replyIndex = comments[i].replies.indexWhere(
+          (r) => r.id == commentId,
+        );
+        if (replyIndex != -1) {
+          final parent = comments[i];
+          final reply = parent.replies[replyIndex];
+          final updatedReply = reply.copyWith(
+            isLiked: !reply.isLiked,
+            likeCount: reply.isLiked
+                ? reply.likeCount - 1
+                : reply.likeCount + 1,
+          );
+          final updatedReplies = List<OutfitCommentResponse>.from(
+            parent.replies,
+          )..[replyIndex] = updatedReply;
+          comments[i] = parent.copyWith(replies: updatedReplies);
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('toggleLikeComment error: $e');
     }
   }
 
@@ -247,6 +298,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _socketService.removeNotificationListener(_onNewNotificationReceived);
+    commentFocusNode.dispose();
     super.onClose();
   }
 }

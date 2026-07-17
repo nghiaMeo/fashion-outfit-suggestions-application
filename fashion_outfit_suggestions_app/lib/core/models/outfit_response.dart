@@ -67,4 +67,40 @@ class OutfitResponse {
       commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
     );
   }
+
+  OutfitResponse copyWith({
+    String? id,
+    String? name,
+    String? occasion,
+    String? description,
+    bool? isFavorite,
+    bool? isAiGenerated,
+    bool? isPublic,
+    String? shareLink,
+    List<ItemResponse>? items,
+    int? likeCount,
+    bool? isLiked,
+    String? ownerName,
+    String? ownerAvatar,
+    DateTime? createdAt,
+    int? commentCount,
+  }) {
+    return OutfitResponse(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      occasion: occasion ?? this.occasion,
+      description: description ?? this.description,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isAiGenerated: isAiGenerated ?? this.isAiGenerated,
+      isPublic: isPublic ?? this.isPublic,
+      shareLink: shareLink ?? this.shareLink,
+      items: items ?? this.items,
+      likeCount: likeCount ?? this.likeCount,
+      isLiked: isLiked ?? this.isLiked,
+      ownerName: ownerName ?? this.ownerName,
+      ownerAvatar: ownerAvatar ?? this.ownerAvatar,
+      createdAt: createdAt ?? this.createdAt,
+      commentCount: commentCount ?? this.commentCount,
+    );
+  }
 }
