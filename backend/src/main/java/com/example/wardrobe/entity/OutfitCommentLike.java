@@ -10,31 +10,23 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Table(name = "outfit_comment_likes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OutfitComment {
+public class OutfitCommentLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "outfit_id", nullable = false)
-    private UUID outfitId;
+    @Column(name = "comment_id", nullable = false)
+    private UUID commentId;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String content;
-
-    @Column(name = "parent_id")
-    private UUID parentId;
-
     @Builder.Default
     private Instant createdAt = Instant.now();
-
-    @Builder.Default
-    private Instant updatedAt = Instant.now();
 }

@@ -12,4 +12,9 @@ public interface OutfitCommentRepository extends JpaRepository<OutfitComment, UU
     List<OutfitComment> findByOutfitIdOrderByCreatedAtDesc(UUID outfitId);
 
     long countByOutfitId(UUID outfitId);
+
+    List<OutfitComment> findByParentIdOrderByCreatedAtAsc(UUID parentId);
+
+    List<OutfitComment> findByOutfitIdAndParentIdIsNullOrderByCreatedAtDesc(UUID outfitId);
+
 }
